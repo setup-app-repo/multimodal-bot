@@ -20,9 +20,23 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@grammyjs/i18n": "^1.1.2",
+    "@nestjs/bullmq": "^11.0.3",
     "@nestjs/common": "^11.0.1",
+    "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.0.0",
+    "@types/node-fetch": "^2.6.13",
+    "csv-parse": "^6.1.0",
+    "grammy": "^1.38.1",
+    "ioredis": "^5.6.1",
+    "joi": "^17.13.3",
+    "mammoth": "^1.10.0",
+    "node-fetch": "^2.7.0",
+    "openai": "^5.15.0",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

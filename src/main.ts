@@ -1,8 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+
+// Polyfill for fetch in Node.js
+if (!global.fetch) {
+  import('node-fetch').then(({ default: fetch }) => {
+    (global as any).fetch = fetch;
+  });
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+  const config = app.get(ConfigService);
+  await app.listen(config.get<number>('PORT') ?? 3000);
 }
 bootstrap();
