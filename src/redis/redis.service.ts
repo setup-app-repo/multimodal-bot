@@ -11,12 +11,12 @@ export class RedisService implements OnModuleDestroy {
   private readonly HISTORY_RETENTION_DAYS = 50;
 
   constructor(private readonly configService: ConfigService) {
-    this.client = new Redis({
-      host: this.configService.get<string>('REDIS_HOST') || '127.0.0.1',
-      port: this.configService.get<number>('REDIS_PORT') || 6379,
-      password: this.configService.get<string>('REDIS_PASSWORD'),
-      db: this.configService.get<number>('REDIS_DB') || 0,
-    });
+    const redisUrl = this.configService.get<string>('REDIS_URL');
+
+    if (redisUrl) {
+      // Пример: redis://:@127.0.0.1:6379/0 (пустой пароль и база 0)
+      this.client = new Redis(redisUrl);
+    } 
   }
 
   private getKey(userId: string) {

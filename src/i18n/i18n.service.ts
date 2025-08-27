@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { I18n } from '@grammyjs/i18n';
 import { join } from 'path';
+import { existsSync } from 'fs';
 import { II18nService, I18nConfig } from './interfaces';
 
 @Injectable()
@@ -11,10 +12,15 @@ export class I18nService implements II18nService {
   private readonly config: I18nConfig;
 
   constructor(private readonly configService: ConfigService) {
+    const cwd = process.cwd();
+    const distLocalesPath = join(cwd, 'dist', 'locales');
+    const srcLocalesPath = join(cwd, 'src', 'locales');
+    const resolvedLocalesPath = existsSync(distLocalesPath) ? distLocalesPath : srcLocalesPath;
+
     this.config = {
       defaultLocale: this.configService.get<string>('app.fallbackLanguage', 'en'),
       supportedLocales: ['ru', 'en', 'es', 'de', 'pt', 'fr'],
-      localesPath: join(process.cwd(), 'src', 'locales'),
+      localesPath: resolvedLocalesPath,
     };
 
     this.i18n = new I18n({
@@ -25,6 +31,7 @@ export class I18nService implements II18nService {
 
     this.logger.log(`I18n initialized with default locale: ${this.config.defaultLocale}`);
     this.logger.log(`Supported locales: ${this.config.supportedLocales.join(', ')}`);
+    this.logger.log(`Locales directory: ${this.config.localesPath}`);
   }
 
   /**
