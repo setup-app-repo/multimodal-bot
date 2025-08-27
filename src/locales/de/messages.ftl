@@ -12,6 +12,8 @@ current_limits = ⚡ Limits: {$limits}
 help_button = Hilfe
 profile_button = Profil
 model_selection_button = Modell auswählen
+profile_language_button = Sprache
+profile_change_plan_button = Tarif ändern
 
 # Befehle
 start_command = Bot starten
@@ -57,6 +59,7 @@ language_french = Französisch
 
 # Abrechnung
 billing_coming_soon = 💳 Abrechnung: bald verfügbar.
+change_plan_coming_soon = 🔧 Tarif ändern: bald verfügbar.
 
 # Kontext löschen
 context_cleared = 🧹 Kontext gelöscht.

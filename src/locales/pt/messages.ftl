@@ -12,6 +12,8 @@ current_limits = ⚡ Limites: {$limits}
 help_button = Ajuda
 profile_button = Perfil
 model_selection_button = Selecionar modelo
+profile_language_button = Idioma
+profile_change_plan_button = Alterar plano
 
 # Comandos
 start_command = Iniciar bot
@@ -57,6 +59,7 @@ language_french = Francês
 
 # Cobrança
 billing_coming_soon = 💰 Cobrança: em breve disponível.
+change_plan_coming_soon = 🔧 Alterar plano: em breve disponível.
 
 # Limpeza do contexto
 context_cleared = 🧹 Contexto limpo.

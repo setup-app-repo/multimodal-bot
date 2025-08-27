@@ -8,6 +8,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { ConfigModule as AppConfigModule } from './config/config.module';
 import { RedisModule } from './redis/redis.module';
 import { I18nModule } from './i18n/i18n.module';
+import { SetupAppModule } from './setup-app/setup-app.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { I18nModule } from './i18n/i18n.module';
     AppConfigModule,
     RedisModule,
     I18nModule,
+    SetupAppModule,
 
   ],
   controllers: [AppController],

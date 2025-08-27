@@ -40,29 +40,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             }
         }
     }
-    /**
-     * Инициализировать сессию пользователя (устанавливает язык по умолчанию если не установлен)
-     */
-    private async initializeSession(ctx: BotContext): Promise<void> {
-        if (!ctx.session) {
-            ctx.session = {};
-        }
-
-        this.logger.log(`initializeSession: ${JSON.stringify(ctx.session)}`);
-        
-        if (!ctx.session.lang) {
-            // Пытаемся получить язык из Redis для миграции
-            const userId = String(ctx.from?.id);
-            const savedLang = await this.redisService.get<string>(`chat:${userId}:lang`);
-            
-            ctx.session.lang = savedLang || this.i18n.getDefaultLocale();
-            
-            // Удаляем из Redis после миграции в сессию
-            if (savedLang) {
-                await this.redisService.del(`chat:${userId}:lang`);
-            }
-        }
-    }
+    
 
     private initializeBot() {
         const token = this.configService.get<string>('BOT_TOKEN');
@@ -83,6 +61,23 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             getSessionKey: (ctx) => ctx.from?.id?.toString() || 'anonymous',
           }),
         );
+
+        // Глобальный middleware для инициализации языка пользователя
+        this.bot.use(async (ctx, next) => {
+          try {
+            if (!ctx.session.lang) {
+              const userId = ctx.from?.id ? String(ctx.from.id) : undefined;
+              const savedLang = userId
+                ? await this.redisService.get<string>(`chat:${userId}:lang`)
+                : undefined;
+              ctx.session.lang = savedLang || this.i18n.getDefaultLocale();
+            }
+          } catch (e) {
+            // В случае ошибки не блокируем обработку апдейта
+            this.logger.warn('Language init middleware error', e as any);
+          }
+          await next();
+        });
       }
 
       private async setupBot() {
@@ -95,7 +90,6 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         await this.setMyCommands();
 
         registerCommands(this.bot, {
-            initializeSession: (ctx) => this.initializeSession(ctx),
             t: (ctx, key, args) => this.t(ctx, key, args),
             i18n: this.i18n,
             redisService: this.redisService,
@@ -103,7 +97,6 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
 
         this.bot.on("message:text", async (ctx) => {
             try {
-              await this.initializeSession(ctx);
               const text = ctx.message.text;
               
               // Пропускаем команды и кнопки клавиатуры
@@ -111,14 +104,11 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
                 return;
               }
               
-              // Проверяем, является ли это кнопкой клавиатуры
+              // Проверяем, является ли это кнопкой клавиатуры (обрабатывается в commands)
               const helpButtonText = this.t(ctx, 'help_button');
               const profileButtonText = this.t(ctx, 'profile_button');  
               const modelSelectionButtonText = this.t(ctx, 'model_selection_button');
-              
-              if (text === helpButtonText || text === profileButtonText || text === modelSelectionButtonText) {
-                return;
-              }
+              if (text === helpButtonText || text === profileButtonText || text === modelSelectionButtonText) return;
               
               const userId = String(ctx.from?.id);
               const model = await this.redisService.get<string>(`chat:${userId}:model`);
@@ -198,7 +188,6 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
 
         this.bot.on('message:document', async (ctx) => {
             try {
-                await this.initializeSession(ctx);
                 const doc = ctx.message.document;
                 const userId = String(ctx.from?.id);
                 const model = await this.redisService.get<string>(`chat:${userId}:model`);
@@ -261,7 +250,6 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         this.bot.catch(async (err) => {
             this.logger.error('Unhandled bot error:', err);
             try {
-                await this.initializeSession(err.ctx);
                 await err.ctx.reply(this.t(err.ctx, 'unexpected_error'));
             } catch {}
         });
@@ -276,7 +264,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             throw new Error('Bot is not initialized');
         }
         
-        this.logger.log('Setting up bot commands with localized descriptions...');
+        // this.logger.log('Setting up bot commands with localized descriptions...');
 
         // Определяем список команд с их ключами локализации
         const commands = [

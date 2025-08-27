@@ -29,10 +29,7 @@ npm install
 ```env
 BOT_TOKEN=your_telegram_bot_token
 OPENROUTER_API_KEY=your_openrouter_api_key
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=
-REDIS_DB=0
+REDIS_URL=redis_url
 SITE_URL=your_site_url
 SITE_NAME=your_site_name
 PORT=3000
