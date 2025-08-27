@@ -12,6 +12,8 @@ current_limits = ⚡ Limits: {$limits}
 help_button = Help
 profile_button = Profile
 model_selection_button = Model Selection
+profile_change_plan_button = Change plan
+profile_language_button = Language
 
 # Commands
 start_command = Start the bot
