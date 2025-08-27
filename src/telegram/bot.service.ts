@@ -1,8 +1,9 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { Bot, session } from 'grammy';
+import { ConfigService } from '@nestjs/config';
+
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
-import { ConfigService } from '@nestjs/config';
 import { I18nService } from 'src/i18n/i18n.service';
 
 import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES } from './constants';

@@ -59,10 +59,27 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
     bot.command('start', async (ctx) => {
         await initializeSession(ctx);
+        const userId = String(ctx.from?.id);
+        
+        const [model, plan] = await Promise.all([
+            redisService.get<string>(`chat:${userId}:model`),
+            redisService.get<string>(`chat:${userId}:plan`),
+        ]);
+
+        const currentModel = model || t(ctx, 'model_not_selected');
+        const currentLang = ctx.session.lang || i18n.getDefaultLocale();
+        const currentPlan = plan || 'Start';
+        const limits = getPlanLimits(ctx, currentPlan);
+
+        const modelDisplay = model ? getModelDisplayName(ctx, model) : t(ctx, 'model_not_selected');
 
         const text =
             `${t(ctx, 'welcome')}\n\n` +
-            `${t(ctx, 'welcome_description')}\n`;
+            `${t(ctx, 'welcome_description')}\n\n` +
+            `🤖 ${t(ctx, 'current_model', { model: modelDisplay })}\n` +
+            `🌐 ${t(ctx, 'current_language', { lang: currentLang })}\n` +
+            `📦 ${t(ctx, 'current_plan', { plan: currentPlan })}\n` +
+            `⚡ ${t(ctx, 'current_limits', { limits: limits })}\n`;
 
         const menu = new InlineKeyboard()
             .text(t(ctx, 'help_button'), 'menu_help')
