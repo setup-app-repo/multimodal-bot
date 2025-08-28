@@ -12,6 +12,7 @@ export class TelegramController {
     this.logger.log('Получен webhook update от Telegram');
     
     try {
+      //TODO validate webhook
       await this.botService.handleWebhookUpdate(update);
       return { ok: true };
     } catch (error) {
