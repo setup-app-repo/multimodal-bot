@@ -1,13 +1,31 @@
 # Deutsche Lokalisierung für den Telegram Bot
 
 # Allgemeine Nachrichten
-welcome = 👋 Willkommen!
 welcome_description = Zweck: Chatbot mit Kontextunterstützung und LLM-Modellen.
-current_model = 🤖 Aktuelles Modell: {$model}
-current_language = 🌐 Sprache: {$lang}
-current_plan = 📦 Paket: {$plan}
-current_limits = ⚡ Limits: {$limits}
+current_model =  🤖 Aktuelles Modell: {$model}
+current_language =  🌐 Sprache: {$lang}
+current_plan =  📦 Paket: {$plan}
+current_limits =  ⚡ Limits: {$limits}
 
+# Profil (neue Schlüssel)
+profile_title = Profil
+profile_balance = Guthaben: {$balance} SP
+profile_premium = Premium: {$status}
+yes = Ja
+no = Nein
+
+# Profil-Buttons
+profile_premium_button = ⭐ Premium
+profile_clear_button = 🧹 Kontext löschen
+# Premium-Benutzeroberfläche
+premium_title = ⭐ Premium — Maximale KI-Power für 10 SP
+premium_benefits_title = Was Sie erhalten:
+premium_benefit_1 = • Rabatt auf bezahlte Anfragen
+premium_benefit_2 = • Priorität in der Warteschlange (schnellere Antworten)
+premium_benefit_3 = • Höhere Limits und Zugang zu leistungsstarken Modellen
+premium_activate_button = Für 10 SP aktivieren
+premium_back_button = Zurück
+premium_activation_coming_soon = Premium-Aktivierung wird bald verfügbar sein
 # Menü-Buttons
 help_button = Hilfe
 profile_button = Profil
@@ -46,48 +64,51 @@ help_content_rules = Inhaltsbeschränkungen: illegale, schädliche, beleidigende
 help_disclaimer = Haftungsausschluss: Antworten werden "wie besehen" bereitgestellt und können Fehler enthalten.
 
 # Profil
-profile_coming_soon = �� Profil: bald verfügbar.
+profile_coming_soon =  👤 Profil: bald verfügbar.
 
 # Sprache
 choose_language = Wähle die Sprache:
-language_english = Englisch
-language_russian = Russisch
-language_spanish = Spanisch
-language_german = Deutsch
-language_portuguese = Portugiesisch
-language_french = Französisch
+start_language_welcome = Willkommen beim multimodalen KI-Bot! Bitte wählen Sie Ihre Sprache, um fortzufahren.
+start_language_welcome = Willkommen beim multimodalen KI-Bot! Bitte wählen Sie Ihre Sprache, um fortzufahren.
+language_english = 🇬🇧 Englisch
+language_russian = 🇷🇺 Russisch
+language_spanish = 🇪🇸 Spanisch
+language_german = 🇩🇪 Deutsch
+language_portuguese = 🇵🇹 Portugiesisch
+language_french = 🇫🇷 Französisch
+language_switched = Sprache gewechselt zu: {$language}
 
 # Abrechnung
-billing_coming_soon = 💳 Abrechnung: bald verfügbar.
-change_plan_coming_soon = 🔧 Tarif ändern: bald verfügbar.
+billing_coming_soon =  💳 Abrechnung: bald verfügbar.
+change_plan_coming_soon =  🔧 Tarif ändern: bald verfügbar.
 
 # Kontext löschen
-context_cleared = 🧹 Kontext gelöscht.
+context_cleared =  🧹 Kontext gelöscht.
 
 # Modellauswahl
-select_model = 🤖 Wähle ein Modell für den Chat:
-model_selected = ✅ Modell ausgewählt: **{$model}**
+select_model =  🤖 Wähle ein Modell für den Chat:
+model_selected =  ✅ Modell ausgewählt: **{$model}**
 invalid_model = Ungültiges Modell
 
 # Fehler
-error_processing_message = ❌ Beim Verarbeiten deiner Nachricht ist ein Fehler aufgetreten.
-error_processing_file = ❌ Beim Verarbeiten der Datei ist ein Fehler aufgetreten.
-error_processing_file_retry = ⚠️ Fehler beim Verarbeiten der Datei. Versuche, die Datei erneut hochzuladen.
-unexpected_error = ⚠️ Ein unerwarteter Fehler ist aufgetreten. Versuche es erneut.
+error_processing_message =  ❌ Beim Verarbeiten deiner Nachricht ist ein Fehler aufgetreten.
+error_processing_file =  ❌ Beim Verarbeiten der Datei ist ein Fehler aufgetreten.
+error_processing_file_retry =  ⚠️ Fehler beim Verarbeiten der Datei. Versuche, die Datei erneut hochzuladen.
+unexpected_error =  ⚠️ Ein unerwarteter Fehler ist aufgetreten. Versuche es erneut.
 
 # Warnungen
-warning_select_model_first = ⚠️ Wähle zuerst ein Modell über /model
-warning_file_size_limit = ⚠️ Die Dateigröße überschreitet das Limit von 15 MB.
-warning_unsupported_file_type = ⚠️ Nur PDF-, DOCX-, PPTX-, CSV- und Textdateien bis 15 MB werden unterstützt.
-warning_select_model_before_file = ⚠️ Wähle zuerst ein Modell über /model, dann sende die Datei.
-warning_model_no_file_support = 🚫 Das aktuelle Modell unterstützt keine Dateiarbeit. Bitte wähle ein anderes in /model.
+warning_select_model_first =  ⚠️ Wähle zuerst ein Modell über /model
+warning_file_size_limit =  ⚠️ Die Dateigröße überschreitet das Limit von 15 MB.
+warning_unsupported_file_type =  ⚠️ Nur PDF-, DOCX-, PPTX-, CSV- und Textdateien bis 15 MB werden unterstützt.
+warning_select_model_before_file =  ⚠️ Wähle zuerst ein Modell über /model, dann sende die Datei.
+warning_model_no_file_support =  🚫 Das aktuelle Modell unterstützt keine Dateiarbeit. Bitte wähle ein anderes in /model.
 
 # Dateien
-file_accepted = 📎 Datei akzeptiert! Sende jetzt deine Frage und ich analysiere den Inhalt der Datei.
-file_name = �� Dateiname: {$name}
-file_size = 📊 Größe: {$size} MB
-file_type = 🔍 Typ: {$type}
-file_analyzing = 🔍 Analysiere den Dateiinhalt...
+file_accepted =  📎 Datei akzeptiert! Sende jetzt deine Frage und ich analysiere den Inhalt der Datei.
+file_name =  📄 Dateiname: {$name}
+file_size =  📊 Größe: {$size} MB
+file_type =  🔍 Typ: {$type}
+file_analyzing =  🔍 Analysiere den Dateiinhalt...
 
 # Dateiverarbeitung
 file_processing_error = Fehler beim Verarbeiten der Datei: {$error}
@@ -131,5 +152,5 @@ bot_command_clear = Verlauf löschen
 bot_command_billing = Abrechnung
 
 # Zusätzliche Texte
-profile_coming_soon_en = 👤 Profil: demnächst verfügbar.
-billing_coming_soon_en = 💳 Abrechnung: demnächst verfügbar.
+profile_coming_soon_en =  👤 Profil: demnächst verfügbar.
+billing_coming_soon_en =  💳 Abrechnung: demnächst verfügbar.

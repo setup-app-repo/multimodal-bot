@@ -68,7 +68,7 @@ COPY --from=dependencies --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
 
 # Копируем файлы переводов
-COPY --from=builder --chown=nestjs:nodejs /app/src/locales ./dist/locales
+COPY --from=builder --chown=nestjs:nodejs /app/src/i18n/locales ./dist/locales
 
 # Копируем package.json для метаданных
 COPY --chown=nestjs:nodejs package.json ./

@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { Bot, session } from 'grammy';
 import { ConfigService } from '@nestjs/config';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -6,13 +6,14 @@ import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 import { I18nService } from 'src/i18n/i18n.service';
+import { UserService } from 'src/user/user.service';
 
 import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES } from './constants';
 import { BotContext, SessionData } from './interfaces';
 import { registerCommands } from './commands';
 
 @Injectable()
-export class BotService implements OnModuleInit, OnModuleDestroy {
+export class BotService implements OnModuleInit {
     private readonly logger = new Logger(BotService.name);
     private bot: Bot<BotContext> | null = null;
 
@@ -22,6 +23,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         private readonly configService: ConfigService,
         private readonly i18n: I18nService,
         private readonly setupAppService: SetupAppService,
+        private readonly userService: UserService,
     ) {}
 
     async onModuleInit() {
@@ -29,18 +31,6 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         this.initializeBot();
         await this.setupBot();
         this.logger.log('BotService initialized successfully');
-    }
-
-    async onModuleDestroy() {
-        this.logger.log('Shutting down BotService...');
-        if (this.bot) {
-            try {
-                this.bot.stop();
-                this.logger.log('Bot stopped successfully');
-            } catch (error) {
-                this.logger.error('Error stopping bot:', error);
-            }
-        }
     }
     
 
@@ -95,6 +85,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             i18n: this.i18n,
             redisService: this.redisService,
             setupAppService: this.setupAppService,
+            userService: this.userService,
         });
 
         this.bot.on("message:text", async (ctx) => {
@@ -179,7 +170,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
               await this.redisService.saveMessage(userId, 'assistant', answer);
           
               const modelDisplayName = this.getModelDisplayName(ctx, model);
-              const modelInfo = `🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
+              const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
               
               await ctx.reply(modelInfo + answer, { parse_mode: 'Markdown' });
             } catch (error) {
@@ -258,7 +249,6 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
 
         
         await this.bot.init();
-        this.bot.start();
     }
 
     private async setMyCommands() {
@@ -266,8 +256,6 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             throw new Error('Bot is not initialized');
         }
         
-        // this.logger.log('Setting up bot commands with localized descriptions...');
-
         // Определяем список команд с их ключами локализации
         const commands = [
             { command: 'start', key: 'bot_command_start' },
@@ -287,7 +275,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             }))
         );
         
-        this.logger.log('✅ Default commands (en) registered');
+        this.logger.log(' ✅ Default commands (en) registered');
 
         // Устанавливаем команды для всех поддерживаемых языков
         const supportedLocales = this.i18n.getSupportedLocales();
@@ -302,7 +290,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             );
         }
         
-        this.logger.log(`✅ Commands registered for ${supportedLocales.length} locales`);
+        this.logger.log(` ✅ Commands registered for ${supportedLocales.length} locales`);
     }
 
     private getModelDisplayName(ctx: BotContext, model: string): string {
@@ -317,6 +305,22 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         return modelNames[model] || model;
     }
     
+
+    /**
+     * Обработка webhook update от Telegram
+     */
+    async handleWebhookUpdate(update: any) {
+        if (!this.bot) {
+            throw new Error('Bot is not initialized');
+        }
+        
+        try {
+            await this.bot.handleUpdate(update);
+        } catch (error) {
+            this.logger.error('Error handling webhook update:', error);
+            throw error;
+        }
+    }
 
     /**
      * Получить перевод с учетом языка из сессии пользователя

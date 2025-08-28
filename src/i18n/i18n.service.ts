@@ -14,11 +14,11 @@ export class I18nService implements II18nService {
   constructor(private readonly configService: ConfigService) {
     const cwd = process.cwd();
     const distLocalesPath = join(cwd, 'dist', 'locales');
-    const srcLocalesPath = join(cwd, 'src', 'locales');
+    const srcLocalesPath = join(cwd, 'src', 'i18n', 'locales');
     const resolvedLocalesPath = existsSync(distLocalesPath) ? distLocalesPath : srcLocalesPath;
 
     this.config = {
-      defaultLocale: this.configService.get<string>('app.fallbackLanguage', 'en'),
+      defaultLocale: this.configService.get<string>('FALLBACK_LANGUAGE', 'ru'),
       supportedLocales: ['ru', 'en', 'es', 'de', 'pt', 'fr'],
       localesPath: resolvedLocalesPath,
     };
