@@ -252,48 +252,6 @@ export class BotService implements OnModuleInit {
         await this.bot.init();
     }
 
-    private async setMyCommands() {
-        if (!this.bot) {
-            throw new Error('Bot is not initialized');
-        }
-        
-        // Определяем список команд с их ключами локализации
-        const commands = [
-            { command: 'start', key: 'bot_command_start' },
-            { command: 'help', key: 'bot_command_help' },
-            { command: 'model', key: 'bot_command_model' },
-            { command: 'profile', key: 'bot_command_profile' },
-            { command: 'language', key: 'bot_command_language' },
-            { command: 'clear', key: 'bot_command_clear' },
-            { command: 'billing', key: 'bot_command_billing' }
-        ];
-
-        // Устанавливаем команды для английского языка по умолчанию
-        await this.bot.api.setMyCommands(
-            commands.map(cmd => ({ 
-                command: cmd.command, 
-                description: this.i18n.t(cmd.key, 'en') 
-            }))
-        );
-        
-        this.logger.log(' ✅ Default commands (en) registered');
-
-        // Устанавливаем команды для всех поддерживаемых языков
-        const supportedLocales = this.i18n.getSupportedLocales();
-        
-        for (const locale of supportedLocales) {
-            await this.bot.api.setMyCommands(
-                commands.map(cmd => ({ 
-                    command: cmd.command, 
-                    description: this.i18n.t(cmd.key, locale) 
-                })),
-                { language_code: locale as any }
-            );
-        }
-        
-        this.logger.log(` ✅ Commands registered for ${supportedLocales.length} locales`);
-    }
-
     /**
      * Обработка webhook update от Telegram
      */

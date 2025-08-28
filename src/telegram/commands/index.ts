@@ -219,20 +219,12 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         // Язык есть — гарантируем его в сессии
         ctx.session.lang = ctx.session.lang || savedLang;
 
-        const currentModel = model || t(ctx, 'model_not_selected');
-        const currentLang = ctx.session.lang || i18n.getDefaultLocale();
-        const currentPlan = plan || 'Start';
-        const limits = getPlanLimits(ctx, currentPlan);
-
-        const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
-
         const promoTextStart = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' }).replace(/\\n/g, '\n');
         const onboardingKeyboardStart = new InlineKeyboard()
             .text(t(ctx, 'onboarding_choose_model_button'), 'menu_model');
 
         const telegramId = ctx.from?.id as number;
 
-        const url = new URL(`https://t.me/${ctx.me.username}`);
         const referralCode = ctx?.match && typeof ctx.match === 'string' ? ctx.match : undefined;
 
         const authResult = await processUserAuth(telegramId, ctx);
