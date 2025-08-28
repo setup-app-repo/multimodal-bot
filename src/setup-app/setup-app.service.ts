@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { SetupAppConfigService } from './setup-app-config.service';
 import { GrammyContext, SetupApp } from '@setup-app-repo/setup.app-sdk';
 
 @Injectable()
 export class SetupAppService {
+  private readonly logger = new Logger(SetupAppService.name);
     private setupApp: SetupApp;
 
     constructor(private readonly setupAppConfigService: SetupAppConfigService) {
@@ -23,7 +24,7 @@ export class SetupAppService {
         enableLogging: config.enableLogging ?? true,
       });
 
-      console.log(`🚀 Setup.app SDK successfully initialized`, {
+      this.logger.log(`🚀 Setup.app SDK successfully initialized`, {
         baseUrl: config.baseUrl,
         hasServiceKey: !!config.serviceKey,
         enableLogging: config.enableLogging,
@@ -89,6 +90,10 @@ export class SetupAppService {
 
   async setupMenuButton(ctx: GrammyContext, options) {
     return this.setupApp.setupMenuButton(ctx, options);
+  }
+
+  isInitialized(): boolean {
+    return !!this.setupApp;
   }
 
   getConfig() {

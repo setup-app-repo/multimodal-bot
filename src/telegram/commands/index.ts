@@ -1,8 +1,10 @@
 import { Bot, InlineKeyboard, Keyboard } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
+import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
 import { models } from '../constants';
+import { AppType } from '@setup-app-repo/setup.app-sdk';
 
 type TranslateFn = (ctx: BotContext, key: string, args?: Record<string, any>) => string;
 
@@ -10,34 +12,11 @@ export interface RegisterCommandsDeps {
     t: TranslateFn;
     i18n: I18nService;
     redisService: RedisService;
+    setupAppService: SetupAppService;
 }
 
 export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
-    const { t, i18n, redisService } = deps;
-
-    // Описание команд (имена всегда на английском, описания локализуем)
-    const commandDescriptors = [
-        { command: 'start', key: 'bot_command_start' },
-        { command: 'help', key: 'bot_command_help' },
-        { command: 'model', key: 'bot_command_model' },
-        { command: 'profile', key: 'bot_command_profile' },
-        { command: 'language', key: 'bot_command_language' },
-        { command: 'clear', key: 'bot_command_clear' },
-        { command: 'billing', key: 'bot_command_billing' }
-    ];
-
-    const setChatCommands = async (ctx: BotContext, locale: string) => {
-        try {
-            if (!ctx.chat) return;
-            await ctx.api.setMyCommands(
-                commandDescriptors.map((cmd) => ({
-                    command: cmd.command,
-                    description: i18n.t(cmd.key, locale),
-                })),
-                { scope: { type: 'chat', chat_id: ctx.chat.id } as any }
-            );
-        } catch {}
-    };
+    const { t, i18n, redisService, setupAppService } = deps;
 
     const getPlanLimits = (ctx: BotContext, plan: string) => {
         if (plan.toLowerCase() === 'start') {
@@ -148,13 +127,60 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             .resized();
     };
 
+    const processUserAuth = async (telegramId: number, ctx: BotContext): Promise<{ success: boolean; isNewUser: boolean }> => {
+        try {
+            if (!setupAppService.isInitialized()) {
+                console.warn(`⚠️ Setup.app service not initialized, skipping user auth for ${telegramId}`);
+                return { success: false, isNewUser: false };
+            }
+            const isNewUser = await setupAppService.auth(telegramId, {
+                firstName: ctx.from?.first_name || '',
+                lastName: ctx.from?.last_name || '',
+                username: ctx.from?.username || '',
+            });
+            console.log('isNewUser', isNewUser);
+            return { success: true, isNewUser };
+        } catch (error) {
+            console.error(`❌ Error during Setup.app authentication for user ${telegramId}:`, error);
+            return { success: false, isNewUser: false };
+        }
+    };
+
+    const processMenuButtonAsync = async (ctx: BotContext, telegramId: number) => {
+        try {
+            const currentLang = ctx.session.lang || i18n.getDefaultLocale();
+            await setupAppService.setupMenuButton(ctx as any, { language: currentLang, appType: AppType.DEFAULT});
+        } catch (e) {}
+    };
+
     bot.command('start', async (ctx) => {
         const userId = String(ctx.from?.id);
 
-        const [model, plan] = await Promise.all([
+        const [model, plan, savedLang] = await Promise.all([
             redisService.get<string>(`chat:${userId}:model`),
             redisService.get<string>(`chat:${userId}:plan`),
+            redisService.get<string>(`chat:${userId}:lang`),
         ]);
+
+        // Если язык ещё не сохранён — сначала показываем выбор языка и выходим
+        if (!savedLang) {
+            const profileLangCode = ctx.from?.language_code;
+            const initialLang = profileLangCode && i18n.isLocaleSupported(profileLangCode) ? profileLangCode : 'ru';
+            ctx.session.lang = initialLang;
+
+            const keyboard = new InlineKeyboard()
+                .text(t(ctx, 'language_english'), 'lang_en').row()
+                .text(t(ctx, 'language_russian'), 'lang_ru').row()
+                .text(t(ctx, 'language_spanish'), 'lang_es').row()
+                .text(t(ctx, 'language_german'), 'lang_de').row()
+                .text(t(ctx, 'language_portuguese'), 'lang_pt').row()
+                .text(t(ctx, 'language_french'), 'lang_fr');
+            await ctx.reply(t(ctx, 'choose_language'), { reply_markup: keyboard });
+            return;
+        }
+
+        // Язык есть — гарантируем его в сессии
+        ctx.session.lang = ctx.session.lang || savedLang;
 
         const currentModel = model || t(ctx, 'model_not_selected');
         const currentLang = ctx.session.lang || i18n.getDefaultLocale();
@@ -171,8 +197,18 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             `📦 ${t(ctx, 'current_plan', { plan: currentPlan })}\n` +
             `⚡ ${t(ctx, 'current_limits', { limits: limits })}\n`;
 
-        // Устанавливаем описания команд для текущего чата в выбранной локали
-        await setChatCommands(ctx, currentLang);
+        const telegramId = ctx.from?.id as number;
+
+        const url = new URL(`https://t.me/${ctx.me.username}`);
+        const referralCode = ctx?.match && typeof ctx.match === 'string' ? ctx.match : undefined;
+
+        const authResult = await processUserAuth(telegramId, ctx);
+        const promises: Promise<any>[] = [];
+        if (referralCode && authResult.success) {
+            // заглушка: если появится реализация processReferralAsync, сюда вставим
+        }
+        promises.push(processMenuButtonAsync(ctx, telegramId));
+        await Promise.all(promises);
 
         await ctx.reply(text, { reply_markup: buildMainReplyKeyboard(ctx) });
     });
@@ -316,13 +352,27 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 selected === 'pt' ? 'portuguese' :
                 'french'
             }`;
-            // Обновляем описания команд для этого чата на выбранном языке
-            await setChatCommands(ctx, selected);
+            // После смены языка — также переустановим кнопку меню
+            await setupAppService.setupMenuButton(ctx as any, { language: selected });
+            // После выбора языка отправляем основной инфо-блок
+            const [model, plan] = await Promise.all([
+                redisService.get<string>(`chat:${userId}:model`),
+                redisService.get<string>(`chat:${userId}:plan`),
+            ]);
 
-            await ctx.reply(
-                t(ctx, 'current_language', { lang: t(ctx, languageKey) }),
-                { reply_markup: buildMainReplyKeyboard(ctx) }
-            );
+            const currentModel = model || t(ctx, 'model_not_selected');
+            const currentLang = ctx.session.lang || i18n.getDefaultLocale();
+            const currentPlan = plan || 'Start';
+            const limits = getPlanLimits(ctx, currentPlan);
+            const modelDisplay = model ? getModelDisplayName(ctx, model) : t(ctx, 'model_not_selected');
+
+            const text =
+                `🤖 ${t(ctx, 'current_model', { model: modelDisplay })}\n` +
+                `🌐 ${t(ctx, 'current_language', { lang: currentLang })}\n` +
+                `📦 ${t(ctx, 'current_plan', { plan: currentPlan })}\n` +
+                `⚡ ${t(ctx, 'current_limits', { limits: limits })}\n`;
+
+            await ctx.reply(text, { reply_markup: buildMainReplyKeyboard(ctx) });
         }
 
         if (data === 'profile_language') {

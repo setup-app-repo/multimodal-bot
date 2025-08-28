@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { Bot, session } from 'grammy';
 import { ConfigService } from '@nestjs/config';
+import { SetupAppService } from 'src/setup-app/setup-app.service';
 
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -19,7 +20,8 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
         private readonly openRouterService: OpenRouterService,
         private readonly redisService: RedisService,
         private readonly configService: ConfigService,
-        private readonly i18n: I18nService
+        private readonly i18n: I18nService,
+        private readonly setupAppService: SetupAppService,
     ) {}
 
     async onModuleInit() {
@@ -86,13 +88,13 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
             throw new Error('Bot is not initialized');
         }
 
-        this.logger.log('Setting up bot commands and handlers...');
-        await this.setMyCommands();
+        this.logger.log('Setting up bot handlers...');
 
         registerCommands(this.bot, {
             t: (ctx, key, args) => this.t(ctx, key, args),
             i18n: this.i18n,
             redisService: this.redisService,
+            setupAppService: this.setupAppService,
         });
 
         this.bot.on("message:text", async (ctx) => {
@@ -284,6 +286,7 @@ export class BotService implements OnModuleInit, OnModuleDestroy {
                 description: this.i18n.t(cmd.key, 'en') 
             }))
         );
+        
         this.logger.log('✅ Default commands (en) registered');
 
         // Устанавливаем команды для всех поддерживаемых языков
