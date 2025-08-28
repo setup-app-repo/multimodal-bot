@@ -133,11 +133,6 @@ plan_start_limits = 3 questions/jour et 1 photo
 plan_custom_limits = limites personnalisées du forfait
 
 # Modèles
-model_deepseek = DeepSeek Chat v3.1
-model_gpt5 = GPT-5
-model_claude_sonnet = Claude Sonnet 4
-model_grok = Grok-4
-model_gpt5_mini = GPT-5 Mini
 model = Modèle
 model_not_selected = — non sélectionné —
 

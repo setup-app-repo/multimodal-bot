@@ -6,6 +6,7 @@ import { BotContext } from '../interfaces';
 import { models } from '../constants';
 import { AppType } from '@setup-app-repo/setup.app-sdk';
 import { UserService } from 'src/user/user.service';
+import { getModelDisplayName } from '../utils/model-display';
 
 type TranslateFn = (ctx: BotContext, key: string, args?: Record<string, any>) => string;
 
@@ -38,7 +39,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         ]);
 
         const currentLang = ctx.session.lang || i18n.getDefaultLocale();
-        const modelDisplay = model ? getModelDisplayName(ctx, model) : t(ctx, 'model_not_selected');
+        const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
         const spBalance = 0;
         const isPremium = false;
@@ -67,7 +68,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     const replyModelSelection = async (ctx: BotContext) => {
         const keyboard = new InlineKeyboard();
         models.forEach((model) => {
-            const displayName = getModelDisplayName(ctx, model);
+            const displayName = getModelDisplayName(model);
             keyboard.text(displayName, `model_${model}`).row();
         });
         await ctx.reply(t(ctx, 'select_model'), { reply_markup: keyboard });
@@ -92,17 +93,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
         return next();
     });
-
-    const getModelDisplayName = (ctx: BotContext, model: string): string => {
-        const modelNames: { [key: string]: string } = {
-            'deepseek/deepseek-chat-v3.1': t(ctx, 'model_deepseek'),
-            'openai/gpt-5': t(ctx, 'model_gpt5'),
-            'anthropic/claude-sonnet-4': t(ctx, 'model_claude_sonnet'),
-            'x-ai/grok-4': t(ctx, 'model_grok'),
-            'openai/gpt-5-mini': t(ctx, 'model_gpt5_mini')
-        };
-        return modelNames[model] || model;
-    };
 
     const getLanguageLabel = (ctx: BotContext, code: string): string => {
         const key =
@@ -234,7 +224,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const currentPlan = plan || 'Start';
         const limits = getPlanLimits(ctx, currentPlan);
 
-        const modelDisplay = model ? getModelDisplayName(ctx, model) : t(ctx, 'model_not_selected');
+        const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
         const promoTextStart = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' }).replace(/\\n/g, '\n');
         const onboardingKeyboardStart = new InlineKeyboard()
@@ -269,7 +259,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         ]);
 
         const currentLang = ctx.session.lang || i18n.getDefaultLocale();
-        const modelDisplay = model ? getModelDisplayName(ctx, model) : t(ctx, 'model_not_selected');
+        const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
         const spBalance = 0;
         const isPremium = false;
@@ -319,7 +309,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     bot.command('model', async (ctx) => {
         const keyboard = new InlineKeyboard();
         models.forEach((model) => {
-            const displayName = getModelDisplayName(ctx, model);
+            const displayName = getModelDisplayName(model);
             keyboard.text(displayName, `model_${model}`).row();
         });
         await ctx.reply(t(ctx, 'select_model'), { reply_markup: keyboard });
@@ -336,7 +326,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             }
             await redisService.set(`chat:${String(ctx.from?.id)}:model`, selectedModel, 60 * 60);
             await ctx.answerCallbackQuery();
-            const modelDisplayName = getModelDisplayName(ctx, selectedModel);
+            const modelDisplayName = getModelDisplayName(selectedModel);
             await ctx.reply(t(ctx, 'model_selected', { model: modelDisplayName }), { parse_mode: 'Markdown' });
             return;
         }
@@ -354,7 +344,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             ]);
 
             const currentLang = ctx.session.lang || i18n.getDefaultLocale();
-            const modelDisplay = model ? getModelDisplayName(ctx, model) : t(ctx, 'model_not_selected');
+            const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
             const spBalance = 0;
             const isPremium = false;
@@ -384,7 +374,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             await ctx.answerCallbackQuery();
             const keyboard = new InlineKeyboard();
             models.forEach((model) => {
-                const displayName = getModelDisplayName(ctx, model);
+                const displayName = getModelDisplayName(model);
                 keyboard.text(displayName, `model_${model}`).row();
             });
             await ctx.reply(t(ctx, 'select_model'), { reply_markup: keyboard });
@@ -493,7 +483,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             ]);
 
             const currentLang = ctx.session.lang || i18n.getDefaultLocale();
-            const modelDisplay = model ? getModelDisplayName(ctx, model) : t(ctx, 'model_not_selected');
+            const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
             const spBalance = 0;
             const isPremium = false;

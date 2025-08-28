@@ -11,6 +11,7 @@ import { UserService } from 'src/user/user.service';
 import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES } from './constants';
 import { BotContext, SessionData } from './interfaces';
 import { registerCommands } from './commands';
+import { getModelDisplayName } from './utils/model-display';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -169,7 +170,7 @@ export class BotService implements OnModuleInit {
           
               await this.redisService.saveMessage(userId, 'assistant', answer);
           
-              const modelDisplayName = this.getModelDisplayName(ctx, model);
+              const modelDisplayName = getModelDisplayName(model);
               const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
               
               await ctx.reply(modelInfo + answer, { parse_mode: 'Markdown' });
@@ -292,19 +293,6 @@ export class BotService implements OnModuleInit {
         
         this.logger.log(` ✅ Commands registered for ${supportedLocales.length} locales`);
     }
-
-    private getModelDisplayName(ctx: BotContext, model: string): string {
-        const modelNames: { [key: string]: string } = {
-            'deepseek/deepseek-chat-v3.1': this.t(ctx, 'model_deepseek'),
-            'openai/gpt-5': this.t(ctx, 'model_gpt5'),
-            'anthropic/claude-sonnet-4': this.t(ctx, 'model_claude_sonnet'),
-            'x-ai/grok-4': this.t(ctx, 'model_grok'),
-            'openai/gpt-5-mini': this.t(ctx, 'model_gpt5_mini')
-        };
-        
-        return modelNames[model] || model;
-    }
-    
 
     /**
      * Обработка webhook update от Telegram
