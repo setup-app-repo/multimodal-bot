@@ -1,9 +1,11 @@
 export const models = [
     'deepseek/deepseek-chat-v3.1',
     'openai/gpt-5',
-    'anthropic/claude-sonnet-4',
+    'anthropic/claude-3.7-sonnet',
+    'google/gemini-2.5-pro',
+    'qwen/qwen2.5-vl-32b-instruct',
     'x-ai/grok-4',
-    'openai/gpt-5-mini'
+    'openai/gpt-4o-mini'
   ];
 
 export const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
