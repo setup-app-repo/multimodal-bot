@@ -26,12 +26,29 @@ premium_benefit_3 = • Higher limits and access to powerful models
 premium_activate_button = Activate for 10 SP
 premium_back_button = Back
 premium_activation_coming_soon = Premium activation will be available soon
+# Premium — activation scenarios
+premium_insufficient_sp = Not enough SP: need 10, you have {$balance}. Top up and try again.
+topup_sp_button = Top up SP
+premium_activated_success = Premium activated! Enjoy ✨
+premium_enable_autorenew_button = Enable auto-renewal
+premium_later_button = Later
+premium_autorenew_enabled = Auto-renewal enabled ✅\nWe will charge 10 SP on renewal day — {$expires_at}. You can disable it in Profile → Premium.
+premium_autorenew_later_info = You can enable auto-renewal later in Profile → Premium
+
+# Premium — active status
+premium_active_title = ⭐ Premium is active
+premium_active_text = Valid until: {$expires_at} — + 30 days\n({$days_left} days left)\nAuto-renewal: {$autorenew}\nBalance: {$balance} SP\n\nBenefits: discount on paid requests, priority, higher limits
+premium_extend_30_button = Extend for 30 days — 10 SP
+premium_autorenew_toggle_button_on = Auto-renewal: {$on}
+premium_autorenew_toggle_button_off = Auto-renewal: {$off}
+switch_on = ON
+switch_off = OFF
 # Menu buttons
 help_button = Help
 profile_button = Profile
 model_selection_button = Model Selection
 profile_change_plan_button = Change plan
-profile_language_button = Language
+profile_language_button = 🌍 Language
 
 # Commands
 start_command = Start the bot
@@ -44,6 +61,7 @@ billing_command = Billing and usage
 
 # Help
 help_title = Help:
+help_usage = How to use: send text/voice/image/document or a video link — I’ll handle it and reply
 help_commands_title = Commands:
 help_start = /start — main menu
 help_help = /help — this help
@@ -62,6 +80,9 @@ help_files = Supported files (up to 15 MB): PDF, DOCX, PPTX, CSV, text.
 help_models = Available models: OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Content restrictions: illegal, harmful, offensive materials are prohibited.
 help_disclaimer = Disclaimer: answers are provided "as is" and may contain errors.
+
+# Support button
+help_support_button = 👤 Contact support
 
 # Onboarding after language selection
 onboarding_promo = Hi, {$first_name}! 👋\n\nI'm SETUP AI Assistant. Text-only for now — fast and to the point. I can help with:\n\n🧑‍💻 Code: tips, debugging, optimization\n✉️ Business copy: emails, offers, landing pages, sales scripts\n🧭 Structure: brief → spec → plan/checklist in minutes\n🔎 Analysis: facts, risks, conclusions, next steps\n🧩 Large-scale personalization: 50–500 variations by template\n🧪 A/B testing: headlines, first paragraphs, CTAs\n📊 Data: entity extraction → Markdown/CSV/JSON\n🌍 Languages & tone: RU/EN/ES/PT/FR/DE, one brand voice\nFree models to start and try AI.\n\n🔥 For serious tasks — paid AIs. Premium lowers cost and gives priority.\n\nTap “Choose model” to begin 🚀
@@ -85,10 +106,16 @@ language_switched = Language switched to: {$language}
 billing_coming_soon =  💳 Billing: coming soon.
 
 # Context clearing
+clear_confirm =  Confirm: clear current chat?
+cancel_button = Cancel
 context_cleared =  🧹 Context cleared.
 
 # Model selection
 select_model =  🤖 Select a model for chat:
+select_model_title = Choose a model (SP/request • 🧠 brain power)
+model_active = Model active: {$model}. Price {$price} SP/request. Premium reduces the cost per request.
+model_buy_premium_button = ⭐ Buy Premium
+model_close_button = Close
 model_selected =  ✅ Selected model: {$model}
 invalid_model = Invalid model
 
@@ -151,3 +178,6 @@ bot_command_billing = Billing
 # Additional texts
 profile_coming_soon_en =  👤 Profile: coming soon.
 billing_coming_soon_en =  💳 Billing: coming soon.
+
+# Message splitting
+message_part = Part {$current} of {$total}

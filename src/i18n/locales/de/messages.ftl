@@ -26,11 +26,20 @@ premium_benefit_3 = • Höhere Limits und Zugang zu leistungsstarken Modellen
 premium_activate_button = Für 10 SP aktivieren
 premium_back_button = Zurück
 premium_activation_coming_soon = Premium-Aktivierung wird bald verfügbar sein
+
+# Premium — aktiver Status
+premium_active_title = ⭐ Premium aktiv
+premium_active_text = Gültig bis: {$expires_at} — + 30 Tage\n({$days_left} Tage verbleiben)\nAutomatische Verlängerung: {$autorenew}\nGuthaben: {$balance} SP\n\nVorteile: Rabatt auf bezahlte Anfragen, Priorität, höhere Limits
+premium_extend_30_button = Um 30 Tage verlängern — 10 SP
+premium_autorenew_toggle_button_on = Automatische Verlängerung: {$on}
+premium_autorenew_toggle_button_off = Automatische Verlängerung: {$off}
+switch_on = EIN
+switch_off = AUS
 # Menü-Buttons
 help_button = Hilfe
 profile_button = Profil
 model_selection_button = Modell auswählen
-profile_language_button = Sprache
+profile_language_button = 🌍 Sprache
 profile_change_plan_button = Tarif ändern
 
 # Befehle
@@ -44,6 +53,7 @@ billing_command = Abrechnung und Nutzung
 
 # Hilfe
 help_title = Hilfe:
+help_usage = So verwenden Sie es: Senden Sie Text/Sprach-/Bild-/Dokumente oder einen Videolink — ich kümmere mich darum und antworte
 help_commands_title = Befehle:
 help_start = /start — Hauptmenü
 help_help = /help — diese Hilfe
@@ -62,6 +72,9 @@ help_files = Unterstützte Dateien (bis 15 MB): PDF, DOCX, PPTX, CSV, Text.
 help_models = Verfügbare Modelle: OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Inhaltsbeschränkungen: illegale, schädliche, beleidigende Materialien verboten.
 help_disclaimer = Haftungsausschluss: Antworten werden "wie besehen" bereitgestellt und können Fehler enthalten.
+
+# Support-Schaltfläche
+help_support_button = 👤 Support kontaktieren
 
 # Profil
 profile_coming_soon =  👤 Profil: bald verfügbar.
@@ -83,10 +96,16 @@ billing_coming_soon =  💳 Abrechnung: bald verfügbar.
 change_plan_coming_soon =  🔧 Tarif ändern: bald verfügbar.
 
 # Kontext löschen
+clear_confirm =  Bestätigung: aktuellen Chat löschen?
+cancel_button = Abbrechen
 context_cleared =  🧹 Kontext gelöscht.
 
 # Modellauswahl
 select_model =  🤖 Wähle ein Modell für den Chat:
+select_model_title = Wähle ein Modell (SP/Anfrage • 🧠 Denkleistung)
+model_active = Modell aktiv: {$model}. Preis {$price} SP/Anfrage. Premium senkt die Kosten pro Anfrage.
+model_buy_premium_button = ⭐ Premium kaufen
+model_close_button = Schließen
 model_selected =  ✅ Modell ausgewählt: **{$model}**
 invalid_model = Ungültiges Modell
 
@@ -149,3 +168,6 @@ bot_command_billing = Abrechnung
 # Zusätzliche Texte
 profile_coming_soon_en =  👤 Profil: demnächst verfügbar.
 billing_coming_soon_en =  💳 Abrechnung: demnächst verfügbar.
+
+# Nachrichtenteilung
+message_part = Teil {$current} von {$total}

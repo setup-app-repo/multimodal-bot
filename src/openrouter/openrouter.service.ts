@@ -14,6 +14,9 @@ export class OpenRouterService {
     this.client = new OpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: this.configService.get<string>('OPENROUTER_API_KEY'),
+      // Дадим SDK базовые параметры устойчивости
+      timeout: 60000, // 60s на попытку
+      maxRetries: 0, // собственные ретраи ниже
       defaultHeaders: {
         'HTTP-Referer': this.configService.get<string>('SITE_URL') || '',
         'X-Title': this.configService.get<string>('SITE_NAME') || '',
@@ -41,20 +44,45 @@ export class OpenRouterService {
       messagesForModel.push(fileMessage);
     }
     
-    try {
-      const completion = await this.client.chat.completions.create({
-        model,
-        messages: messagesForModel
-      });
+    const maxAttempts = 3;
+    let attempt = 0;
+    let lastError: any;
 
-      const response = completion.choices[0].message?.content || '';
-      this.logger.log(`Received response from OpenRouter API, model: ${model}, response length: ${response.length}`);
-      
-      return response;
-    } catch (error) {
-      this.logger.error(`Error calling OpenRouter API, model: ${model}:`, error);
-      throw error;
+    while (attempt < maxAttempts) {
+      attempt += 1;
+      try {
+        const completion = await this.client.chat.completions.create(
+          {
+            model,
+            messages: messagesForModel,
+          },
+          {
+            timeout: 60000,
+          },
+        );
+
+        const response = completion.choices[0].message?.content || '';
+        this.logger.log(`Received response from OpenRouter API, model: ${model}, response length: ${response.length}`);
+        return response;
+      } catch (error: any) {
+        lastError = error;
+        const status = (error && error.status) || (error && error.response && error.response.status);
+        const code = error?.code;
+        const messageText = String(error?.message || error);
+
+        const retriable = this.isRetriableError(code, status, messageText);
+        if (!retriable || attempt >= maxAttempts) {
+          this.logger.error(`Error calling OpenRouter API, model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
+          break;
+        }
+
+        const backoffMs = this.getBackoffWithJitter(attempt);
+        this.logger.warn(`OpenRouter call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`);
+        await this.sleep(backoffMs);
+      }
     }
+
+    throw lastError;
   }
 
   async processFile(fileBuffer: Buffer, mimeType: string): Promise<string> {
@@ -151,5 +179,27 @@ export class OpenRouterService {
     } catch (error) {
       throw new Error(`Ошибка при извлечении текста из CSV: ${error.message}`);
     }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private getBackoffWithJitter(attempt: number): number {
+    const base = 500; // 0.5s
+    const max = 5000; // 5s
+    const expo = Math.min(max, base * Math.pow(2, attempt - 1));
+    const jitter = Math.floor(Math.random() * 250);
+    return expo + jitter;
+  }
+
+  private isRetriableError(code?: string, status?: number, message?: string): boolean {
+    // HTTP статусы: 429, 500-599 — ретраим
+    if (typeof status === 'number' && (status === 429 || status >= 500)) return true;
+    // Сетевые ошибки undici / node
+    const lower = (message || '').toLowerCase();
+    if (code === 'UND_ERR_SOCKET' || code === 'ECONNRESET' || code === 'ETIMEDOUT') return true;
+    if (lower.includes('terminated') || lower.includes('socket hang up') || lower.includes('other side closed')) return true;
+    return false;
   }
 }

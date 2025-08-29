@@ -26,11 +26,20 @@ premium_benefit_3 = • Limites augmentées et accès aux modèles puissants
 premium_activate_button = Activer pour 10 SP
 premium_back_button = Retour
 premium_activation_coming_soon = L'activation premium sera disponible prochainement
+
+# Premium — statut actif
+premium_active_title = ⭐ Premium actif
+premium_active_text = Valable jusqu'au : {$expires_at} — + 30 jours\n(il reste {$days_left} jours)\nRenouvellement auto : {$autorenew}\nSolde : {$balance} SP\n\nAvantages : réduction sur les requêtes payantes, priorité, limites supérieures
+premium_extend_30_button = Prolonger de 30 jours — 10 SP
+premium_autorenew_toggle_button_on = Renouvellement auto : {$on}
+premium_autorenew_toggle_button_off = Renouvellement auto : {$off}
+switch_on = ACTIVÉ
+switch_off = DÉSACTIVÉ
 # Boutons du menu
 help_button = Aide
 profile_button = Profil
 model_selection_button = Sélectionner le modèle
-profile_language_button = Langue
+profile_language_button = 🌍 Langue
 profile_change_plan_button = Changer de forfait
 
 # Commandes
@@ -44,6 +53,7 @@ billing_command = Facturation et utilisation
 
 # Aide
 help_title = Aide :
+help_usage = Comment utiliser : envoyez du texte/voix/image/document ou un lien vidéo — je m’en charge et je réponds
 help_commands_title = Commandes :
 help_start = /start — menu principal
 help_help = /help — cette aide
@@ -62,6 +72,9 @@ help_files = Fichiers supportés (jusqu'à 15 Mo) : PDF, DOCX, PPTX, CSV, texte.
 help_models = Modèles disponibles : OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Restrictions de contenu : interdits matériaux illégaux, malveillants, offensants.
 help_disclaimer = Avertissement : les réponses sont fournies "en l'état" et peuvent contenir des erreurs.
+
+# Bouton support
+help_support_button = 👤 Contacter le support
 
 # Onboarding après la sélection de la langue
 onboarding_promo = Salut, {$first_name} ! 👋\n\nJe suis l'assistant IA SETUP. Texte uniquement pour l'instant — rapide et efficace. Voici comment je peux aider :\n\n🧑‍💻 Code : conseils, débogage, optimisation\n✉️ Textes business : emails, offres, landing pages, scripts de vente\n🧭 Structure : brief → cahier des charges → plan/checklist en quelques minutes\n🔎 Analyse : faits, risques, conclusions, next steps\n🧩 Personnalisation à grande échelle : 50–500 variantes par modèle\n🧪 A/B test : titres, premiers paragraphes, CTA\n📊 Données : extraction d'entités → Markdown/CSV/JSON\n🌍 Langues et ton : RU/EN/ES/PT/FR/DE, une voix de marque unifiée\nModèles gratuits pour démarrer et découvrir l'IA.\n\n🔥 Pour les tâches sérieuses — IA payantes. Le Premium réduit le coût et donne la priorité.\n\nAppuyez sur « Choisir le modèle » — c'est parti 🚀
@@ -86,10 +99,16 @@ billing_coming_soon =  💳 Facturation : bientôt disponible.
 change_plan_coming_soon =  🔧 Changer de forfait : bientôt disponible.
 
 # Nettoyage du contexte
+clear_confirm =  Confirmation : effacer le chat en cours ?
+cancel_button = Annuler
 context_cleared =  🧹 Contexte effacé.
 
 # Sélection du modèle
 select_model =  🤖 Sélectionnez un modèle pour le chat :
+select_model_title = Choisissez un modèle (SP/requête • 🧠 puissance cognitive)
+model_active = Modèle actif : {$model}. Prix {$price} SP/requête. Le Premium réduit le coût par requête.
+model_buy_premium_button = ⭐ Acheter Premium
+model_close_button = Fermer
 model_selected =  ✅ Modèle sélectionné : **{$model}**
 invalid_model = Modèle invalide
 
@@ -152,3 +171,6 @@ bot_command_billing = Facturation
 # Textes supplémentaires
 profile_coming_soon_en =  👤 Profil : bientôt disponible.
 billing_coming_soon_en =  💳 Facturation : bientôt disponible.
+
+# Division des messages
+message_part = Partie {$current} de {$total}

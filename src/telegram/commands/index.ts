@@ -3,7 +3,7 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { models } from '../constants';
+import { models, MODEL_INFO, mockIsHavePremium } from '../constants';
 import { AppType } from '@setup-app-repo/setup.app-sdk';
 import { UserService } from 'src/user/user.service';
 import { getModelDisplayName } from '../utils/model-display';
@@ -21,6 +21,80 @@ export interface RegisterCommandsDeps {
 export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
     const { t, i18n, redisService, setupAppService, userService } = deps;
 
+    // Временный мок-баланс для сценариев активации премиума
+    const mockSpBalance = 5;
+
+    // Безопасный ответ на callback query с обработкой ошибок
+    const safeAnswerCallbackQuery = async (ctx: BotContext, options?: { text?: string; show_alert?: boolean }) => {
+        try {
+            await ctx.answerCallbackQuery(options);
+        } catch (error: any) {
+            // Игнорируем ошибки timeout и invalid query ID, так как они не критичны
+            if (error?.description?.includes('query is too old') || 
+                error?.description?.includes('query ID is invalid')) {
+                console.warn('Callback query timeout or invalid ID, ignoring:', error.description);
+                return;
+            }
+            // Для других ошибок логируем, но не прерываем выполнение
+            console.error('Error answering callback query:', error);
+        }
+    };
+
+    const getLocaleCode = (ctx: BotContext): string => (
+        ctx.session.lang === 'ru' ? 'ru-RU'
+            : ctx.session.lang === 'es' ? 'es-ES'
+            : ctx.session.lang === 'de' ? 'de-DE'
+            : ctx.session.lang === 'pt' ? 'pt-PT'
+            : ctx.session.lang === 'fr' ? 'fr-FR'
+            : 'en-US'
+    );
+
+    const ensurePremiumDefaults = (ctx: BotContext) => {
+        if (!ctx.session.premiumExpiresAt) {
+            const addDays = 30;
+            const expires = new Date(Date.now() + addDays * 24 * 60 * 60 * 1000);
+            ctx.session.premiumExpiresAt = expires.toISOString();
+        }
+        if (typeof ctx.session.premiumAutorenew === 'undefined') {
+            ctx.session.premiumAutorenew = false;
+        }
+    };
+
+    const buildPremiumActiveTextAndKeyboard = (ctx: BotContext) => {
+        ensurePremiumDefaults(ctx);
+        const expiresAtDate = new Date(ctx.session.premiumExpiresAt as string);
+        const msLeft = expiresAtDate.getTime() - Date.now();
+        const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
+        const locale = getLocaleCode(ctx);
+        const expiresAt = expiresAtDate.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '');
+        const autorenewLabel = ctx.session.premiumAutorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
+
+        const header = t(ctx, 'premium_active_title');
+        const body = t(ctx, 'premium_active_text', {
+            expires_at: expiresAt,
+            days_left: String(daysLeft),
+            autorenew: autorenewLabel,
+            balance: String(mockSpBalance),
+        });
+
+        const keyboard = new InlineKeyboard()
+            .text(t(ctx, 'premium_extend_30_button'), 'premium:extend')
+            .row()
+            .text(
+                ctx.session.premiumAutorenew 
+                    ? t(ctx, 'premium_autorenew_toggle_button_on', { on: t(ctx, 'switch_on') })
+                    : t(ctx, 'premium_autorenew_toggle_button_off', { off: t(ctx, 'switch_off') }),
+                'premium:toggle_autorenew'
+            )
+            .row()
+            .text(t(ctx, 'topup_sp_button'), 'wallet:topup')
+            .row()
+            .text(t(ctx, 'premium_back_button'), 'profile:back');
+
+        const text = `${header}\n${body}`;
+        return { text, keyboard };
+    };
+
     const getPlanLimits = (ctx: BotContext, plan: string) => {
         if (plan.toLowerCase() === 'start') {
             return t(ctx, 'plan_start_limits');
@@ -29,7 +103,9 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     };
 
     const replyHelp = async (ctx: BotContext) => {
-        await ctx.reply(buildHelpText(ctx));
+        const keyboard = new InlineKeyboard()
+            .url(t(ctx, 'help_support_button'), 'https://t.me/setupmultisupport_bot');
+        await ctx.reply(buildHelpText(ctx), { reply_markup: keyboard });
     };
 
     const replyProfile = async (ctx: BotContext) => {
@@ -42,12 +118,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
         const spBalance = 0;
-        const isPremium = false;
+        const isPremium = true;
         const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
         const text =
-            `👤 ${t(ctx, 'profile_title')}
-` +
             `💰 ${t(ctx, 'profile_balance', { balance: spBalance })}
 ` +
             `⭐ ${t(ctx, 'profile_premium', { status: premiumLabel })}
@@ -66,12 +140,18 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     };
 
     const replyModelSelection = async (ctx: BotContext) => {
+        const userId = String(ctx.from?.id);
+        const selectedModel = await redisService.get<string>(`chat:${userId}:model`);
         const keyboard = new InlineKeyboard();
         models.forEach((model) => {
+            const { price, power } = MODEL_INFO[model] || { price: 0, power: 0 };
             const displayName = getModelDisplayName(model);
-            keyboard.text(displayName, `model_${model}`).row();
+            const prefix = selectedModel === model ? '✅ ' : '';
+            const label = `${prefix}${displayName} • ${price} SP • 🧠 ${power}`;
+            keyboard.text(label, `model_${model}`).row();
         });
-        await ctx.reply(t(ctx, 'select_model'), { reply_markup: keyboard });
+        keyboard.text(t(ctx, 'model_close_button'), 'model:close');
+        await ctx.reply(t(ctx, 'select_model_title'), { reply_markup: keyboard });
     };
 
     // Обработка нажатий reply-клавиатуры
@@ -108,6 +188,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     const buildHelpText = (ctx: BotContext) => {
         return (
             `${t(ctx, 'help_title')}\n\n` +
+            `${t(ctx, 'help_usage')}\n\n` +
             `${t(ctx, 'help_commands_title')}\n` +
             `${t(ctx, 'help_start')}\n` +
             `${t(ctx, 'help_help')}\n` +
@@ -121,7 +202,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             `${t(ctx, 'help_context_rules_2')}\n` +
             `${t(ctx, 'help_context_rules_3')}\n\n` +
             `${t(ctx, 'help_files')}\n\n` +
-            `${t(ctx, 'help_models')}\n\n` +
             `${t(ctx, 'help_content_rules')}\n` +
             `${t(ctx, 'help_disclaimer')}`
         );
@@ -220,8 +300,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         ctx.session.lang = ctx.session.lang || savedLang;
 
         const promoTextStart = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' }).replace(/\\n/g, '\n');
-        const onboardingKeyboardStart = new InlineKeyboard()
-            .text(t(ctx, 'onboarding_choose_model_button'), 'menu_model');
 
         const telegramId = ctx.from?.id as number;
 
@@ -235,11 +313,11 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         promises.push(processMenuButtonAsync(ctx, telegramId));
         await Promise.all(promises);
 
-        await ctx.reply(promoTextStart, { reply_markup: onboardingKeyboardStart });
+        await ctx.reply(promoTextStart, { reply_markup: buildMainReplyKeyboard(ctx) });
     });
 
     bot.command('help', async (ctx) => {
-        await ctx.reply(buildHelpText(ctx));
+        await replyHelp(ctx);
     });
 
     bot.command('profile', async (ctx) => {
@@ -252,7 +330,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
         const spBalance = 0;
-        const isPremium = false;
+        const isPremium = true;
         const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
         const text =
@@ -291,18 +369,15 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     });
 
     bot.command('clear', async (ctx) => {
-        const userId = String(ctx.from?.id);
-        await redisService.clearHistory(userId);
-        await ctx.reply(t(ctx, 'context_cleared'));
+        const keyboard = new InlineKeyboard()
+            .text(t(ctx, 'yes'), 'clear:confirm')
+            .row()
+            .text(t(ctx, 'cancel_button'), 'profile:back');
+        await ctx.reply(t(ctx, 'clear_confirm'), { reply_markup: keyboard });
     });
 
     bot.command('model', async (ctx) => {
-        const keyboard = new InlineKeyboard();
-        models.forEach((model) => {
-            const displayName = getModelDisplayName(model);
-            keyboard.text(displayName, `model_${model}`).row();
-        });
-        await ctx.reply(t(ctx, 'select_model'), { reply_markup: keyboard });
+        await replyModelSelection(ctx);
     });
 
     bot.on('callback_query:data', async (ctx) => {
@@ -311,23 +386,37 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data.startsWith('model_')) {
             const selectedModel = data.replace('model_', '');
             if (!models.includes(selectedModel)) {
-                await ctx.answerCallbackQuery({ text: t(ctx, 'invalid_model'), show_alert: true });
+                await safeAnswerCallbackQuery(ctx, { text: t(ctx, 'invalid_model'), show_alert: true });
                 return;
             }
             await redisService.set(`chat:${String(ctx.from?.id)}:model`, selectedModel, 60 * 60);
-            await ctx.answerCallbackQuery();
+            await safeAnswerCallbackQuery(ctx);
             const modelDisplayName = getModelDisplayName(selectedModel);
-            await ctx.reply(t(ctx, 'model_selected', { model: modelDisplayName }), { parse_mode: 'Markdown' });
+            const { price } = MODEL_INFO[selectedModel] || { price: 0 };
+            const keyboard = new InlineKeyboard()
+                .text(t(ctx, 'model_buy_premium_button'), 'premium:buy')
+                .row()
+                .text(t(ctx, 'model_close_button'), 'model:close');
+            await ctx.reply(
+                t(ctx, 'model_active', { model: modelDisplayName, price }),
+                { reply_markup: keyboard }
+            );
+            return;
+        }
+
+        if (data === 'model:close') {
+            await safeAnswerCallbackQuery(ctx);
+            try { await ctx.deleteMessage(); } catch {}
             return;
         }
 
         if (data === 'menu_help') {
-            await ctx.answerCallbackQuery();
-            await ctx.reply(buildHelpText(ctx));
+            await safeAnswerCallbackQuery(ctx);
+            await replyHelp(ctx);
             return;
         }
         if (data === 'menu_profile') {
-            await ctx.answerCallbackQuery();
+            await safeAnswerCallbackQuery(ctx);
             const userId = String(ctx.from?.id);
             const [model] = await Promise.all([
                 redisService.get<string>(`chat:${userId}:model`),
@@ -337,7 +426,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
             const spBalance = 0;
-            const isPremium = false;
+            const isPremium = true;
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
             const text =
@@ -361,39 +450,55 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             return;
         }
         if (data === 'menu_model') {
-            await ctx.answerCallbackQuery();
-            const keyboard = new InlineKeyboard();
-            models.forEach((model) => {
-                const displayName = getModelDisplayName(model);
-                keyboard.text(displayName, `model_${model}`).row();
-            });
-            await ctx.reply(t(ctx, 'select_model'), { reply_markup: keyboard });
+            await safeAnswerCallbackQuery(ctx);
+            await replyModelSelection(ctx);
             return;
         }
 
         if (data === 'profile:premium') {
-            await ctx.answerCallbackQuery();
-            const premiumText = 
-                `${t(ctx, 'premium_title')}\n\n` +
-                `${t(ctx, 'premium_benefits_title')}\n` +
-                `${t(ctx, 'premium_benefit_1')}\n` +
-                `${t(ctx, 'premium_benefit_2')}\n` +
-                `${t(ctx, 'premium_benefit_3')}`;
+            await safeAnswerCallbackQuery(ctx);
+            if (mockIsHavePremium) {
+                const { text, keyboard } = buildPremiumActiveTextAndKeyboard(ctx);
+                await ctx.reply(text, { reply_markup: keyboard });
+            } else {
+                const premiumText = 
+                    `${t(ctx, 'premium_title')}\n\n` +
+                    `${t(ctx, 'premium_benefits_title')}\n` +
+                    `${t(ctx, 'premium_benefit_1')}\n` +
+                    `${t(ctx, 'premium_benefit_2')}\n` +
+                    `${t(ctx, 'premium_benefit_3')}`;
 
-            const keyboard = new InlineKeyboard()
-                .text(t(ctx, 'premium_activate_button'), 'premium:activate')
-                .row()
-                .text(t(ctx, 'premium_back_button'), 'premium:back');
+                const keyboard = new InlineKeyboard()
+                    .text(t(ctx, 'premium_activate_button'), 'premium:activate')
+                    .row()
+                    .text(t(ctx, 'premium_back_button'), 'premium:back');
 
-            await ctx.reply(premiumText, { reply_markup: keyboard });
+                await ctx.reply(premiumText, { reply_markup: keyboard });
+            }
             return;
         }
 
         if (data === 'profile_clear') {
-            await ctx.answerCallbackQuery();
+            await safeAnswerCallbackQuery(ctx);
+            const keyboard = new InlineKeyboard()
+                .text(t(ctx, 'yes'), 'clear:confirm')
+                .row()
+                .text(t(ctx, 'cancel_button'), 'profile:back');
+            await ctx.reply(t(ctx, 'clear_confirm'), { reply_markup: keyboard });
+            return;
+        }
+
+        if (data === 'clear:confirm') {
+            await safeAnswerCallbackQuery(ctx);
             const userId = String(ctx.from?.id);
             await redisService.clearHistory(userId);
             await ctx.reply(t(ctx, 'context_cleared'));
+            return;
+        }
+
+        if (data === 'profile:back') {
+            await safeAnswerCallbackQuery(ctx);
+            await replyProfile(ctx);
             return;
         }
 
@@ -407,7 +512,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             // Применяем новый язык
             ctx.session.lang = selected;
             await redisService.set(`chat:${userId}:lang`, selected);
-            await ctx.answerCallbackQuery();
+            await safeAnswerCallbackQuery(ctx);
 
             const languageKey = `language_${
                 selected === 'en' ? 'english' :
@@ -422,11 +527,9 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             await setupAppService.setupMenuButton(ctx as any, { language: selected });
 
             if (!prevLang) {
-                // Первый выбор языка: показываем онбординг и CTA
+                // Первый выбор языка: показываем онбординг и сразу постоянную reply-клавиатуру
                 const promoText = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' }).replace(/\\n/g, '\n');
-                const onboardingKeyboard = new InlineKeyboard()
-                    .text(t(ctx, 'onboarding_choose_model_button'), 'menu_model');
-                await ctx.reply(promoText, { reply_markup: onboardingKeyboard });
+                await ctx.reply(promoText, { reply_markup: buildMainReplyKeyboard(ctx) });
             } else if (prevLang !== selected) {
                 // Смена языка: короткое сообщение и обновление reply-клавиатуры
                 await ctx.reply(
@@ -437,7 +540,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
 
         if (data === 'profile_language') {
-            await ctx.answerCallbackQuery();
+            await safeAnswerCallbackQuery(ctx);
             const keyboard = new InlineKeyboard()
                 .text(t(ctx, 'language_english'), 'lang_en').row()
                 .text(t(ctx, 'language_russian'), 'lang_ru').row()
@@ -450,20 +553,45 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
 
         if (data === 'profile_change_plan') {
-            await ctx.answerCallbackQuery();
+            await safeAnswerCallbackQuery(ctx);
             await ctx.reply(t(ctx, 'change_plan_coming_soon'));
             return;
         }
 
         if (data === 'premium:activate') {
-            await ctx.answerCallbackQuery();
-            // Пока ничего не делаем по требованию
-            await ctx.reply(t(ctx, 'premium_activation_coming_soon'));
+            await safeAnswerCallbackQuery(ctx);
+            const cost = 10;
+            if (mockSpBalance < cost) {
+                const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: mockSpBalance }), { reply_markup: keyboard });
+                return;
+            }
+            const keyboard = new InlineKeyboard()
+                .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
+                .row()
+                .text(t(ctx, 'premium_later_button'), 'profile:back');
+            await ctx.reply(t(ctx, 'premium_activated_success'), { reply_markup: keyboard });
+            return;
+        }
+
+        if (data === 'premium:buy') {
+            await safeAnswerCallbackQuery(ctx);
+            const cost = 10;
+            if (mockSpBalance < cost) {
+                const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: mockSpBalance }), { reply_markup: keyboard });
+                return;
+            }
+            const keyboard = new InlineKeyboard()
+                .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
+                .row()
+                .text(t(ctx, 'premium_later_button'), 'profile:back');
+            await ctx.reply(t(ctx, 'premium_activated_success'), { reply_markup: keyboard });
             return;
         }
 
         if (data === 'premium:back') {
-            await ctx.answerCallbackQuery();
+            await safeAnswerCallbackQuery(ctx);
             // Возвращаемся в профиль
             const userId = String(ctx.from?.id);
             const [model] = await Promise.all([
@@ -474,7 +602,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
             const spBalance = 0;
-            const isPremium = false;
+            const isPremium = true;
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
             const text =
@@ -495,6 +623,57 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 
             await ctx.reply(text, { reply_markup: keyboard });
+            return;
+        }
+
+        if (data === 'premium:enable_autorenew') {
+            await safeAnswerCallbackQuery(ctx);
+            const addDays = 30;
+            const expires = new Date(Date.now() + addDays * 24 * 60 * 60 * 1000);
+            const locale = getLocaleCode(ctx);
+            const expiresAt = expires.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '');
+            try {
+                await ctx.editMessageText(t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }));
+            } catch {
+                await ctx.reply(t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }));
+            }
+            return;
+        }
+
+        if (data === 'premium:toggle_autorenew') {
+            await safeAnswerCallbackQuery(ctx);
+            ctx.session.premiumAutorenew = !ctx.session.premiumAutorenew;
+            const { text, keyboard } = buildPremiumActiveTextAndKeyboard(ctx);
+            try { await ctx.editMessageText(text, { reply_markup: keyboard }); } catch { await ctx.reply(text, { reply_markup: keyboard }); }
+            return;
+        }
+
+        if (data === 'premium:extend') {
+            await safeAnswerCallbackQuery(ctx);
+            const cost = 10;
+            if (mockSpBalance < cost) {
+                const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
+                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: mockSpBalance }), { reply_markup: keyboard });
+                return;
+            }
+            ensurePremiumDefaults(ctx);
+            const current = new Date(ctx.session.premiumExpiresAt as string);
+            const extended = new Date(current.getTime() + 30 * 24 * 60 * 60 * 1000);
+            ctx.session.premiumExpiresAt = extended.toISOString();
+            const { text, keyboard } = buildPremiumActiveTextAndKeyboard(ctx);
+            try { await ctx.editMessageText(text, { reply_markup: keyboard }); } catch { await ctx.reply(text, { reply_markup: keyboard }); }
+            return;
+        }
+
+        if (data === 'wallet:topup') {
+            await safeAnswerCallbackQuery(ctx);
+            await ctx.reply(t(ctx, 'billing_coming_soon'));
+            return;
+        }
+
+        if (data === 'billing:topup') {
+            await safeAnswerCallbackQuery(ctx);
+            await ctx.reply(t(ctx, 'billing_coming_soon'));
             return;
         }
     });

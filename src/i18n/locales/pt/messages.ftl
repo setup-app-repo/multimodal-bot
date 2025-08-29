@@ -26,11 +26,20 @@ premium_benefit_3 = • Limites aumentados e acesso a modelos poderosos
 premium_activate_button = Ativar por 10 SP
 premium_back_button = Voltar
 premium_activation_coming_soon = A ativação premium estará disponível em breve
+
+# Premium — status ativo
+premium_active_title = ⭐ Premium ativo
+premium_active_text = Válido até: {$expires_at} — + 30 dias\n(restam {$days_left} dias)\nRenovação automática: {$autorenew}\nSaldo: {$balance} SP\n\nVantagens: desconto em solicitações pagas, prioridade, limites aumentados
+premium_extend_30_button = Prorrogar por 30 dias — 10 SP
+premium_autorenew_toggle_button_on = Renovação automática: {$on}
+premium_autorenew_toggle_button_off = Renovação automática: {$off}
+switch_on = ATIVADO
+switch_off = DESATIVADO
 # Botões do menu
 help_button = Ajuda
 profile_button = Perfil
 model_selection_button = Selecionar modelo
-profile_language_button = Idioma
+profile_language_button = 🌍 Idioma
 profile_change_plan_button = Alterar plano
 
 # Comandos
@@ -44,6 +53,7 @@ billing_command = Cobrança e uso
 
 # Ajuda
 help_title = Ajuda:
+help_usage = Como usar: envie texto/voz/imagem/documento ou um link de vídeo — eu resolvo e respondo
 help_commands_title = Comandos:
 help_start = /start — menu principal
 help_help = /help — esta ajuda
@@ -62,6 +72,9 @@ help_files = Arquivos suportados (até 15 MB): PDF, DOCX, PPTX, CSV, texto.
 help_models = Modelos disponíveis: OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Restrições de conteúdo: proibidos materiais ilegais, maliciosos, ofensivos.
 help_disclaimer = Isenção de responsabilidade: as respostas são fornecidas "como estão" e podem conter erros.
+
+# Botão de suporte
+help_support_button = 👤 Falar com o suporte
 
 # Onboarding após seleção de idioma
 onboarding_promo = Olá, {$first_name}! 👋\n\nSou o assistente de IA SETUP. Somente texto por enquanto — rápido e direto ao ponto. Posso ajudar com:\n\n🧑‍💻 Código: dicas, depuração, otimização\n✉️ Textos de negócios: emails, ofertas, landing pages, scripts de vendas\n🧭 Estrutura: briefing → especificação → plano/checklist em minutos\n🔎 Análise: fatos, riscos, conclusões, próximos passos\n🧩 Personalização em escala: 50–500 variações por template\n🧪 Testes A/B: títulos, primeiros parágrafos, CTA\n📊 Dados: extração de entidades → Markdown/CSV/JSON\n🌍 Idiomas e tom: RU/EN/ES/PT/FR/DE, uma única voz de marca\nModelos gratuitos para começar e experimentar IA.\n\n🔥 Para tarefas sérias — IAs pagas. Premium reduz o custo e dá prioridade.\n\nToque em “Escolher modelo” e vamos 🚀
@@ -86,10 +99,16 @@ billing_coming_soon =  💰 Cobrança: em breve disponível.
 change_plan_coming_soon =  🔧 Alterar plano: em breve disponível.
 
 # Limpeza do contexto
+clear_confirm =  Confirmar: limpar o chat atual?
+cancel_button = Cancelar
 context_cleared =  🧹 Contexto limpo.
 
 # Seleção de modelo
 select_model =  🤖 Selecione um modelo para o chat:
+select_model_title = Escolha um modelo (SP/solicitação • 🧠 poder mental)
+model_active = Modelo ativo: {$model}. Preço {$price} SP/solicitação. O Premium reduz o custo por solicitação.
+model_buy_premium_button = ⭐ Comprar Premium
+model_close_button = Fechar
 model_selected =  ✅ Modelo selecionado: **{$model}**
 invalid_model = Modelo inválido
 
@@ -152,3 +171,6 @@ bot_command_billing = Cobrança
 # Textos adicionais
 profile_coming_soon_en =  👤 Perfil: em breve disponível.
 billing_coming_soon_en =  💳 Cobrança: em breve disponível.
+
+# Divisão de mensagens
+message_part = Parte {$current} de {$total}

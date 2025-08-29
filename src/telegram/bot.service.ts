@@ -173,7 +173,8 @@ export class BotService implements OnModuleInit {
               const modelDisplayName = getModelDisplayName(model);
               const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
               
-              await ctx.reply(modelInfo + answer, { parse_mode: 'Markdown' });
+              const safeAnswer = this.escapeTelegramMarkdown(answer);
+              await this.sendLongMessage(ctx, modelInfo + safeAnswer, { parse_mode: 'Markdown' });
             } catch (error) {
               this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error);
               await ctx.reply(this.t(ctx, 'error_processing_message'));
@@ -315,5 +316,130 @@ export class BotService implements OnModuleInit {
     private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
         const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
         return this.i18n.t(key, userLang, args);
+    }
+
+    /**
+     * Экранирует специальные символы Telegram Markdown (v1) в произвольном тексте,
+     * чтобы избежать ошибок парсинга сущностей.
+     */
+    private escapeTelegramMarkdown(text: string): string {
+        // Экранируем символы: _ * [ ] ( ) `
+        return text.replace(/([_*\[\]()`])/g, '\\$1');
+    }
+
+    /**
+     * Разбивает длинное сообщение на части, чтобы не превысить лимит Telegram (4096 символов)
+     */
+    private splitLongMessage(text: string, maxLength: number = 4096): string[] {
+        if (text.length <= maxLength) {
+            return [text];
+        }
+
+        const parts: string[] = [];
+        let currentPart = '';
+
+        // Разбиваем по абзацам (двойные переносы строк)
+        const paragraphs = text.split('\n\n');
+        
+        for (const paragraph of paragraphs) {
+            // Если текущий абзац + новый абзац помещается в лимит
+            if ((currentPart + '\n\n' + paragraph).length <= maxLength) {
+                if (currentPart) {
+                    currentPart += '\n\n' + paragraph;
+                } else {
+                    currentPart = paragraph;
+                }
+            } else {
+                // Сохраняем текущую часть, если она не пустая
+                if (currentPart) {
+                    parts.push(currentPart);
+                }
+                
+                // Если абзац слишком длинный, разбиваем его по предложениям
+                if (paragraph.length > maxLength) {
+                    const sentences = paragraph.split(/(?<=[.!?])\s+/);
+                    let sentencePart = '';
+                    
+                    for (const sentence of sentences) {
+                        if ((sentencePart + ' ' + sentence).length <= maxLength) {
+                            if (sentencePart) {
+                                sentencePart += ' ' + sentence;
+                            } else {
+                                sentencePart = sentence;
+                            }
+                        } else {
+                            if (sentencePart) {
+                                parts.push(sentencePart);
+                            }
+                            
+                            // Если предложение все еще слишком длинное, разбиваем по символам
+                            if (sentence.length > maxLength) {
+                                const chunks = this.splitByLength(sentence, maxLength);
+                                parts.push(...chunks.slice(0, -1));
+                                sentencePart = chunks[chunks.length - 1];
+                            } else {
+                                sentencePart = sentence;
+                            }
+                        }
+                    }
+                    
+                    if (sentencePart) {
+                        currentPart = sentencePart;
+                    } else {
+                        currentPart = '';
+                    }
+                } else {
+                    currentPart = paragraph;
+                }
+            }
+        }
+
+        // Добавляем последнюю часть
+        if (currentPart) {
+            parts.push(currentPart);
+        }
+
+        return parts;
+    }
+
+    /**
+     * Разбивает текст по длине без учета смысла (последний вариант)
+     */
+    private splitByLength(text: string, maxLength: number): string[] {
+        const parts: string[] = [];
+        for (let i = 0; i < text.length; i += maxLength) {
+            parts.push(text.slice(i, i + maxLength));
+        }
+        return parts;
+    }
+
+    /**
+     * Отправляет сообщение, разбивая его на части при необходимости
+     */
+    private async sendLongMessage(ctx: BotContext, message: string, options?: any): Promise<void> {
+        const parts = this.splitLongMessage(message);
+        
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
+            const partOptions = { ...options };
+            
+            // Для многочастных сообщений добавляем индикатор части
+            if (parts.length > 1) {
+                const partIndicator = `\n\n📄 ${this.t(ctx, 'message_part', { current: i + 1, total: parts.length })}`;
+                // Проверяем, поместится ли индикатор
+                if (part.length + partIndicator.length <= 4096) {
+                    await ctx.reply(part + partIndicator, partOptions);
+                } else {
+                    await ctx.reply(part, partOptions);
+                }
+            } else {
+                await ctx.reply(part, partOptions);
+            }
+            
+            // Небольшая задержка между частями для лучшего UX
+            if (i < parts.length - 1) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
     }
 }
