@@ -285,7 +285,6 @@ export class BotService implements OnModuleInit {
             this.logger.warn('TELEGRAM_WEBHOOK_URL не задан, вебхук не будет установлен. Бот будет работать в режиме polling.');
             return;
         }
-
         
         try {
             const result = await this.bot.api.setWebhook(webhookUrl);
@@ -306,6 +305,7 @@ export class BotService implements OnModuleInit {
             }
         } catch (error) {
             this.logger.error('❌ Ошибка при установке вебхука:', error);
+            this.logger.warn('Попробуйте установить вебхук вручную через Telegram Bot API');
         }
     }
 

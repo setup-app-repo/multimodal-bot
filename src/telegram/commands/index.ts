@@ -236,8 +236,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         await Promise.all(promises);
 
         await ctx.reply(promoTextStart, { reply_markup: onboardingKeyboardStart });
-        // Показать основное меню с reply-клавиатурой (без приветственного сообщения)
-        await ctx.reply(t(ctx, 'help_title'), { reply_markup: buildMainReplyKeyboard(ctx) });
     });
 
     bot.command('help', async (ctx) => {
@@ -429,8 +427,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 const onboardingKeyboard = new InlineKeyboard()
                     .text(t(ctx, 'onboarding_choose_model_button'), 'menu_model');
                 await ctx.reply(promoText, { reply_markup: onboardingKeyboard });
-                // Показать основное меню с reply-клавиатурой после онбординга (без приветственного сообщения)
-                await ctx.reply(t(ctx, 'help_title'), { reply_markup: buildMainReplyKeyboard(ctx) });
             } else if (prevLang !== selected) {
                 // Смена языка: короткое сообщение и обновление reply-клавиатуры
                 await ctx.reply(
