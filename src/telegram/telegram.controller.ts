@@ -22,6 +22,7 @@ export class TelegramController {
       }
       
       await this.botService.handleWebhookUpdate(update);
+      res.status(HttpStatus.OK).json({ ok: true });
     } catch (error) {
       this.logger.error('Ошибка обработки webhook:', error);
       throw error;
