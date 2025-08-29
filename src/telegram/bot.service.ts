@@ -250,6 +250,8 @@ export class BotService implements OnModuleInit {
 
         
         await this.bot.init();
+        
+        await this.setupWebhook();
     }
 
     /**
@@ -265,6 +267,45 @@ export class BotService implements OnModuleInit {
         } catch (error) {
             this.logger.error('Error handling webhook update:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Установка вебхука для получения обновлений от Telegram
+     */
+    private async setupWebhook() {
+        if (!this.bot) {
+            this.logger.error('Bot is not initialized, cannot setup webhook');
+            return;
+        }
+
+        const webhookUrl = `${this.configService.get<string>('TELEGRAM_WEBHOOK_URL')}/telegram/webhook`;
+        
+        if (!webhookUrl) {
+            this.logger.warn('TELEGRAM_WEBHOOK_URL не задан, вебхук не будет установлен. Бот будет работать в режиме polling.');
+            return;
+        }
+
+        
+        try {
+            const result = await this.bot.api.setWebhook(webhookUrl);
+            
+            if (result) {
+                this.logger.log(`✅ Вебхук успешно установлен: ${webhookUrl}`);
+                
+                const webhookInfo = await this.bot.api.getWebhookInfo();
+                this.logger.log('Информация о вебхуке:', {
+                    url: webhookInfo.url,
+                    hasCustomCertificate: webhookInfo.has_custom_certificate,
+                    pendingUpdateCount: webhookInfo.pending_update_count,
+                    lastErrorDate: webhookInfo.last_error_date,
+                    lastErrorMessage: webhookInfo.last_error_message,
+                });
+            } else {
+                this.logger.error('❌ Ошибка установки вебхука');
+            }
+        } catch (error) {
+            this.logger.error('❌ Ошибка при установке вебхука:', error);
         }
     }
 
