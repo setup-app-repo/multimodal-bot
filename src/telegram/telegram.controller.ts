@@ -1,20 +1,27 @@
-import { Controller, Post, Body, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Logger, Param, Res, HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import type { Response } from 'express';
 import { BotService } from './bot.service';
 
 @Controller('telegram')
 export class TelegramController {
   private readonly logger = new Logger(TelegramController.name);
 
-  constructor(private readonly botService: BotService) {}
+  constructor(private readonly botService: BotService, private readonly configService: ConfigService) {}
 
-  @Post('webhook')
-  async handleWebhook(@Body() update: any) {
+  @Post('webhook/:token')
+  async handleWebhook(@Param('token') token: string, @Body() update: any, @Res() res: Response): Promise<void> {
     this.logger.log('Получен webhook update от Telegram');
     
     try {
-      //TODO validate webhook
+      const secretKey = this.configService.get<string>('TELEGRAM_SECRET_KEY');
+
+      if (secretKey !== token) {
+        res.status(HttpStatus.UNAUTHORIZED).json({ error: 'Invalid token' });
+        return;
+      }
+      
       await this.botService.handleWebhookUpdate(update);
-      return { ok: true };
     } catch (error) {
       this.logger.error('Ошибка обработки webhook:', error);
       throw error;

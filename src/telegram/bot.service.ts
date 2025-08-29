@@ -279,7 +279,7 @@ export class BotService implements OnModuleInit {
             return;
         }
 
-        const webhookUrl = `${this.configService.get<string>('TELEGRAM_WEBHOOK_URL')}/telegram/webhook`;
+        const webhookUrl = `${this.configService.get<string>('TELEGRAM_WEBHOOK_URL')}/telegram/webhook/${this.configService.get<string>('TELEGRAM_SECRET_KEY')}`;
         
         if (!webhookUrl) {
             this.logger.warn('TELEGRAM_WEBHOOK_URL не задан, вебхук не будет установлен. Бот будет работать в режиме polling.');
