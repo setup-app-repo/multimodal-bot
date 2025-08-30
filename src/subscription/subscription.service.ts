@@ -13,7 +13,6 @@ export class SubscriptionService {
   ) {}
   /**
    * Списывает средства у пользователя через Setup.app и создаёт запись подписки в БД в одной операции.
-   * Примечание: внешнее списание невозвратно и не участвует в транзакции БД.
    */
   async chargeAndCreateSubscription(
     telegramId: number,
@@ -24,14 +23,22 @@ export class SubscriptionService {
     const periodDays = options?.periodDays ?? 30;
     const autoRenew = options?.autoRenew ?? false;
 
-    const user = await this.em.findOne(User, { telegramId: String(telegramId) });
+    const user = await this.em.findOne(User, { telegramId: String(telegramId) }, {
+      populate: ['subscriptions']
+    });
+
     if (!user) {
       throw new Error('USER_NOT_FOUND');
     }
 
-    const alreadyActive = await this.hasActiveSubscription(String(telegramId));
+    const now = new Date();
+    const hasActiveSubscription = user?.subscriptions?.some(sub => 
+      sub.status === 'active' && 
+      sub.periodStart <= now && 
+      sub.periodEnd >= now
+    );
 
-    if (alreadyActive) {
+    if (hasActiveSubscription) {
       throw new Error('ALREADY_HAS_ACTIVE_SUBSCRIPTION');
     }
 
@@ -46,7 +53,8 @@ export class SubscriptionService {
 
     return await this.em.transactional(async (tem) => {
       const now = new Date();
-      const end = new Date(now.getTime() + periodDays * 24 * 60 * 60 * 1000);
+      const end = new Date(now);
+      end.setDate(end.getDate() + periodDays);
 
       const subscription = tem.create(Subscription, {
         user,
