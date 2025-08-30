@@ -108,6 +108,31 @@ export class RedisService implements OnModuleDestroy {
     return await this.client.del(key);
   }
 
+  /**
+   * Возвращает количество секунд до ближайшей полуночи (локальное серверное время)
+   */
+  private getSecondsUntilMidnight(): number {
+    const now = new Date();
+    const midnight = new Date(now);
+    midnight.setHours(24, 0, 0, 0);
+    const seconds = Math.ceil((midnight.getTime() - now.getTime()) / 1000);
+    return seconds > 0 ? seconds : 60 * 60 * 24;
+  }
+
+  /**
+   * Инкрементирует суточный счетчик бесплатных запросов BASE для пользователя.
+   * Ключ истекает в полночь.
+   * Возвращает текущее значение после инкремента.
+   */
+  async incrementDailyBaseCount(userId: string): Promise<number> {
+    const key = `limit:${userId}:base_daily_count`;
+    const count = await this.client.incr(key);
+    if (count === 1) {
+      await this.client.expire(key, this.getSecondsUntilMidnight());
+    }
+    return count;
+  }
+
   async onModuleDestroy() {
     await this.client.quit();
   }

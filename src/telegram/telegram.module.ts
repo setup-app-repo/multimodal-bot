@@ -8,9 +8,10 @@ import { I18nModule } from 'src/i18n/i18n.module';
 import { OpenRouterModule } from 'src/openrouter/openrouter.module';
 import { SetupAppModule } from 'src/setup-app/setup-app.module';
 import { UserModule } from 'src/user/user.module';
+import { SubscriptionModule } from 'src/subscription/subscription.module';
 
 @Module({
-  imports: [RedisModule, AppConfigModule, I18nModule, OpenRouterModule, SetupAppModule, UserModule],
+  imports: [RedisModule, AppConfigModule, I18nModule, OpenRouterModule, SetupAppModule, UserModule, SubscriptionModule],
   controllers: [TelegramController],
   providers: [TelegramService, BotService],
   exports: [BotService]

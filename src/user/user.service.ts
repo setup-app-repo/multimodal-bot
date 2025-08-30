@@ -50,7 +50,7 @@ export class UserService {
     });
 
     await this.em.persistAndFlush(user);
-    this.logger.log(`User created successfully: ${user.id}`);
+    this.logger.log(`User created successfully: ${user.telegramId}`);
 
     return user;
   }

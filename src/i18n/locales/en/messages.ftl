@@ -124,6 +124,8 @@ error_processing_message =  ❌ An error occurred while processing your message.
 error_processing_file =  ❌ An error occurred while processing the file.
 error_processing_file_retry =  ⚠️ Error processing file. Please try uploading the file again.
 unexpected_error =  ⚠️ An unexpected error occurred. Please try again.
+insufficient_funds =  ⚠️ Insufficient funds.
+daily_limit_reached =  🚫 Daily free request limit reached. Try again tomorrow or activate Premium.
 
 # Warnings
 warning_select_model_first =  ⚠️ First select a model via /model

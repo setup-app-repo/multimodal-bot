@@ -7,8 +7,10 @@ import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 import { I18nService } from 'src/i18n/i18n.service';
 import { UserService } from 'src/user/user.service';
+import { SubscriptionService } from 'src/subscription/subscription.service';
 
-import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES } from './constants';
+import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from './constants';
+
 import { BotContext, SessionData } from './interfaces';
 import { registerCommands } from './commands';
 import { getModelDisplayName } from './utils/model-display';
@@ -25,6 +27,7 @@ export class BotService implements OnModuleInit {
         private readonly i18n: I18nService,
         private readonly setupAppService: SetupAppService,
         private readonly userService: UserService,
+        private readonly subscriptionService: SubscriptionService,
     ) {}
 
     async onModuleInit() {
@@ -87,6 +90,7 @@ export class BotService implements OnModuleInit {
             redisService: this.redisService,
             setupAppService: this.setupAppService,
             userService: this.userService,
+            subscriptionService: this.subscriptionService,
         });
 
         this.bot.on("message:text", async (ctx) => {
@@ -163,9 +167,46 @@ export class BotService implements OnModuleInit {
               }
 
               this.logger.log(`Sending request to OpenRouter for user ${userId}, model: ${model}, history length: ${history.length}, has file: ${!!fileContent}`);
+
+              const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
+              const price = getPriceSP(model, hasActiveSubscription);
+              this.logger.log(`Will deduct ${price} SP for user ${userId} for model ${model}. hasActiveSubscription: ${hasActiveSubscription}`);
+
+              const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
+              console.log('hasEnoughSP', hasEnoughSP);
               
+              if (!hasEnoughSP) {
+                const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
+                if (!hasActiveSubscription && tier === ModelTier.BASE) {
+                  // Разрешаем запрос для базовой модели без подписки даже при недостатке SP
+                } else {
+                  await ctx.reply(this.t(ctx, 'insufficient_funds'));
+                  return;
+                }
+              }
+
+              // Лимит 30 запросов/сутки для BASE без подписки
+              const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
+              if (!hasActiveSubscription && tier === ModelTier.BASE) {
+                try {
+                  const usedToday = await this.redisService.incrementDailyBaseCount(userId);
+                  if (usedToday > DAILY_BASE_FREE_LIMIT) {
+                    await ctx.reply(this.t(ctx, 'daily_limit_reached'));
+                    return;
+                  }
+                } catch (limitError) {
+                  this.logger.error(`Daily limit check failed for user ${userId}:`, limitError);
+                  // В случае ошибки проверки лимита всё же не блокируем пользователя
+                }
+              }
+
               const answer = await this.openRouterService.ask(history, model, fileContent);
-              
+
+              const description = `Query to ${model}`;
+              if (MODEL_TO_TIER[model] !== ModelTier.BASE) {
+                await this.setupAppService.deduct(Number(userId), price, description);
+              }
+
               this.logger.log(`Received response from OpenRouter for user ${userId}, response length: ${answer.length}`);
           
               await this.redisService.saveMessage(userId, 'assistant', answer);

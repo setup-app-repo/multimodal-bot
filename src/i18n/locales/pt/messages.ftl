@@ -117,6 +117,7 @@ error_processing_message =  ❌ Ocorreu um erro ao processar sua mensagem.
 error_processing_file =  ❌ Ocorreu um erro ao processar o arquivo.
 error_processing_file_retry =  ⚠️ Erro ao processar o arquivo. Tente fazer upload do arquivo novamente.
 unexpected_error =  ⚠️ Ocorreu um erro inesperado. Tente novamente.
+insufficient_funds =  ⚠️ Fundos insuficientes.
 
 # Avisos
 warning_select_model_first =  ⚠️ Primeiro selecione um modelo através de /model

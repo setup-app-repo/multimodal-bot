@@ -114,6 +114,7 @@ error_processing_message =  ❌ Beim Verarbeiten deiner Nachricht ist ein Fehler
 error_processing_file =  ❌ Beim Verarbeiten der Datei ist ein Fehler aufgetreten.
 error_processing_file_retry =  ⚠️ Fehler beim Verarbeiten der Datei. Versuche, die Datei erneut hochzuladen.
 unexpected_error =  ⚠️ Ein unerwarteter Fehler ist aufgetreten. Versuche es erneut.
+insufficient_funds =  ⚠️ Unzureichendes Guthaben.
 
 # Warnungen
 warning_select_model_first =  ⚠️ Wähle zuerst ein Modell über /model

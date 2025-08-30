@@ -117,6 +117,8 @@ error_processing_message =  ❌ Ocurrió un error al procesar tu mensaje.
 error_processing_file =  ❌ Ocurrió un error al procesar el archivo.
 error_processing_file_retry =  ⚠️ Error al procesar el archivo. Intenta subir el archivo nuevamente.
 unexpected_error =  ⚠️ Ocurrió un error inesperado. Inténtalo de nuevo.
+insufficient_funds =  ⚠️ Fondos insuficientes.
+daily_limit_reached =  🚫 Se alcanzó el límite diario de solicitudes gratuitas. Inténtalo mañana o activa Premium.
 
 # Advertencias
 warning_select_model_first =  ⚠️ Primero selecciona un modelo a través de /model

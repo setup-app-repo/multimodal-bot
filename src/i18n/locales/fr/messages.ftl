@@ -117,6 +117,7 @@ error_processing_message =  ❌ Une erreur s'est produite lors du traitement de 
 error_processing_file =  ❌ Une erreur s'est produite lors du traitement du fichier.
 error_processing_file_retry =  ⚠️ Erreur lors du traitement du fichier. Essayez de télécharger le fichier à nouveau.
 unexpected_error =  ⚠️ Une erreur inattendue s'est produite. Essayez à nouveau.
+insufficient_funds =  ⚠️ Fonds insuffisants.
 
 # Avertissements
 warning_select_model_first =  ⚠️ Sélectionnez d'abord un modèle via /model

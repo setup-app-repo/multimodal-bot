@@ -7,6 +7,7 @@ import { models, MODEL_INFO, mockIsHavePremium } from '../constants';
 import { AppType } from '@setup-app-repo/setup.app-sdk';
 import { UserService } from 'src/user/user.service';
 import { getModelDisplayName } from '../utils/model-display';
+import { SubscriptionService } from 'src/subscription/subscription.service';
 
 type TranslateFn = (ctx: BotContext, key: string, args?: Record<string, any>) => string;
 
@@ -16,13 +17,12 @@ export interface RegisterCommandsDeps {
     redisService: RedisService;
     setupAppService: SetupAppService;
     userService: UserService;
+    subscriptionService: SubscriptionService;
 }
 
 export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
-    const { t, i18n, redisService, setupAppService, userService } = deps;
+    const { t, i18n, redisService, setupAppService, userService, subscriptionService } = deps;
 
-    // Временный мок-баланс для сценариев активации премиума
-    const mockSpBalance = 5;
 
     // Безопасный ответ на callback query с обработкой ошибок
     const safeAnswerCallbackQuery = async (ctx: BotContext, options?: { text?: string; show_alert?: boolean }) => {
@@ -60,7 +60,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
     };
 
-    const buildPremiumActiveTextAndKeyboard = (ctx: BotContext) => {
+    const buildPremiumActiveTextAndKeyboard = async (ctx: BotContext) => {
         ensurePremiumDefaults(ctx);
         const expiresAtDate = new Date(ctx.session.premiumExpiresAt as string);
         const msLeft = expiresAtDate.getTime() - Date.now();
@@ -70,11 +70,13 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const autorenewLabel = ctx.session.premiumAutorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
 
         const header = t(ctx, 'premium_active_title');
+        let balance = 0;
+        try { balance = await setupAppService.getBalance(ctx.from?.id as number); } catch {}
         const body = t(ctx, 'premium_active_text', {
             expires_at: expiresAt,
             days_left: String(daysLeft),
             autorenew: autorenewLabel,
-            balance: String(mockSpBalance),
+            balance: String(balance),
         });
 
         const keyboard = new InlineKeyboard()
@@ -117,8 +119,9 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const currentLang = ctx.session.lang || i18n.getDefaultLocale();
         const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
-        const spBalance = 0;
-        const isPremium = true;
+        let spBalance = 0;
+        try { spBalance = await setupAppService.getBalance(ctx.from?.id as number); } catch {}
+        const isPremium = false;
         const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
         const text =
@@ -256,15 +259,22 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     bot.command('start', async (ctx) => {
         if (ctx.from?.id) {
             try {
-                await userService.findOrCreateUser(String(ctx.from.id), {
-                    telegramId: String(ctx.from.id),
+                const telegramId = ctx.from?.id as number;
+                await this.setupAppService.auth(telegramId, {
+                    firstName: ctx.from?.first_name || '',
+                    lastName: ctx.from?.last_name || '',
+                    username: ctx.from?.username || '',
+                  });
+            
+                await userService.findOrCreateUser(String(telegramId), {
+                    telegramId: String(telegramId),
                     username: ctx.from.username,
                     firstName: ctx.from.first_name || 'User',
                     lastName: ctx.from.last_name,
                     languageCode: ctx.from.language_code,
                     isPremium: ctx.from.is_premium || false,
                 });
-                console.debug(`User ensured in DB: ${ctx.from.id}`);
+                console.debug(`User ensured in DB: ${telegramId}`);
             } catch (e) {
                 console.error('Error ensuring user in DB on /start:', e);
             }
@@ -330,7 +340,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
         const spBalance = 0;
-        const isPremium = true;
+        const isPremium = false;
         const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
         const text =
@@ -425,8 +435,9 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const currentLang = ctx.session.lang || i18n.getDefaultLocale();
             const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
-            const spBalance = 0;
-            const isPremium = true;
+            let spBalance = 0;
+            try { spBalance = await setupAppService.getBalance(ctx.from?.id as number); } catch {}
+            const isPremium = false;
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
             const text =
@@ -458,7 +469,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'profile:premium') {
             await safeAnswerCallbackQuery(ctx);
             if (mockIsHavePremium) {
-                const { text, keyboard } = buildPremiumActiveTextAndKeyboard(ctx);
+                const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
                 await ctx.reply(text, { reply_markup: keyboard });
             } else {
                 const premiumText = 
@@ -561,25 +572,59 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'premium:activate') {
             await safeAnswerCallbackQuery(ctx);
             const cost = 10;
-            if (mockSpBalance < cost) {
-                const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: mockSpBalance }), { reply_markup: keyboard });
+            const telegramId = ctx.from?.id;
+
+            if (!telegramId) {
+                await ctx.reply(t(ctx, 'unexpected_error'));
                 return;
             }
-            const keyboard = new InlineKeyboard()
-                .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
-                .row()
-                .text(t(ctx, 'premium_later_button'), 'profile:back');
-            await ctx.reply(t(ctx, 'premium_activated_success'), { reply_markup: keyboard });
+
+            try {
+                const hasEnough = await setupAppService.have(telegramId, cost);
+                if (!hasEnough) {
+                    const currentBalance = await setupAppService.getBalance(telegramId);
+                    const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                    return;
+                }
+
+                await subscriptionService.chargeAndCreateSubscription(
+                    telegramId,
+                    cost,
+                    'Подписка "Premium" 10 SP на Multimodal bot',
+                    { periodDays: 30, autoRenew: false }
+                );
+
+                const keyboard = new InlineKeyboard()
+                    .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
+                    .row()
+                    .text(t(ctx, 'premium_later_button'), 'profile:back');
+                await ctx.reply(t(ctx, 'premium_activated_success'), { reply_markup: keyboard });
+            } catch (error: any) {
+                // Разделяем ошибки недостатка средств и ошибки БД/прочие
+                const message = String(error?.message || '');
+                if (message.includes('INSUFFICIENT_FUNDS') || message.includes('not enough') || message.includes('Недостаточно')) {
+                    const currentBalance = await setupAppService.getBalance(telegramId);
+                    const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                } else if (message.includes('USER_NOT_FOUND')) {
+                    await ctx.reply(t(ctx, 'unexpected_error'));
+                } else {
+                    console.error('premium:activate failed', error);
+                    await ctx.reply(t(ctx, 'unexpected_error'));
+                }
+            }
             return;
         }
 
         if (data === 'premium:buy') {
             await safeAnswerCallbackQuery(ctx);
             const cost = 10;
-            if (mockSpBalance < cost) {
+            const hasEnough = await setupAppService.have(ctx.from?.id as number, cost);
+            if (!hasEnough) {
+                const currentBalance = await setupAppService.getBalance(ctx.from?.id as number);
                 const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: mockSpBalance }), { reply_markup: keyboard });
+                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
                 return;
             }
             const keyboard = new InlineKeyboard()
@@ -602,7 +647,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
             const spBalance = 0;
-            const isPremium = true;
+            const isPremium = false;
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
             const text =
@@ -643,7 +688,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'premium:toggle_autorenew') {
             await safeAnswerCallbackQuery(ctx);
             ctx.session.premiumAutorenew = !ctx.session.premiumAutorenew;
-            const { text, keyboard } = buildPremiumActiveTextAndKeyboard(ctx);
+            const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
             try { await ctx.editMessageText(text, { reply_markup: keyboard }); } catch { await ctx.reply(text, { reply_markup: keyboard }); }
             return;
         }
@@ -651,16 +696,19 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'premium:extend') {
             await safeAnswerCallbackQuery(ctx);
             const cost = 10;
-            if (mockSpBalance < cost) {
+            const telegramId = ctx.from?.id as number;
+            const hasEnough = await setupAppService.have(telegramId, cost);
+            if (!hasEnough) {
+                const currentBalance = await setupAppService.getBalance(telegramId);
                 const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
-                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: mockSpBalance }), { reply_markup: keyboard });
+                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
                 return;
             }
             ensurePremiumDefaults(ctx);
             const current = new Date(ctx.session.premiumExpiresAt as string);
             const extended = new Date(current.getTime() + 30 * 24 * 60 * 60 * 1000);
             ctx.session.premiumExpiresAt = extended.toISOString();
-            const { text, keyboard } = buildPremiumActiveTextAndKeyboard(ctx);
+            const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
             try { await ctx.editMessageText(text, { reply_markup: keyboard }); } catch { await ctx.reply(text, { reply_markup: keyboard }); }
             return;
         }

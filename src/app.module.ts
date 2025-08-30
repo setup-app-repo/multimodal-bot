@@ -12,6 +12,7 @@ import { I18nModule } from './i18n/i18n.module';
 import { SetupAppModule } from './setup-app/setup-app.module';
 import { UserModule } from './user/user.module';
 import { createMikroOrmConfig } from '../mikro-orm.config';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { createMikroOrmConfig } from '../mikro-orm.config';
     I18nModule,
     SetupAppModule,
     UserModule,
+    SubscriptionModule,
   ],
   controllers: [AppController],
   providers: [AppService],

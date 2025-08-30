@@ -1,12 +1,9 @@
-import { Entity, PrimaryKey, Property, Unique } from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, OneToMany, Cascade } from '@mikro-orm/core';
+import { Subscription } from '../subscription/subscription.entity';
 
 @Entity()
 export class User {
-  @PrimaryKey({ autoincrement: true })
-  id!: number;
-
-  @Property({ unique: true })
-  @Unique()
+  @PrimaryKey({ type: 'string' })
   telegramId!: string;
 
   @Property({ nullable: true })
@@ -29,6 +26,9 @@ export class User {
 
   @Property({ type: 'timestamptz', nullable: true })
   lastMessageAt?: Date;
+
+  @OneToMany(() => Subscription, (subscription) => subscription.user, { cascade: [Cascade.REMOVE] })
+  subscriptions?: Subscription[];
 
   @Property({ type: 'timestamptz' })
   createdAt: Date = new Date();

@@ -37,4 +37,40 @@ export const MODEL_INFO: Record<string, { price: number; power: number }> = {
 };
 
 // Мок: наличие премиума у пользователя (глобально для демонстрации)
-export const mockIsHavePremium = true;
+export const mockIsHavePremium = false;
+
+// Тарифные уровни моделей для тарификации запросов
+export enum ModelTier {
+    BASE = 'BASE',
+    MID = 'MID',
+    TOP = 'TOP',
+}
+
+// Соответствие модели тарифному уровню
+export const MODEL_TO_TIER: Record<string, ModelTier> = {
+    'openai/gpt-4o-mini': ModelTier.BASE,
+    'x-ai/grok-4': ModelTier.MID,
+    'deepseek/deepseek-chat-v3.1': ModelTier.MID,
+    'openai/gpt-5': ModelTier.TOP,
+    'anthropic/claude-3.7-sonnet': ModelTier.TOP,
+    'google/gemini-2.5-pro': ModelTier.TOP,
+    'google/gemini-2.5-flash': ModelTier.MID,
+    'qwen/qwen2.5-vl-32b-instruct': ModelTier.MID,
+};
+
+// Стоимость (SP) за запрос по тарифным уровням
+export const TIER_PRICES_SP: Record<ModelTier, { withSub: number; withoutSub: number }> = {
+    [ModelTier.BASE]: { withSub: 0, withoutSub: 0 },
+    [ModelTier.MID]: { withSub: 0.01, withoutSub: 0.013 },
+    [ModelTier.TOP]: { withSub: 0.02, withoutSub: 0.03 },
+};
+
+// Суточный лимит бесплатных запросов для BASE без подписки
+export const DAILY_BASE_FREE_LIMIT = 5
+
+// Возвращает цену в SP для конкретной модели с учётом подписки
+export function getPriceSP(model: string, hasActiveSub: boolean): number {
+    const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
+    const prices = TIER_PRICES_SP[tier];
+    return hasActiveSub ? prices.withSub : prices.withoutSub;
+}
