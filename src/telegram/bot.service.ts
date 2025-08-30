@@ -173,7 +173,6 @@ export class BotService implements OnModuleInit {
               this.logger.log(`Will deduct ${price} SP for user ${userId} for model ${model}. hasActiveSubscription: ${hasActiveSubscription}`);
 
               const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
-              console.log('hasEnoughSP', hasEnoughSP);
               
               if (!hasEnoughSP) {
                 const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;

@@ -3,7 +3,7 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { models, MODEL_INFO, mockIsHavePremium } from '../constants';
+import { models, MODEL_INFO } from '../constants';
 import { AppType } from '@setup-app-repo/setup.app-sdk';
 import { UserService } from 'src/user/user.service';
 import { getModelDisplayName } from '../utils/model-display';
@@ -121,7 +121,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         let spBalance = 0;
         try { spBalance = await setupAppService.getBalance(ctx.from?.id as number); } catch {}
-        const isPremium = false;
+        const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
         const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
         const text =
@@ -241,7 +241,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 lastName: ctx.from?.last_name || '',
                 username: ctx.from?.username || '',
             });
-            console.log('isNewUser', isNewUser);
             return { success: true, isNewUser };
         } catch (error) {
             console.error(` ❌ Error during Setup.app authentication for user ${telegramId}:`, error);
@@ -437,7 +436,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
             let spBalance = 0;
             try { spBalance = await setupAppService.getBalance(ctx.from?.id as number); } catch {}
-            const isPremium = false;
+            const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
             const text =
@@ -468,7 +467,9 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         if (data === 'profile:premium') {
             await safeAnswerCallbackQuery(ctx);
-            if (mockIsHavePremium) {
+            const telegramId = ctx.from?.id as number;
+            const hasActive = await subscriptionService.hasActiveSubscription(String(telegramId));
+            if (hasActive) {
                 const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
                 await ctx.reply(text, { reply_markup: keyboard });
             } else {
@@ -647,7 +648,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
             const spBalance = 0;
-            const isPremium = false;
+            const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
             const text =

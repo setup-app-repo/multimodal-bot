@@ -24,13 +24,24 @@ export class SubscriptionService {
     const periodDays = options?.periodDays ?? 30;
     const autoRenew = options?.autoRenew ?? false;
 
-    // 0) Проверяем, что пользователь существует в БД, прежде чем списывать средства
     const user = await this.em.findOne(User, { telegramId: String(telegramId) });
     if (!user) {
       throw new Error('USER_NOT_FOUND');
     }
 
-    // 1) Сначала пытаемся списать средства через внешний сервис
+    const alreadyActive = await this.hasActiveSubscription(String(telegramId));
+
+    if (alreadyActive) {
+      throw new Error('ALREADY_HAS_ACTIVE_SUBSCRIPTION');
+    }
+
+    const hasEnoughSP = await this.setupAppService.have(telegramId, amount);
+
+    if (!hasEnoughSP) {
+      throw new Error('INSUFFICIENT_FUNDS');
+    }
+
+
     await this.setupAppService.deduct(telegramId, amount, description);
 
     return await this.em.transactional(async (tem) => {
@@ -59,7 +70,6 @@ export class SubscriptionService {
     const now = new Date();
 
     const user = await this.em.findOne(User, { telegramId: telegramId });
-    console.log('User:', user);
     if (!user) return false;
 
     const subscription = await this.em.findOne(Subscription, {

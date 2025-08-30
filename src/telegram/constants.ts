@@ -36,8 +36,6 @@ export const MODEL_INFO: Record<string, { price: number; power: number }> = {
     'openai/gpt-4o-mini': { price: 0, power: 200 },
 };
 
-// Мок: наличие премиума у пользователя (глобально для демонстрации)
-export const mockIsHavePremium = false;
 
 // Тарифные уровни моделей для тарификации запросов
 export enum ModelTier {
