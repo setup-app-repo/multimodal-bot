@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Logger, Param, Res, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
-import { BotService } from './bot.service';
+import { BotService } from './services/bot.service';
 
 @Controller('telegram')
 export class TelegramController {

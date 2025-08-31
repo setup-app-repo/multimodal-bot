@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TelegramService } from './telegram.service';
-import { BotService } from './bot.service';
+import { BotService } from './services/bot.service';
 import { TelegramController } from './telegram.controller';
 import { RedisModule } from 'src/redis/redis.module';
 import { ConfigModule as AppConfigModule } from 'src/config/config.module';

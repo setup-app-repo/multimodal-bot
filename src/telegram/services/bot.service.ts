@@ -9,14 +9,14 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { UserService } from 'src/user/user.service';
 import { SubscriptionService } from 'src/subscription/subscription.service';
 
-import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from './constants';
+import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from '../constants';
 
-import { BotContext, SessionData } from './interfaces';
-import { registerCommands } from './commands';
-import { getModelDisplayName } from './utils/model-display';
-import { escapeMarkdown, sendLongMessage } from './utils/message';
-import { TelegramFileService } from './services/telegram-file.service';
-import { createLanguageMiddleware } from './middlewares/language.middleware';
+import { BotContext, SessionData } from '../interfaces';
+import { registerCommands } from '../commands';
+import { getModelDisplayName } from '../utils/model-display';
+import { escapeMarkdown, sendLongMessage } from '../utils/message';
+import { TelegramFileService } from './telegram-file.service';
+import { createLanguageMiddleware } from '../middlewares/language.middleware';
 
 @Injectable()
 export class BotService implements OnModuleInit {
