@@ -192,3 +192,6 @@ billing_coming_soon_en =  💳 Billing: coming soon.
 
 # Разбивка сообщений
 message_part = Часть {$current} из {$total}
+
+# Индикатор обработки
+processing_request = ⏳ Обрабатываю запрос...

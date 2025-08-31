@@ -172,3 +172,6 @@ billing_coming_soon_en =  💳 Abrechnung: demnächst verfügbar.
 
 # Nachrichtenteilung
 message_part = Teil {$current} von {$total}
+
+# Verarbeitungsindikator
+processing_request = ⏳ Verarbeite deine Anfrage...

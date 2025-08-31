@@ -175,3 +175,6 @@ billing_coming_soon_en =  💳 Facturation : bientôt disponible.
 
 # Division des messages
 message_part = Partie {$current} de {$total}
+
+# Indicateur de traitement
+processing_request = ⏳ Traitement de votre demande...

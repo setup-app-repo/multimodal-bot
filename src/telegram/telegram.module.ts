@@ -10,11 +10,13 @@ import { SetupAppModule } from 'src/setup-app/setup-app.module';
 import { UserModule } from 'src/user/user.module';
 import { SubscriptionModule } from 'src/subscription/subscription.module';
 import { TelegramFileService } from './services/telegram-file.service';
+import { MessageHandlerService } from './services/message-handler.service';
+import { DocumentHandlerService } from './services/document-handler.service';
 
 @Module({
   imports: [RedisModule, AppConfigModule, I18nModule, OpenRouterModule, SetupAppModule, UserModule, SubscriptionModule],
   controllers: [TelegramController],
-  providers: [TelegramService, BotService, TelegramFileService],
+  providers: [TelegramService, BotService, TelegramFileService, MessageHandlerService, DocumentHandlerService],
   exports: [BotService]
 })
 export class TelegramModule {}

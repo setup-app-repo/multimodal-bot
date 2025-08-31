@@ -183,3 +183,6 @@ billing_coming_soon_en =  💳 Billing: coming soon.
 
 # Message splitting
 message_part = Part {$current} of {$total}
+
+# Processing indicator
+processing_request = ⏳ Processing your request...
