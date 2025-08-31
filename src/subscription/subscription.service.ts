@@ -89,4 +89,23 @@ export class SubscriptionService {
 
     return subscription !== null;
   }
+
+  @CreateRequestContext()
+  /**
+   * Возвращает активную подписку пользователя или null, если её нет
+   */
+  async getActiveSubscription(telegramId: string): Promise<Subscription | null> {
+    const now = new Date();
+    const user = await this.em.findOne(User, { telegramId: telegramId });
+    if (!user) return null;
+
+    const subscription = await this.em.findOne(Subscription, {
+      user,
+      status: 'active',
+      periodStart: { $lte: now },
+      periodEnd: { $gte: now },
+    });
+
+    return subscription;
+  }
 }

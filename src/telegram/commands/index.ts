@@ -61,13 +61,28 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     };
 
     const buildPremiumActiveTextAndKeyboard = async (ctx: BotContext) => {
-        ensurePremiumDefaults(ctx);
-        const expiresAtDate = new Date(ctx.session.premiumExpiresAt as string);
-        const msLeft = expiresAtDate.getTime() - Date.now();
+        const activeSub = await subscriptionService.getActiveSubscription(String(ctx.from?.id));
+        let expiresAtDate: Date | null = null;
+        let autorenew = false;
+
+        if (activeSub) {
+            expiresAtDate = new Date(activeSub.periodEnd);
+            autorenew = Boolean(activeSub.autoRenew);
+        } else {
+            console.log('fallback to old session>>>');
+            // Фоллбек для старых сессий, чтобы не ломать UX
+            ensurePremiumDefaults(ctx);
+            expiresAtDate = new Date(ctx.session.premiumExpiresAt as string);
+            autorenew = Boolean(ctx.session.premiumAutorenew);
+        }
+
+        const msLeft = (expiresAtDate?.getTime() ?? Date.now()) - Date.now();
         const daysLeft = Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000)));
         const locale = getLocaleCode(ctx);
-        const expiresAt = expiresAtDate.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '');
-        const autorenewLabel = ctx.session.premiumAutorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
+        const expiresAt = expiresAtDate
+            ? expiresAtDate.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '')
+            : '';
+        const autorenewLabel = autorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
 
         const header = t(ctx, 'premium_active_title');
         let balance = 0;
@@ -77,13 +92,13 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             days_left: String(daysLeft),
             autorenew: autorenewLabel,
             balance: String(balance),
-        });
+        }).replace(/\\n/g, '\n');
 
         const keyboard = new InlineKeyboard()
             .text(t(ctx, 'premium_extend_30_button'), 'premium:extend')
             .row()
             .text(
-                ctx.session.premiumAutorenew 
+                autorenew 
                     ? t(ctx, 'premium_autorenew_toggle_button_on', { on: t(ctx, 'switch_on') })
                     : t(ctx, 'premium_autorenew_toggle_button_off', { off: t(ctx, 'switch_off') }),
                 'premium:toggle_autorenew'
@@ -402,10 +417,12 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             await safeAnswerCallbackQuery(ctx);
             const modelDisplayName = getModelDisplayName(selectedModel);
             const { price } = MODEL_INFO[selectedModel] || { price: 0 };
-            const keyboard = new InlineKeyboard()
-                .text(t(ctx, 'model_buy_premium_button'), 'premium:buy')
-                .row()
-                .text(t(ctx, 'model_close_button'), 'model:close');
+            const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
+            const keyboard = new InlineKeyboard();
+            if (!isPremium) {
+                keyboard.text(t(ctx, 'model_buy_premium_button'), 'premium:buy').row();
+            }
+            keyboard.text(t(ctx, 'model_close_button'), 'model:close');
             await ctx.reply(
                 t(ctx, 'model_active', { model: modelDisplayName, price }),
                 { reply_markup: keyboard }
@@ -621,18 +638,51 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'premium:buy') {
             await safeAnswerCallbackQuery(ctx);
             const cost = 10;
-            const hasEnough = await setupAppService.have(ctx.from?.id as number, cost);
-            if (!hasEnough) {
-                const currentBalance = await setupAppService.getBalance(ctx.from?.id as number);
-                const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
-                return;
+            const telegramId = ctx.from?.id as number;
+
+            try {
+                // Проверка активной подписки: если уже активна — показываем экран состояния
+                const alreadyActive = await subscriptionService.hasActiveSubscription(String(telegramId));
+                if (alreadyActive) {
+                    const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
+                    await ctx.reply(text, { reply_markup: keyboard });
+                    return;
+                }
+
+                const hasEnough = await setupAppService.have(telegramId, cost);
+                if (!hasEnough) {
+                    const currentBalance = await setupAppService.getBalance(telegramId);
+                    const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                    return;
+                }
+
+                await subscriptionService.chargeAndCreateSubscription(
+                    telegramId,
+                    cost,
+                    'Подписка "Premium" 10 SP на Multimodal bot',
+                    { periodDays: 30, autoRenew: false }
+                );
+
+                const keyboard = new InlineKeyboard()
+                    .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
+                    .row()
+                    .text(t(ctx, 'premium_later_button'), 'profile:back');
+                await ctx.reply(t(ctx, 'premium_activated_success'), { reply_markup: keyboard });
+            } catch (error: any) {
+                const message = String(error?.message || '');
+                if (message.includes('INSUFFICIENT_FUNDS')) {
+                    const currentBalance = await setupAppService.getBalance(telegramId);
+                    const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                } else if (message.includes('ALREADY_HAS_ACTIVE_SUBSCRIPTION')) {
+                    const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
+                    await ctx.reply(text, { reply_markup: keyboard });
+                } else {
+                    console.error('premium:buy failed', error);
+                    await ctx.reply(t(ctx, 'unexpected_error'));
+                }
             }
-            const keyboard = new InlineKeyboard()
-                .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
-                .row()
-                .text(t(ctx, 'premium_later_button'), 'profile:back');
-            await ctx.reply(t(ctx, 'premium_activated_success'), { reply_markup: keyboard });
             return;
         }
 
@@ -679,9 +729,11 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const locale = getLocaleCode(ctx);
             const expiresAt = expires.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '');
             try {
-                await ctx.editMessageText(t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }));
+                const msg = t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }).replace(/\\n/g, '\n');
+                await ctx.editMessageText(msg);
             } catch {
-                await ctx.reply(t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }));
+                const msg = t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }).replace(/\\n/g, '\n');
+                await ctx.reply(msg);
             }
             return;
         }
