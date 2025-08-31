@@ -69,7 +69,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             expiresAtDate = new Date(activeSub.periodEnd);
             autorenew = Boolean(activeSub.autoRenew);
         } else {
-            console.log('fallback to old session>>>');
             // Фоллбек для старых сессий, чтобы не ломать UX
             ensurePremiumDefaults(ctx);
             expiresAtDate = new Date(ctx.session.premiumExpiresAt as string);
