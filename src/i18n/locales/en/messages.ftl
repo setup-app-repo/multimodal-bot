@@ -36,8 +36,8 @@ premium_autorenew_enabled = Auto-renewal enabled ✅\nWe will charge 10 SP on re
 premium_autorenew_later_info = You can enable auto-renewal later in Profile → Premium
 
 # Premium — active status
-premium_active_title = ⭐ Premium is active
-premium_active_text = Valid until: {$expires_at} — + 30 days\n({$days_left} days left)\nAuto-renewal: {$autorenew}\nBalance: {$balance} SP\n\nBenefits: discount on paid requests, priority, higher limits
+premium_active_title = ⭐ <b>Premium is active</b>
+premium_active_text = \n📅 <b>Valid until:</b> {$expires_at}\n⏳ <b>Time left:</b> {$days_left} days\n🔄 <b>Auto-renewal:</b> <b>{$autorenew}</b>\n💰 <b>Balance:</b> {$balance} SP\n\n<b>Benefits:</b>\n• Discount on paid requests\n• Priority in the queue (faster responses)\n• Higher limits and access to powerful models\n• Extended context window (more conversation history is saved)\n• 24/7 support\n• Guaranteed stability even during peak load
 premium_extend_30_button = Extend for 30 days — 10 SP
 premium_autorenew_toggle_button_on = Auto-renewal: {$on}
 premium_autorenew_toggle_button_off = Auto-renewal: {$off}
@@ -85,7 +85,7 @@ help_disclaimer = Disclaimer: answers are provided "as is" and may contain error
 help_support_button = 👤 Contact support
 
 # Onboarding after language selection
-onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant.**\n\n**Text, photo, or voice** — I analyze and turn it into results: from ideas and plans to analysis and finished documents.\n\n🎙 **Voice** → transcription, summaries, structured ideas\n\n📸 **Photo** → content analysis, description, data extraction\n\n🧑‍💻 **Code** → tips, debugging, optimization\n\n✉️ **Business writing** → emails, offers, landing pages, sales scripts\n\n🧭 **Structure** → brief → spec → plan/checklist in minutes\n\n🔎 **Analytics** → facts, risks, conclusions, next steps\n\n🧩 **Personalization at scale** → 50–500 variations by template\n\n🧪 **A/B testing** → headlines, first paragraphs, CTAs\n\n📊 **Data** → entity extraction → Markdown / CSV / JSON\n\n🌍 **Languages & tone** → RU / EN / ES / PT / FR / DE, one brand voice\n\n✨ **Free models available to start.**\n\n🔥 **For serious tasks — paid AIs:** faster, smarter, and with Premium — cheaper and prioritized.\n\n👉 Tap **“Choose model”** to begin 🚀
+onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant.**\n\n**Text, photo, or voice** — I analyze and turn it into results: from ideas and plans to analysis and finished documents.\n\n🎙 **Voice** → transcription, summaries, structured ideas\n📸 **Photo** → content analysis, description, data extraction\n🧑‍💻 **Code** → tips, debugging, optimization\n✉️ **Business writing** → emails, offers, landing pages, sales scripts\n🧭 **Structure** → brief → spec → plan/checklist in minutes\n🔎 **Analytics** → facts, risks, conclusions, next steps\n🧩 **Personalization at scale** → 50–500 variations by template\n🧪 **A/B testing** → headlines, first paragraphs, CTAs\n📊 **Data** → entity extraction → Markdown / CSV / JSON\n🌍 **Languages & tone** → RU / EN / ES / PT / FR / DE, one brand voice\n✨ **Free models available to start.**\n🔥 **For serious tasks — paid AIs:** faster, smarter, and with Premium — cheaper and prioritized.\n\n👉 Tap **“Choose model”** to begin 🚀
 onboarding_choose_model_button = 🚀 Choose model
 
 # Profile
@@ -106,9 +106,10 @@ language_switched = Language switched to: {$language}
 billing_coming_soon =  💳 Billing: coming soon.
 
 # Context clearing
-clear_confirm =  Confirm: clear current chat?
-cancel_button = Cancel
-context_cleared =  🧹 Context cleared.
+clear_confirm =  **Clear the current chat?**
+clear_yes_button = ✅ Yes, clear
+back_button = ◀️ Back
+context_cleared =  🧹 **Context has been cleared.**
 
 # Model selection
 select_model =  🤖 Select a model for chat:

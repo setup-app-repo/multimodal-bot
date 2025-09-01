@@ -91,7 +91,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const expiresAt = expiresAtDate
             ? expiresAtDate.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '')
             : '';
-        const autorenewLabel = autorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
+        const autorenewLabelPlain = autorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
+        const autorenewLabel = `<b>${autorenewLabelPlain}</b>`;
 
         const header = t(ctx, 'premium_active_title');
         let balance = 0;
@@ -416,10 +417,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
     bot.command('clear', async (ctx) => {
         const keyboard = new InlineKeyboard()
-            .text(t(ctx, 'yes'), 'clear:confirm')
+            .text(t(ctx, 'clear_yes_button'), 'clear:confirm')
             .row()
-            .text(t(ctx, 'cancel_button'), 'profile:back');
-        await ctx.reply(t(ctx, 'clear_confirm'), { reply_markup: keyboard });
+            .text(t(ctx, 'back_button'), 'profile:back');
+        await ctx.reply(t(ctx, 'clear_confirm'), { reply_markup: keyboard, parse_mode: 'Markdown' });
     });
 
     bot.command('model', async (ctx) => {
@@ -540,21 +541,24 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const hasActive = await subscriptionService.hasActiveSubscription(String(telegramId));
             if (hasActive) {
                 const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
-                await ctx.reply(text, { reply_markup: keyboard });
+                await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
             } else {
                 const premiumText = 
                     `${t(ctx, 'premium_title')}\n\n` +
                     `${t(ctx, 'premium_benefits_title')}\n` +
                     `${t(ctx, 'premium_benefit_1')}\n` +
                     `${t(ctx, 'premium_benefit_2')}\n` +
-                    `${t(ctx, 'premium_benefit_3')}`;
+                    `${t(ctx, 'premium_benefit_3')}\n` +
+                    `${t(ctx, 'premium_benefit_4')}\n` +
+                    `${t(ctx, 'premium_benefit_5')}\n` +
+                    `${t(ctx, 'premium_benefit_6')}`;
 
                 const keyboard = new InlineKeyboard()
                     .text(t(ctx, 'premium_activate_button'), 'premium:activate')
                     .row()
                     .text(t(ctx, 'premium_back_button'), 'premium:back');
 
-                await ctx.reply(premiumText, { reply_markup: keyboard });
+                await ctx.reply(premiumText, { reply_markup: keyboard, parse_mode: 'HTML' });
             }
             return;
         }
@@ -562,10 +566,11 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'profile_clear') {
             await safeAnswerCallbackQuery(ctx);
             const keyboard = new InlineKeyboard()
-                .text(t(ctx, 'yes'), 'clear:confirm')
+                .text(t(ctx, 'clear_yes_button'), 'clear:confirm')
                 .row()
-                .text(t(ctx, 'cancel_button'), 'profile:back');
-            await ctx.reply(t(ctx, 'clear_confirm'), { reply_markup: keyboard });
+                .text(t(ctx, 'back_button'), 'clear:cancel');
+            const confirmText = t(ctx, 'clear_confirm').replace(/\*\*(.+?)\*\*/g, '*$1*');
+            await ctx.reply(confirmText, { reply_markup: keyboard, parse_mode: 'Markdown' });
             return;
         }
 
@@ -573,12 +578,20 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             await safeAnswerCallbackQuery(ctx);
             const userId = String(ctx.from?.id);
             await redisService.clearHistory(userId);
-            await ctx.reply(t(ctx, 'context_cleared'));
+            try { await ctx.deleteMessage(); } catch {}
+            await ctx.reply(t(ctx, 'context_cleared'), { parse_mode: 'Markdown' });
+            return;
+        }
+
+        if (data === 'clear:cancel') {
+            await safeAnswerCallbackQuery(ctx);
+            try { await ctx.deleteMessage(); } catch {}
             return;
         }
 
         if (data === 'profile:back') {
             await safeAnswerCallbackQuery(ctx);
+            try { await ctx.deleteMessage(); } catch {}
             await replyProfile(ctx);
             return;
         }
@@ -655,7 +668,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 if (!hasEnough) {
                     const currentBalance = await setupAppService.getBalance(telegramId);
                     const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard, parse_mode: 'HTML' });
                     return;
                 }
 
@@ -677,7 +690,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 if (message.includes('INSUFFICIENT_FUNDS') || message.includes('not enough') || message.includes('Недостаточно')) {
                     const currentBalance = await setupAppService.getBalance(telegramId);
                     const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard, parse_mode: 'HTML' });
                 } else if (message.includes('USER_NOT_FOUND')) {
                     await ctx.reply(t(ctx, 'unexpected_error'));
                 } else {
@@ -698,7 +711,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 const alreadyActive = await subscriptionService.hasActiveSubscription(String(telegramId));
                 if (alreadyActive) {
                     const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
-                    await ctx.reply(text, { reply_markup: keyboard });
+                    await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
                     return;
                 }
 
@@ -706,7 +719,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 if (!hasEnough) {
                     const currentBalance = await setupAppService.getBalance(telegramId);
                     const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard, parse_mode: 'HTML' });
                     return;
                 }
 
@@ -727,10 +740,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 if (message.includes('INSUFFICIENT_FUNDS')) {
                     const currentBalance = await setupAppService.getBalance(telegramId);
                     const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard, parse_mode: 'HTML' });
                 } else if (message.includes('ALREADY_HAS_ACTIVE_SUBSCRIPTION')) {
                     const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
-                    await ctx.reply(text, { reply_markup: keyboard });
+                    await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
                 } else {
                     console.error('premium:buy failed', error);
                     await ctx.reply(t(ctx, 'unexpected_error'));
@@ -800,7 +813,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             await safeAnswerCallbackQuery(ctx);
             ctx.session.premiumAutorenew = !ctx.session.premiumAutorenew;
             const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
-            try { await ctx.editMessageText(text, { reply_markup: keyboard }); } catch { await ctx.reply(text, { reply_markup: keyboard }); }
+            try { await ctx.editMessageText(text, { reply_markup: keyboard, parse_mode: 'HTML' }); } catch { await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' }); }
             return;
         }
 
@@ -812,7 +825,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             if (!hasEnough) {
                 const currentBalance = await setupAppService.getBalance(telegramId);
                 const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
-                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard });
+                await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard, parse_mode: 'HTML' });
                 return;
             }
             ensurePremiumDefaults(ctx);
@@ -820,7 +833,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const extended = new Date(current.getTime() + 30 * 24 * 60 * 60 * 1000);
             ctx.session.premiumExpiresAt = extended.toISOString();
             const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
-            try { await ctx.editMessageText(text, { reply_markup: keyboard }); } catch { await ctx.reply(text, { reply_markup: keyboard }); }
+            try { await ctx.editMessageText(text, { reply_markup: keyboard, parse_mode: 'HTML' }); } catch { await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' }); }
             return;
         }
 

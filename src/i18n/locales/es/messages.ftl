@@ -28,8 +28,8 @@ premium_back_button = Atrás
 premium_activation_coming_soon = La activación premium estará disponible pronto
 
 # Premium — estado activo
-premium_active_title = ⭐ Premium activo
-premium_active_text = Válido hasta: {$expires_at} — + 30 días\n(restan {$days_left} días)\nRenovación automática: {$autorenew}\nSaldo: {$balance} SP\n\nBeneficios: descuento en solicitudes pagas, prioridad, límites superiores
+premium_active_title = ⭐ <b>Premium activo</b>
+premium_active_text = \n📅 <b>Válido hasta:</b> {$expires_at}\n⏳ <b>Restan:</b> {$days_left} días\n🔄 <b>Renovación automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Beneficios:</b>\n• Descuento en solicitudes de pago\n• Prioridad en la cola (respuestas más rápidas)\n• Límites aumentados y acceso a modelos potentes\n• Ventana de contexto ampliada (se guarda más historial de conversación)\n• Soporte 24/7\n• Estabilidad garantizada incluso en picos de carga
 premium_extend_30_button = Extender 30 días — 10 SP
 premium_autorenew_toggle_button_on = Renovación automática: {$on}
 premium_autorenew_toggle_button_off = Renovación automática: {$off}
@@ -77,7 +77,7 @@ help_disclaimer = Descargo de responsabilidad: las respuestas se proporcionan "t
 help_support_button = 👤 Contactar soporte
 
 # Onboarding después de seleccionar idioma
-onboarding_promo = **¡Hola, {$first_name}!** 👋\n\n**Soy el asistente de IA SETUP.**\n\n**Texto, foto o voz** — analizo y lo convierto en resultados: desde ideas y planes hasta análisis y documentos listos.\n\n🎙 **Voz** → transcripción, resúmenes, ideas estructuradas\n\n📸 **Foto** → análisis de contenido, descripción, extracción de datos\n\n🧑‍💻 **Código** → consejos, depuración, optimización\n\n✉️ **Textos de negocio** → emails, ofertas, landings, guiones de ventas\n\n🧭 **Estructura** → briefing → especificación → plan/checklist en minutos\n\n🔎 **Analítica** → hechos, riesgos, conclusiones, próximos pasos\n\n🧩 **Personalización a escala** → 50–500 variantes por plantilla\n\n🧪 **A/B test** → titulares, primeros párrafos, CTAs\n\n📊 **Datos** → extracción de entidades → Markdown / CSV / JSON\n\n🌍 **Idiomas y tono** → RU / EN / ES / PT / FR / DE, una sola voz de marca\n\n✨ **Modelos gratuitos disponibles para empezar.**\n\n🔥 **Para tareas serias — IA de pago:** más rápido, más inteligente y con Premium — más barato y con prioridad.\n\n👉 Pulsa **«Elegir modelo»** y vamos 🚀
+onboarding_promo = **¡Hola, {$first_name}!** 👋\n\n**Soy el asistente de IA SETUP.**\n\n**Texto, foto o voz** — analizo y lo convierto en resultados: desde ideas y planes hasta análisis y documentos listos.\n\n🎙 **Voz** → transcripción, resúmenes, ideas estructuradas\n📸 **Foto** → análisis de contenido, descripción, extracción de datos\n🧑‍💻 **Código** → consejos, depuración, optimización\n✉️ **Textos de negocio** → emails, ofertas, landings, guiones de ventas\n🧭 **Estructura** → briefing → especificación → plan/checklist en minutos\n🔎 **Analítica** → hechos, riesgos, conclusiones, próximos pasos\n🧩 **Personalización a escala** → 50–500 variantes por plantilla\n🧪 **A/B test** → titulares, primeros párrafos, CTAs\n📊 **Datos** → extracción de entidades → Markdown / CSV / JSON\n🌍 **Idiomas y tono** → RU / EN / ES / PT / FR / DE, una sola voz de marca\n✨ **Modelos gratuitos disponibles para empezar.**\n🔥 **Para tareas serias — IA de pago:** más rápido, más inteligente y con Premium — más barato y con prioridad.\n\n👉 Pulsa **«Elegir modelo»** y vamos 🚀
 onboarding_choose_model_button = 🚀 Elegir modelo
 
 # Perfil
@@ -99,9 +99,10 @@ billing_coming_soon =  💳 Facturación: próximamente disponible.
 change_plan_coming_soon = 🔧 Cambiar plan: próximamente disponible.
 
 # Limpieza del contexto
-clear_confirm =  Confirmación: ¿Limpiar el chat actual?
-cancel_button = Cancelar
-context_cleared =  🧹 Contexto limpiado.
+clear_confirm =  **¿Limpiar el chat actual?**
+clear_yes_button = ✅ Sí, limpiar
+back_button = ◀️ Atrás
+context_cleared =  🧹 **Contexto limpiado con éxito.**
 
 # Selección de modelo
 select_model =  🤖 Selecciona un modelo para el chat:

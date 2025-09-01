@@ -28,8 +28,8 @@ premium_back_button = Retour
 premium_activation_coming_soon = L'activation premium sera disponible prochainement
 
 # Premium — statut actif
-premium_active_title = ⭐ Premium actif
-premium_active_text = Valable jusqu'au : {$expires_at} — + 30 jours\n(il reste {$days_left} jours)\nRenouvellement auto : {$autorenew}\nSolde : {$balance} SP\n\nAvantages : réduction sur les requêtes payantes, priorité, limites supérieures
+premium_active_title = ⭐ <b>Premium actif</b>
+premium_active_text = \n📅 <b>Valable jusqu’au :</b> {$expires_at}\n⏳ <b>Restant :</b> {$days_left} jours\n🔄 <b>Renouvellement auto :</b> <b>{$autorenew}</b>\n💰 <b>Solde :</b> {$balance} SP\n\n<b>Avantages :</b>\n• Réduction sur les requêtes payantes\n• Priorité dans la file (réponses plus rapides)\n• Limites augmentées et accès aux modèles puissants\n• Fenêtre de contexte étendue (plus d’historique conservé)\n• Support 24/7\n• Stabilité garantie même en période de forte charge
 premium_extend_30_button = Prolonger de 30 jours — 10 SP
 premium_autorenew_toggle_button_on = Renouvellement auto : {$on}
 premium_autorenew_toggle_button_off = Renouvellement auto : {$off}
@@ -77,7 +77,7 @@ help_disclaimer = Avertissement : les réponses sont fournies "en l'état" et pe
 help_support_button = 👤 Contacter le support
 
 # Onboarding après la sélection de la langue
-onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant IA SETUP.**\n\n**Texte, photo ou voix** — j’analyse et je transforme en résultats : des idées et plans jusqu’à l’analyse et des documents prêts à l’usage.\n\n🎙 **Voix** → transcription, résumés, idées structurées\n\n📸 **Photo** → analyse de contenu, description, extraction de données\n\n🧑‍💻 **Code** → conseils, débogage, optimisation\n\n✉️ **Textes business** → emails, offres, landing pages, scripts de vente\n\n🧭 **Structure** → brief → cahier des charges → plan/checklist en quelques minutes\n\n🔎 **Analytique** → faits, risques, conclusions, next steps\n\n🧩 **Personnalisation à grande échelle** → 50–500 variantes par modèle\n\n🧪 **A/B test** → titres, premiers paragraphes, CTAs\n\n📊 **Données** → extraction d’entités → Markdown / CSV / JSON\n\n🌍 **Langues et ton** → RU / EN / ES / PT / FR / DE, une seule voix de marque\n\n✨ **Des modèles gratuits sont disponibles pour commencer.**\n\n🔥 **Pour les tâches sérieuses — IA payantes :** plus rapide, plus intelligent, et avec le Premium — moins cher et prioritaire.\n\n👉 Appuyez sur **« Choisir le modèle »** — c’est parti 🚀
+onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant IA SETUP.**\n\n**Texte, photo ou voix** — j’analyse et je transforme en résultats : des idées et plans jusqu’à l’analyse et des documents prêts à l’usage.\n\n🎙 **Voix** → transcription, résumés, idées structurées\n📸 **Photo** → analyse de contenu, description, extraction de données\n🧑‍💻 **Code** → conseils, débogage, optimisation\n✉️ **Textes business** → emails, offres, landing pages, scripts de vente\n🧭 **Structure** → brief → cahier des charges → plan/checklist en quelques minutes\n🔎 **Analytique** → faits, risques, conclusions, next steps\n🧩 **Personnalisation à grande échelle** → 50–500 variantes par modèle\n🧪 **A/B test** → titres, premiers paragraphes, CTAs\n📊 **Données** → extraction d’entités → Markdown / CSV / JSON\n🌍 **Langues et ton** → RU / EN / ES / PT / FR / DE, une seule voix de marque\n✨ **Des modèles gratuits sont disponibles pour commencer.**\n🔥 **Pour les tâches sérieuses — IA payantes :** plus rapide, plus intelligent, et avec le Premium — moins cher et prioritaire.\n\n👉 Appuyez sur **« Choisir le modèle »** — c’est parti 🚀
 onboarding_choose_model_button = 🚀 Choisir le modèle
 
 # Profil
@@ -99,9 +99,10 @@ billing_coming_soon =  💳 Facturation : bientôt disponible.
 change_plan_coming_soon =  🔧 Changer de forfait : bientôt disponible.
 
 # Nettoyage du contexte
-clear_confirm =  Confirmation : effacer le chat en cours ?
-cancel_button = Annuler
-context_cleared =  🧹 Contexte effacé.
+clear_confirm =  **Effacer la conversation actuelle ?**
+clear_yes_button = ✅ Oui, effacer
+back_button = ◀️ Retour
+context_cleared =  🧹 **Contexte effacé avec succès.**
 
 # Sélection du modèle
 select_model =  🤖 Sélectionnez un modèle pour le chat :

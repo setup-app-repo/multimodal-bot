@@ -28,8 +28,8 @@ premium_back_button = Zurück
 premium_activation_coming_soon = Premium-Aktivierung wird bald verfügbar sein
 
 # Premium — aktiver Status
-premium_active_title = ⭐ Premium aktiv
-premium_active_text = Gültig bis: {$expires_at} — + 30 Tage\n({$days_left} Tage verbleiben)\nAutomatische Verlängerung: {$autorenew}\nGuthaben: {$balance} SP\n\nVorteile: Rabatt auf bezahlte Anfragen, Priorität, höhere Limits
+premium_active_title = ⭐ <b>Premium aktiv</b>
+premium_active_text = \n📅 <b>Gültig bis:</b> {$expires_at}\n⏳ <b>Verbleibend:</b> {$days_left} Tage\n🔄 <b>Automatische Verlängerung:</b> <b>{$autorenew}</b>\n💰 <b>Guthaben:</b> {$balance} SP\n\n<b>Vorteile:</b>\n• Rabatt auf kostenpflichtige Anfragen\n• Priorität in der Warteschlange (schnellere Antworten)\n• Höhere Limits und Zugang zu leistungsstarken Modellen\n• Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)\n• 24/7 Support\n• Garantierte Stabilität auch bei Spitzenlast
 premium_extend_30_button = Um 30 Tage verlängern — 10 SP
 premium_autorenew_toggle_button_on = Automatische Verlängerung: {$on}
 premium_autorenew_toggle_button_off = Automatische Verlängerung: {$off}
@@ -96,9 +96,10 @@ billing_coming_soon =  💳 Abrechnung: bald verfügbar.
 change_plan_coming_soon =  🔧 Tarif ändern: bald verfügbar.
 
 # Kontext löschen
-clear_confirm =  Bestätigung: aktuellen Chat löschen?
-cancel_button = Abbrechen
-context_cleared =  🧹 Kontext gelöscht.
+clear_confirm =  **Aktuellen Chat löschen?**
+clear_yes_button = ✅ Ja, löschen
+back_button = ◀️ Zurück
+context_cleared =  🧹 **Kontext erfolgreich gelöscht.**
 
 # Modellauswahl
 select_model =  🤖 Wähle ein Modell für den Chat:
@@ -177,4 +178,4 @@ message_part = Teil {$current} von {$total}
 processing_request = ⏳ Verarbeite deine Anfrage...
 
 # Onboarding nach Sprachauswahl
-onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assistent.**\n\n**Text, Foto oder Stimme** — ich analysiere und verwandle es in Ergebnisse: von Ideen und Plänen bis hin zu Analysen und fertigen Dokumenten.\n\n🎙 **Stimme** → Transkription, Zusammenfassungen, strukturierte Ideen\n\n📸 **Foto** → Inhaltsanalyse, Beschreibung, Datenauszug\n\n🧑‍💻 **Code** → Tipps, Fehlersuche, Optimierung\n\n✉️ **Business-Texte** → E-Mails, Angebote, Landingpages, Vertriebsskripte\n\n🧭 **Struktur** → Briefing → Spezifikation → Plan/Checkliste in Minuten\n\n🔎 **Analytik** → Fakten, Risiken, Schlussfolgerungen, nächste Schritte\n\n🧩 **Skalierte Personalisierung** → 50–500 Varianten pro Vorlage\n\n🧪 **A/B-Test** → Überschriften, erste Absätze, CTAs\n\n📊 **Daten** → Entitätsextraktion → Markdown / CSV / JSON\n\n🌍 **Sprachen & Ton** → RU / EN / ES / PT / FR / DE, eine einheitliche Markenstimme\n\n✨ **Kostenlose Modelle zum Start verfügbar.**\n\n🔥 **Für ernsthafte Aufgaben — bezahlte KIs:** schneller, smarter, und mit Premium — günstiger und priorisiert.\n\n👉 Tippe **„Modell wählen“** — und los geht’s 🚀
+onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assistent.**\n\n**Text, Foto oder Stimme** — ich analysiere und verwandle es in Ergebnisse: von Ideen und Plänen bis hin zu Analysen und fertigen Dokumenten.\n\n🎙 **Stimme** → Transkription, Zusammenfassungen, strukturierte Ideen\n📸 **Foto** → Inhaltsanalyse, Beschreibung, Datenauszug\n🧑‍💻 **Code** → Tipps, Fehlersuche, Optimierung\n✉️ **Business-Texte** → E-Mails, Angebote, Landingpages, Vertriebsskripte\n🧭 **Struktur** → Briefing → Spezifikation → Plan/Checkliste in Minuten\n🔎 **Analytik** → Fakten, Risiken, Schlussfolgerungen, nächste Schritte\n🧩 **Skalierte Personalisierung** → 50–500 Varianten pro Vorlage\n🧪 **A/B-Test** → Überschriften, erste Absätze, CTAs\n📊 **Daten** → Entitätsextraktion → Markdown / CSV / JSON\n🌍 **Sprachen & Ton** → RU / EN / ES / PT / FR / DE, eine einheitliche Markenstimme\n✨ **Kostenlose Modelle zum Start verfügbar.**\n🔥 **Für ernsthafte Aufgaben — bezahlte KIs:** schneller, smarter, und mit Premium — günstiger und priorisiert.\n\n👉 Tippe **„Modell wählen“** — und los geht’s 🚀
