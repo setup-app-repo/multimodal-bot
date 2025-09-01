@@ -12,6 +12,7 @@ import { BotContext, SessionData } from '../interfaces';
 import { registerCommands } from '../commands';
 import { MessageHandlerService } from './message-handler.service';
 import { DocumentHandlerService } from './document-handler.service';
+import { PhotoHandlerService } from './photo-handler.service';
 import { createLanguageMiddleware } from '../middlewares/language.middleware';
 
 @Injectable()
@@ -28,6 +29,7 @@ export class BotService implements OnModuleInit {
         private readonly subscriptionService: SubscriptionService,
         private readonly messageHandler: MessageHandlerService,
         private readonly documentHandler: DocumentHandlerService,
+        private readonly photoHandler: PhotoHandlerService,
     ) {}
 
     async onModuleInit() {
@@ -81,6 +83,7 @@ export class BotService implements OnModuleInit {
 
         this.bot.on('message:text', (ctx) => this.messageHandler.handleText(ctx));
         this.bot.on('message:document', (ctx) => this.documentHandler.handleDocument(ctx));
+        this.bot.on('message:photo', (ctx) => this.photoHandler.handlePhoto(ctx));
         this.bot.catch((err) => this.messageHandler.handleError(err));
 
         

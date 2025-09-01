@@ -25,6 +25,8 @@ export const ALLOWED_MIME_TYPES = new Set([
 export const MODELS_SUPPORTING_FILES = new Set<string>([
     // Уточняйте по мере подключения движков
     'openai/gpt-5',
+    'openai/gpt-4o-mini',
+    'qwen/qwen2.5-vl-32b-instruct',
 ]);
 
 // Стоимость (SP/запрос) по умолчанию указываем как стоимость без подписки по уровню

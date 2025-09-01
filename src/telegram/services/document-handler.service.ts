@@ -45,14 +45,6 @@ export class DocumentHandlerService {
                 return;
             }
 
-            // Модель по умолчанию всегда установлена через DEFAULT_MODEL
-
-            if (!MODELS_SUPPORTING_FILES.has(model)) {
-                this.logger.warn(`User ${userId} tried to upload file with unsupported model: ${model}`);
-                await ctx.reply(this.t(ctx, 'warning_model_no_file_support'));
-                return;
-            }
-
             await this.telegramFileService.saveFileMeta(
                 userId,
                 {

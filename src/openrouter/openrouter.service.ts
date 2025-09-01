@@ -24,6 +24,67 @@ export class OpenRouterService {
     });
   }
 
+  async askWithImages(history: any[], model: string, images: { mimeType: string; dataUrl: string }[], prompt?: string): Promise<string> {
+    this.logger.log(`Sending multimodal request to OpenRouter API, model: ${model}, history: ${history.length}, images: ${images.length}, hasPrompt: ${!!prompt}`);
+
+    const systemMessage = {
+      role: "system",
+      content: "You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages."
+    };
+
+    const messagesForModel: any[] = [systemMessage, ...history];
+
+    const contentParts: any[] = [];
+    if (prompt && prompt.trim().length > 0) {
+      contentParts.push({ type: 'text', text: prompt });
+    }
+    for (const img of images) {
+      contentParts.push({ type: 'image_url', image_url: { url: img.dataUrl } });
+    }
+
+    messagesForModel.push({ role: 'user', content: contentParts });
+
+    const maxAttempts = 3;
+    let attempt = 0;
+    let lastError: any;
+
+    while (attempt < maxAttempts) {
+      attempt += 1;
+      try {
+        const completion = await this.client.chat.completions.create(
+          {
+            model,
+            messages: messagesForModel,
+          },
+          {
+            timeout: 60000,
+          },
+        );
+
+        const response = completion.choices[0].message?.content || '';
+        this.logger.log(`Received response from OpenRouter API (multimodal), model: ${model}, response length: ${response.length}`);
+        return response;
+      } catch (error: any) {
+        lastError = error;
+        const status = (error && error.status) || (error && error.response && error.response.status);
+        const code = error?.code;
+        const messageText = String(error?.message || error);
+
+        const retriable = this.isRetriableError(code, status, messageText);
+        if (!retriable || attempt >= maxAttempts) {
+          this.logger.error(`Error calling OpenRouter API (multimodal), model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
+          break;
+        }
+
+        const backoffMs = this.getBackoffWithJitter(attempt);
+        this.logger.warn(`OpenRouter multimodal call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`);
+        await this.sleep(backoffMs);
+      }
+    }
+
+    throw lastError;
+  }
+
   async ask(message: any, model: string, fileContent?: string): Promise<string> {
     this.logger.log(`Sending request to OpenRouter API, model: ${model}, messages: ${message.length}, has file: ${!!fileContent}`);
     
@@ -107,6 +168,10 @@ export class OpenRouterService {
         case 'text/plain':
           result = fileBuffer.toString('utf-8');
           break;
+        case 'image/jpeg':
+        case 'image/png':
+        case 'image/webp':
+          throw new Error('Обработка изображений через OCR отключена. Отправьте фото напрямую в чат, без загрузки как документ.');
         default:
           throw new Error(`Неподдерживаемый тип файла: ${mimeType}`);
       }
@@ -118,6 +183,8 @@ export class OpenRouterService {
       throw new Error(`Ошибка при обработке файла: ${error.message}`);
     }
   }
+
+  // OCR удалён: изображения нужно отправлять напрямую как фото, а не документ
 
   private async extractPdfText(buffer: Buffer): Promise<string> {
     try {
