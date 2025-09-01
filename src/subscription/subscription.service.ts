@@ -14,6 +14,7 @@ export class SubscriptionService {
   /**
    * Списывает средства у пользователя через Setup.app и создаёт запись подписки в БД в одной операции.
    */
+  @CreateRequestContext()
   async chargeAndCreateSubscription(
     telegramId: number,
     amount: number,
@@ -23,22 +24,22 @@ export class SubscriptionService {
     const periodDays = options?.periodDays ?? 30;
     const autoRenew = options?.autoRenew ?? false;
 
-    const user = await this.em.findOne(User, { telegramId: String(telegramId) }, {
-      populate: ['subscriptions']
-    });
+
+    const user = await this.em.findOne(User, { telegramId: String(telegramId) });
 
     if (!user) {
       throw new Error('USER_NOT_FOUND');
     }
 
     const now = new Date();
-    const hasActiveSubscription = user?.subscriptions?.some(sub => 
-      sub.status === 'active' && 
-      sub.periodStart <= now && 
-      sub.periodEnd >= now
-    );
+    const activeSubsCount = await this.em.count(Subscription, {
+      user,
+      status: 'active',
+      periodStart: { $lte: now },
+      periodEnd: { $gte: now },
+    });
 
-    if (hasActiveSubscription) {
+    if (activeSubsCount > 0) {
       throw new Error('ALREADY_HAS_ACTIVE_SUBSCRIPTION');
     }
 

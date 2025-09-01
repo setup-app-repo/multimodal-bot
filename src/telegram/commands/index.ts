@@ -273,7 +273,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (ctx.from?.id) {
             try {
                 const telegramId = ctx.from?.id as number;
-                await this.setupAppService.auth(telegramId, {
+                await setupAppService.auth(telegramId, {
                     firstName: ctx.from?.first_name || '',
                     lastName: ctx.from?.last_name || '',
                     username: ctx.from?.username || '',
