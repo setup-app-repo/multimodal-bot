@@ -66,8 +66,10 @@ export class MessageHandlerService {
             this.logger.log(`Sending request to OpenRouter for user ${userId}, model: ${model}, history length: ${history.length}, has file: ${!!fileContent}`);
 
             const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
-            const price = getPriceSP(model, hasActiveSubscription);
-            this.logger.log(`Will deduct ${price} SP for user ${userId} for model ${model}. hasActiveSubscription: ${hasActiveSubscription}`);
+            const basePrice = getPriceSP(model, hasActiveSubscription);
+            const isFilePresent = !!fileContent && fileContent.length > 0;
+            const price = isFilePresent ? basePrice * 2 : basePrice; // Удваиваем стоимость, если есть файл
+            this.logger.log(`Will deduct ${price} SP for user ${userId} for model ${model}. hasActiveSubscription: ${hasActiveSubscription}, isFilePresent: ${isFilePresent}`);
 
             const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
             const isBaseNoSub = !hasActiveSubscription && tier === ModelTier.BASE;
@@ -101,7 +103,7 @@ export class MessageHandlerService {
             }
 
             if (tier !== ModelTier.BASE) {
-                const description = `Query to ${model}`;
+                const description = isFilePresent ? `Query to ${model} (file)` : `Query to ${model}`;
                 await this.setupAppService.deduct(Number(userId), price, description);
             }
 

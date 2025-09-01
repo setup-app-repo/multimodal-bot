@@ -78,7 +78,8 @@ export class VoiceHandlerService {
             const base64Audio = convertedBuffer.toString('base64');
 
             const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
-            const price = getPriceSP(model, hasActiveSubscription);
+            const basePrice = getPriceSP(model, hasActiveSubscription);
+            const price = basePrice * 2; // Удваиваем стоимость для голосовых сообщений
             const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
             const isBaseNoSub = !hasActiveSubscription && tier === ModelTier.BASE;
 

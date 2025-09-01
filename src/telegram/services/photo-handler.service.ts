@@ -4,7 +4,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
 import { Filter } from 'grammy';
 import { TelegramFileService } from './telegram-file.service';
-import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_FILES, DEFAULT_MODEL, getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from '../constants';
+import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL, getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from '../constants';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { getModelDisplayName } from '../utils/model-display';
 import { escapeMarkdown, sendLongMessage } from '../utils/message';
@@ -51,7 +51,7 @@ export class PhotoHandlerService {
                 return;
             }
 
-            if (!MODELS_SUPPORTING_FILES.has(model)) {
+            if (!MODELS_SUPPORTING_PHOTOS.has(model)) {
                 this.logger.warn(`User ${userId} tried to upload photo with unsupported model: ${model}`);
                 await ctx.reply(this.t(ctx, 'warning_model_no_file_support'));
                 return;
@@ -71,7 +71,8 @@ export class PhotoHandlerService {
             const caption = ctx.message.caption?.trim();
 
             const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
-            const price = getPriceSP(model, hasActiveSubscription);
+            const basePrice = getPriceSP(model, hasActiveSubscription);
+            const price = basePrice * 2; // Удваиваем стоимость для фото
             const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
             const isBaseNoSub = !hasActiveSubscription && tier === ModelTier.BASE;
 

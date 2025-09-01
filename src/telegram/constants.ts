@@ -23,10 +23,13 @@ export const ALLOWED_MIME_TYPES = new Set([
 
 // Модели, поддерживающие работу с файлами (валидируем перед отправкой)
 export const MODELS_SUPPORTING_FILES = new Set<string>([
-    // Уточняйте по мере подключения движков
     'openai/gpt-5',
     'openai/gpt-4o-mini',
     'qwen/qwen2.5-vl-32b-instruct',
+    'anthropic/claude-3.7-sonnet',
+    'google/gemini-2.5-pro',
+    'google/gemini-2.5-flash'
+    
 ]);
 
 // Стоимость (SP/запрос) по умолчанию указываем как стоимость без подписки по уровню
@@ -86,4 +89,15 @@ export function getPriceSP(model: string, hasActiveSub: boolean): number {
 // Модели, поддерживающие input_audio (по OpenRouter сейчас: gemini-2.5-flash)
 export const MODELS_SUPPORTING_AUDIO = new Set<string>([
     'google/gemini-2.5-flash',
+]);
+
+// Модели, поддерживающие изображение (photos)
+export const MODELS_SUPPORTING_PHOTOS = new Set<string>([
+    'openai/gpt-5',
+    'anthropic/claude-3.7-sonnet',
+    'x-ai/grok-4',
+    'google/gemini-2.5-pro',
+    'google/gemini-2.5-flash',
+    'qwen/qwen2.5-vl-32b-instruct',
+    'openai/gpt-4o-mini',
 ]);
