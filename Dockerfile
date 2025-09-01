@@ -59,7 +59,7 @@ RUN adduser --system --uid 1001 nestjs
 WORKDIR /app
 
 # Устанавливаем зависимости системы
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl ffmpeg
 
 # Копируем production зависимости
 COPY --from=dependencies --chown=nestjs:nodejs /app/node_modules ./node_modules

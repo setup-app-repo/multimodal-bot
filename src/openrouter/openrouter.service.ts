@@ -24,6 +24,73 @@ export class OpenRouterService {
     });
   }
 
+  async askWithAudio(history: any[], model: string, base64Audio: string, format: 'wav' | 'mp3', prompt?: string): Promise<string> {
+    this.logger.log(`Sending audio request to OpenRouter API, model: ${model}, history: ${history.length}, hasPrompt: ${!!prompt}, format: ${format}`);
+
+    const systemMessage = {
+      role: "system",
+      content: "You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages."
+    };
+
+    const messagesForModel: any[] = [systemMessage, ...history];
+
+    const contentParts: any[] = [];
+    // Gemini (через OpenRouter) требует хотя бы один text part в parts
+    const textPrompt = (prompt && prompt.trim().length > 0)
+      ? prompt
+      : 'Please listen to this voice message and reply naturally, considering the chat history and user intent.';
+    contentParts.push({ type: 'text', text: textPrompt });
+    contentParts.push({
+      type: 'input_audio',
+      input_audio: {
+        data: base64Audio,
+        format,
+      },
+    });
+
+    messagesForModel.push({ role: 'user', content: contentParts });
+
+    const maxAttempts = 3;
+    let attempt = 0;
+    let lastError: any;
+
+    while (attempt < maxAttempts) {
+      attempt += 1;
+      try {
+        const completion = await this.client.chat.completions.create(
+          {
+            model,
+            messages: messagesForModel,
+          },
+          {
+            timeout: 60000,
+          },
+        );
+
+        const response = completion.choices[0].message?.content || '';
+        this.logger.log(`Received response from OpenRouter API (audio), model: ${model}, response length: ${response.length}`);
+        return response;
+      } catch (error: any) {
+        lastError = error;
+        const status = (error && error.status) || (error && error.response && error.response.status);
+        const code = error?.code;
+        const messageText = String(error?.message || error);
+
+        const retriable = this.isRetriableError(code, status, messageText);
+        if (!retriable || attempt >= maxAttempts) {
+          this.logger.error(`Error calling OpenRouter API (audio), model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
+          break;
+        }
+
+        const backoffMs = this.getBackoffWithJitter(attempt);
+        this.logger.warn(`OpenRouter audio call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`);
+        await this.sleep(backoffMs);
+      }
+    }
+
+    throw lastError;
+  }
+
   async askWithImages(history: any[], model: string, images: { mimeType: string; dataUrl: string }[], prompt?: string): Promise<string> {
     this.logger.log(`Sending multimodal request to OpenRouter API, model: ${model}, history: ${history.length}, images: ${images.length}, hasPrompt: ${!!prompt}`);
 
