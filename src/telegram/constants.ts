@@ -64,7 +64,7 @@ export const TIER_PRICES_SP: Record<ModelTier, { withSub: number; withoutSub: nu
 };
 
 // Суточный лимит бесплатных запросов для BASE без подписки
-export const DAILY_BASE_FREE_LIMIT = 5
+export const DAILY_BASE_FREE_LIMIT = 30
 
 // Возвращает цену в SP для конкретной модели с учётом подписки
 export function getPriceSP(model: string, hasActiveSub: boolean): number {
