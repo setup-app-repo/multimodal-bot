@@ -24,15 +24,15 @@ premium_benefit_1 = • Descuento en solicitudes de pago
 premium_benefit_2 = • Prioridad en cola (respuestas más rápidas)
 premium_benefit_3 = • Límites mejorados y acceso a modelos potentes
 premium_activate_button = Activar por 10 SP
-premium_back_button = Atrás
+premium_back_button = ◀️ Atrás
 premium_activation_coming_soon = La activación premium estará disponible pronto
 
 # Premium — estado activo
 premium_active_title = ⭐ <b>Premium activo</b>
 premium_active_text = \n📅 <b>Válido hasta:</b> {$expires_at}\n⏳ <b>Restan:</b> {$days_left} días\n🔄 <b>Renovación automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Beneficios:</b>\n• Descuento en solicitudes de pago\n• Prioridad en la cola (respuestas más rápidas)\n• Límites aumentados y acceso a modelos potentes\n• Ventana de contexto ampliada (se guarda más historial de conversación)\n• Soporte 24/7\n• Estabilidad garantizada incluso en picos de carga
-premium_extend_30_button = Extender 30 días — 10 SP
-premium_autorenew_toggle_button_on = Renovación automática: {$on}
-premium_autorenew_toggle_button_off = Renovación automática: {$off}
+premium_extend_30_button = 🔄 Extender 30 días — 10 SP
+premium_autorenew_toggle_button_on = ⚙️ Renovación automática: {$on}
+premium_autorenew_toggle_button_off = ⚙️ Renovación automática: {$off}
 switch_on = ACTIVADO
 switch_off = DESACTIVADO
 # Botones del menú
@@ -66,9 +66,18 @@ help_billing = /billing — facturación y uso
 help_files = Archivos soportados (hasta 15 MB): PDF, DOCX, PPTX, CSV, texto.
 help_content_rules = Restricciones de contenido: prohibidos materiales ilegales, maliciosos, ofensivos.
 
+# Soporte
+help_contact_support_button = 🆘 Contactar soporte
+support_premium_required = 👤 Puedes contactar con soporte con Premium activo.
+support_open_chat_button = 🆘 Abrir chat de soporte
+support_unavailable = El enlace de soporte no está disponible ahora. Intenta más tarde.
+
+# Billing/Topping up
+topup_sp_button = 💳 Recargar SP
+
 
 # Onboarding después de seleccionar idioma
-onboarding_promo = **¡Hola, {$first_name}!** 👋\n\n**Soy el asistente de IA SETUP.**\n\n**Texto, foto o voz** — analizo y lo convierto en resultados: desde ideas y planes hasta análisis y documentos listos.\n\n🎙 **Voz** → transcripción, resúmenes, ideas estructuradas\n📸 **Foto** → análisis de contenido, descripción, extracción de datos\n🧑‍💻 **Código** → consejos, depuración, optimización\n✉️ **Textos de negocio** → emails, ofertas, landings, guiones de ventas\n🧭 **Estructura** → briefing → especificación → plan/checklist en minutos\n🔎 **Analítica** → hechos, riesgos, conclusiones, próximos pasos\n🧩 **Personalización a escala** → 50–500 variantes por plantilla\n🧪 **A/B test** → titulares, primeros párrafos, CTAs\n📊 **Datos** → extracción de entidades → Markdown / CSV / JSON\n🌍 **Idiomas y tono** → RU / EN / ES / PT / FR / DE, una sola voz de marca\n✨ **Modelos gratuitos disponibles para empezar.**\n🔥 **Para tareas serias — IA de pago:** más rápido, más inteligente y con Premium — más barato y con prioridad.\n\n👉 Pulsa **«Elegir modelo»** y vamos 🚀
+onboarding_promo = **¡Hola, {$first_name}!** 👋\n\n**Soy el asistente de IA SETUP.**\n\n**Texto, foto o voz** — analizo y lo convierto en resultados: desde ideas y planes hasta análisis y documentos listos.\n\n🎙 **Voz** → transcripción, resúmenes, ideas estructuradas\n📸 **Foto** → análisis de contenido, descripción, extracción de datos\n🧑‍💻 **Código** → consejos, depuración, optimización\n✉️ **Textos de negocio** → emails, ofertas, landings, guiones de ventas\n🧭 **Estructura** → briefing → especificación → plan/checklist en minutos\n🔎 **Analítica** → hechos, riesgos, conclusiones, próximos pasos\n🧩 **Personalización a escala** → 50–500 variantes por plantilla\n🧪 **A/B test** → titulares, primeros párrafos, CTAs\n📊 **Datos** → extracción de entidades → Markdown / CSV / JSON\n🌍 **Idiomas y tono** → RU / EN / ES / PT / FR / DE, una sola voz de marca\n\n✨ **Modelos gratuitos disponibles para empezar.**\n🔥 **Para tareas serias — IA de pago:** más rápido, más inteligente y con Premium — más barato y con prioridad.\n\n👉 Pulsa **«Elegir modelo»** y vamos 🚀
 onboarding_choose_model_button = 🚀 Elegir modelo
 
 # Perfil

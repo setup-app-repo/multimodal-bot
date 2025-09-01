@@ -35,7 +35,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     });
 
     // Безопасный ответ на callback query с обработкой ошибок
-    const safeAnswerCallbackQuery = async (ctx: BotContext, options?: { text?: string; show_alert?: boolean }) => {
+    const safeAnswerCallbackQuery = async (ctx: BotContext, options?: { text?: string; show_alert?: boolean; url?: string }) => {
         try {
             await ctx.answerCallbackQuery(options);
         } catch (error: any) {
@@ -122,6 +122,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         return { text, keyboard };
     };
 
+    // Кнопка поддержки всегда доступна в /help, доступ к чату — только с активным Premium
+
     const getPlanLimits = (ctx: BotContext, plan: string) => {
         if (plan.toLowerCase() === 'start') {
             return t(ctx, 'plan_start_limits');
@@ -130,7 +132,15 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     };
 
     const replyHelp = async (ctx: BotContext) => {
-        await ctx.reply(buildHelpText(ctx));
+        const userId = String(ctx.from?.id);
+        const hasActive = await subscriptionService.hasActiveSubscription(userId);
+        const keyboard = new InlineKeyboard();
+        if (hasActive) {
+            keyboard.url(t(ctx, 'help_contact_support_button'), 'https://t.me/setupmultisupport_bot');
+        } else {
+            keyboard.text(t(ctx, 'help_contact_support_button'), 'help:support');
+        }
+        await ctx.reply(buildHelpText(ctx), { reply_markup: keyboard });
     };
 
     const replyProfile = async (ctx: BotContext) => {
@@ -244,8 +254,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         return new Keyboard()
             .text(t(ctx, 'model_selection_button'))
             .row()
-            .text(t(ctx, 'help_button'))
             .text(t(ctx, 'profile_button'))
+            .text(t(ctx, 'help_button'))
             .resized();
     };
 
@@ -478,6 +488,21 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'menu_help') {
             await safeAnswerCallbackQuery(ctx);
             await replyHelp(ctx);
+            return;
+        }
+        if (data === 'help:support') {
+            await safeAnswerCallbackQuery(ctx);
+            const userId = String(ctx.from?.id);
+            const hasActive = await subscriptionService.hasActiveSubscription(userId);
+            if (!hasActive) {
+                const kb = new InlineKeyboard().text(t(ctx, 'model_buy_premium_button'), 'premium:buy');
+                await ctx.reply(t(ctx, 'support_premium_required'), { reply_markup: kb });
+                return;
+            }
+            // Для premium пользователей в /help уже показана URL-кнопка, сюда не попадём
+            // На всякий случай дублируем ответ ссылкой
+            const kb = new InlineKeyboard().url(t(ctx, 'help_contact_support_button'), 'https://t.me/setupmultisupport_bot');
+            await ctx.reply(t(ctx, 'help_contact_support_button'), { reply_markup: kb });
             return;
         }
         if (data === 'menu_profile') {

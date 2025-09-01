@@ -24,11 +24,11 @@ premium_benefit_1 = • Discount on paid requests
 premium_benefit_2 = • Priority queue (faster responses)
 premium_benefit_3 = • Higher limits and access to powerful models
 premium_activate_button = Activate for 10 SP
-premium_back_button = Back
+premium_back_button = ◀️ Back
 premium_activation_coming_soon = Premium activation will be available soon
 # Premium — activation scenarios
 premium_insufficient_sp = Not enough SP: need 10, you have {$balance}. Top up and try again.
-topup_sp_button = Top up SP
+topup_sp_button = 💳 Top up SP
 premium_activated_success = Premium activated! Enjoy ✨
 premium_enable_autorenew_button = Enable auto-renewal
 premium_later_button = Later
@@ -38,9 +38,9 @@ premium_autorenew_later_info = You can enable auto-renewal later in Profile → 
 # Premium — active status
 premium_active_title = ⭐ <b>Premium is active</b>
 premium_active_text = \n📅 <b>Valid until:</b> {$expires_at}\n⏳ <b>Time left:</b> {$days_left} days\n🔄 <b>Auto-renewal:</b> <b>{$autorenew}</b>\n💰 <b>Balance:</b> {$balance} SP\n\n<b>Benefits:</b>\n• Discount on paid requests\n• Priority in the queue (faster responses)\n• Higher limits and access to powerful models\n• Extended context window (more conversation history is saved)\n• 24/7 support\n• Guaranteed stability even during peak load
-premium_extend_30_button = Extend for 30 days — 10 SP
-premium_autorenew_toggle_button_on = Auto-renewal: {$on}
-premium_autorenew_toggle_button_off = Auto-renewal: {$off}
+premium_extend_30_button = 🔄 Extend for 30 days — 10 SP
+premium_autorenew_toggle_button_on = ⚙️ Auto-renewal: {$on}
+premium_autorenew_toggle_button_off = ⚙️ Auto-renewal: {$off}
 switch_on = ON
 switch_off = OFF
 # Menu buttons
@@ -74,9 +74,15 @@ help_billing = /billing — billing and usage
 help_files = Supported files (up to 15 MB): PDF, DOCX, PPTX, CSV, text.
 help_content_rules = Content restrictions: illegal, harmful, offensive materials are prohibited.
 
+# Support
+help_contact_support_button = 🆘 Contact support
+support_premium_required = 👤 Contacting support is available with an active Premium.
+support_open_chat_button = 🆘 Open support chat
+support_unavailable = Support link is unavailable right now. Please try again later.
+
 
 # Onboarding after language selection
-onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant.**\n\n**Text, photo, or voice** — I analyze and turn it into results: from ideas and plans to analysis and finished documents.\n\n🎙 **Voice** → transcription, summaries, structured ideas\n📸 **Photo** → content analysis, description, data extraction\n🧑‍💻 **Code** → tips, debugging, optimization\n✉️ **Business writing** → emails, offers, landing pages, sales scripts\n🧭 **Structure** → brief → spec → plan/checklist in minutes\n🔎 **Analytics** → facts, risks, conclusions, next steps\n🧩 **Personalization at scale** → 50–500 variations by template\n🧪 **A/B testing** → headlines, first paragraphs, CTAs\n📊 **Data** → entity extraction → Markdown / CSV / JSON\n🌍 **Languages & tone** → RU / EN / ES / PT / FR / DE, one brand voice\n✨ **Free models available to start.**\n🔥 **For serious tasks — paid AIs:** faster, smarter, and with Premium — cheaper and prioritized.\n\n👉 Tap **“Choose model”** to begin 🚀
+onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant.**\n\n**Text, photo, or voice** — I analyze and turn it into results: from ideas and plans to analysis and finished documents.\n\n🎙 **Voice** → transcription, summaries, structured ideas\n📸 **Photo** → content analysis, description, data extraction\n🧑‍💻 **Code** → tips, debugging, optimization\n✉️ **Business writing** → emails, offers, landing pages, sales scripts\n🧭 **Structure** → brief → spec → plan/checklist in minutes\n🔎 **Analytics** → facts, risks, conclusions, next steps\n🧩 **Personalization at scale** → 50–500 variations by template\n🧪 **A/B testing** → headlines, first paragraphs, CTAs\n📊 **Data** → entity extraction → Markdown / CSV / JSON\n🌍 **Languages & tone** → RU / EN / ES / PT / FR / DE, one brand voice\n\n✨ **Free models available to start.**\n🔥 **For serious tasks — paid AIs:** faster, smarter, and with Premium — cheaper and prioritized.\n\n👉 Tap **“Choose model”** to begin 🚀
 onboarding_choose_model_button = 🚀 Choose model
 
 # Profile

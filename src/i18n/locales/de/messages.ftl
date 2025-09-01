@@ -24,15 +24,15 @@ premium_benefit_1 = • Rabatt auf bezahlte Anfragen
 premium_benefit_2 = • Priorität in der Warteschlange (schnellere Antworten)
 premium_benefit_3 = • Höhere Limits und Zugang zu leistungsstarken Modellen
 premium_activate_button = Für 10 SP aktivieren
-premium_back_button = Zurück
+premium_back_button = ◀️ Zurück
 premium_activation_coming_soon = Premium-Aktivierung wird bald verfügbar sein
 
 # Premium — aktiver Status
 premium_active_title = ⭐ <b>Premium aktiv</b>
 premium_active_text = \n📅 <b>Gültig bis:</b> {$expires_at}\n⏳ <b>Verbleibend:</b> {$days_left} Tage\n🔄 <b>Automatische Verlängerung:</b> <b>{$autorenew}</b>\n💰 <b>Guthaben:</b> {$balance} SP\n\n<b>Vorteile:</b>\n• Rabatt auf kostenpflichtige Anfragen\n• Priorität in der Warteschlange (schnellere Antworten)\n• Höhere Limits und Zugang zu leistungsstarken Modellen\n• Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)\n• 24/7 Support\n• Garantierte Stabilität auch bei Spitzenlast
-premium_extend_30_button = Um 30 Tage verlängern — 10 SP
-premium_autorenew_toggle_button_on = Automatische Verlängerung: {$on}
-premium_autorenew_toggle_button_off = Automatische Verlängerung: {$off}
+premium_extend_30_button = 🔄 Um 30 Tage verlängern — 10 SP
+premium_autorenew_toggle_button_on = ⚙️ Automatische Verlängerung: {$on}
+premium_autorenew_toggle_button_off = ⚙️ Automatische Verlängerung: {$off}
 switch_on = EIN
 switch_off = AUS
 # Menü-Buttons
@@ -40,6 +40,7 @@ help_button = Hilfe
 profile_button = Profil
 model_selection_button = Modell auswählen
 profile_language_button = 🌍 Sprache
+topup_sp_button = 💳 SP aufladen
 profile_change_plan_button = Tarif ändern
 
 # Befehle
@@ -65,6 +66,12 @@ help_billing = /billing — Abrechnung und Nutzung
 
 help_files = Unterstützte Dateien (bis 15 MB): PDF, DOCX, PPTX, CSV, Text.
 help_content_rules = Inhaltsbeschränkungen: illegale, schädliche, beleidigende Materialien verboten.
+
+# Support
+help_contact_support_button = 🆘 Support kontaktieren
+support_premium_required = 👤 Support ist nur mit aktivem Premium verfügbar.
+support_open_chat_button = 🆘 Support-Chat öffnen
+support_unavailable = Der Support-Link ist derzeit nicht verfügbar. Bitte später erneut versuchen.
 
 
 # Profil
@@ -169,4 +176,4 @@ message_part = Teil {$current} von {$total}
 processing_request = ⏳ Verarbeite deine Anfrage...
 
 # Onboarding nach Sprachauswahl
-onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assistent.**\n\n**Text, Foto oder Stimme** — ich analysiere und verwandle es in Ergebnisse: von Ideen und Plänen bis hin zu Analysen und fertigen Dokumenten.\n\n🎙 **Stimme** → Transkription, Zusammenfassungen, strukturierte Ideen\n📸 **Foto** → Inhaltsanalyse, Beschreibung, Datenauszug\n🧑‍💻 **Code** → Tipps, Fehlersuche, Optimierung\n✉️ **Business-Texte** → E-Mails, Angebote, Landingpages, Vertriebsskripte\n🧭 **Struktur** → Briefing → Spezifikation → Plan/Checkliste in Minuten\n🔎 **Analytik** → Fakten, Risiken, Schlussfolgerungen, nächste Schritte\n🧩 **Skalierte Personalisierung** → 50–500 Varianten pro Vorlage\n🧪 **A/B-Test** → Überschriften, erste Absätze, CTAs\n📊 **Daten** → Entitätsextraktion → Markdown / CSV / JSON\n🌍 **Sprachen & Ton** → RU / EN / ES / PT / FR / DE, eine einheitliche Markenstimme\n✨ **Kostenlose Modelle zum Start verfügbar.**\n🔥 **Für ernsthafte Aufgaben — bezahlte KIs:** schneller, smarter, und mit Premium — günstiger und priorisiert.\n\n👉 Tippe **„Modell wählen“** — und los geht’s 🚀
+onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assistent.**\n\n**Text, Foto oder Stimme** — ich analysiere und verwandle es in Ergebnisse: von Ideen und Plänen bis hin zu Analysen und fertigen Dokumenten.\n\n🎙 **Stimme** → Transkription, Zusammenfassungen, strukturierte Ideen\n📸 **Foto** → Inhaltsanalyse, Beschreibung, Datenauszug\n🧑‍💻 **Code** → Tipps, Fehlersuche, Optimierung\n✉️ **Business-Texte** → E-Mails, Angebote, Landingpages, Vertriebsskripte\n🧭 **Struktur** → Briefing → Spezifikation → Plan/Checkliste in Minuten\n🔎 **Analytik** → Fakten, Risiken, Schlussfolgerungen, nächste Schritte\n🧩 **Skalierte Personalisierung** → 50–500 Varianten pro Vorlage\n🧪 **A/B-Test** → Überschriften, erste Absätze, CTAs\n📊 **Daten** → Entitätsextraktion → Markdown / CSV / JSON\n🌍 **Sprachen & Ton** → RU / EN / ES / PT / FR / DE, eine einheitliche Markenstimme\n\n✨ **Kostenlose Modelle zum Start verfügbar.**\n🔥 **Für ernsthafte Aufgaben — bezahlte KIs:** schneller, smarter, und mit Premium — günstiger und priorisiert.\n\n👉 Tippe **„Modell wählen“** — und los geht’s 🚀

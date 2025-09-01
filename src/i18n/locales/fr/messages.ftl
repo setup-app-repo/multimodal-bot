@@ -24,15 +24,15 @@ premium_benefit_1 = • Réduction sur les requêtes payantes
 premium_benefit_2 = • Priorité dans la file d'attente (réponses plus rapides)
 premium_benefit_3 = • Limites augmentées et accès aux modèles puissants
 premium_activate_button = Activer pour 10 SP
-premium_back_button = Retour
+premium_back_button = ◀️ Retour
 premium_activation_coming_soon = L'activation premium sera disponible prochainement
 
 # Premium — statut actif
 premium_active_title = ⭐ <b>Premium actif</b>
 premium_active_text = \n📅 <b>Valable jusqu’au :</b> {$expires_at}\n⏳ <b>Restant :</b> {$days_left} jours\n🔄 <b>Renouvellement auto :</b> <b>{$autorenew}</b>\n💰 <b>Solde :</b> {$balance} SP\n\n<b>Avantages :</b>\n• Réduction sur les requêtes payantes\n• Priorité dans la file (réponses plus rapides)\n• Limites augmentées et accès aux modèles puissants\n• Fenêtre de contexte étendue (plus d’historique conservé)\n• Support 24/7\n• Stabilité garantie même en période de forte charge
-premium_extend_30_button = Prolonger de 30 jours — 10 SP
-premium_autorenew_toggle_button_on = Renouvellement auto : {$on}
-premium_autorenew_toggle_button_off = Renouvellement auto : {$off}
+premium_extend_30_button = 🔄 Prolonger de 30 jours — 10 SP
+premium_autorenew_toggle_button_on = ⚙️ Renouvellement auto : {$on}
+premium_autorenew_toggle_button_off = ⚙️ Renouvellement auto : {$off}
 switch_on = ACTIVÉ
 switch_off = DÉSACTIVÉ
 # Boutons du menu
@@ -66,9 +66,18 @@ help_billing = /billing — facturation et utilisation
 help_files = Fichiers supportés (jusqu'à 15 Mo) : PDF, DOCX, PPTX, CSV, texte.
 help_content_rules = Restrictions de contenu : interdits matériaux illégaux, malveillants, offensants.
 
+# Support
+help_contact_support_button = 🆘 Contacter le support
+support_premium_required = 👤 Contacter le support est disponible avec Premium actif.
+support_open_chat_button = 🆘 Ouvrir le chat du support
+support_unavailable = Le lien du support est indisponible pour le moment. Réessayez plus tard.
+
+# Facturation/Recharge
+topup_sp_button = 💳 Recharger des SP
+
 
 # Onboarding après la sélection de la langue
-onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant IA SETUP.**\n\n**Texte, photo ou voix** — j’analyse et je transforme en résultats : des idées et plans jusqu’à l’analyse et des documents prêts à l’usage.\n\n🎙 **Voix** → transcription, résumés, idées structurées\n📸 **Photo** → analyse de contenu, description, extraction de données\n🧑‍💻 **Code** → conseils, débogage, optimisation\n✉️ **Textes business** → emails, offres, landing pages, scripts de vente\n🧭 **Structure** → brief → cahier des charges → plan/checklist en quelques minutes\n🔎 **Analytique** → faits, risques, conclusions, next steps\n🧩 **Personnalisation à grande échelle** → 50–500 variantes par modèle\n🧪 **A/B test** → titres, premiers paragraphes, CTAs\n📊 **Données** → extraction d’entités → Markdown / CSV / JSON\n🌍 **Langues et ton** → RU / EN / ES / PT / FR / DE, une seule voix de marque\n✨ **Des modèles gratuits sont disponibles pour commencer.**\n🔥 **Pour les tâches sérieuses — IA payantes :** plus rapide, plus intelligent, et avec le Premium — moins cher et prioritaire.\n\n👉 Appuyez sur **« Choisir le modèle »** — c’est parti 🚀
+onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant IA SETUP.**\n\n**Texte, photo ou voix** — j’analyse et je transforme en résultats : des idées et plans jusqu’à l’analyse et des documents prêts à l’usage.\n\n🎙 **Voix** → transcription, résumés, idées structurées\n📸 **Photo** → analyse de contenu, description, extraction de données\n🧑‍💻 **Code** → conseils, débogage, optimisation\n✉️ **Textes business** → emails, offres, landing pages, scripts de vente\n🧭 **Structure** → brief → cahier des charges → plan/checklist en quelques minutes\n🔎 **Analytique** → faits, risques, conclusions, next steps\n🧩 **Personnalisation à grande échelle** → 50–500 variantes par modèle\n🧪 **A/B test** → titres, premiers paragraphes, CTAs\n📊 **Données** → extraction d’entités → Markdown / CSV / JSON\n🌍 **Langues et ton** → RU / EN / ES / PT / FR / DE, une seule voix de marque\n\n✨ **Des modèles gratuits sont disponibles pour commencer.**\n🔥 **Pour les tâches sérieuses — IA payantes :** plus rapide, plus intelligent, et avec le Premium — moins cher et prioritaire.\n\n👉 Appuyez sur **« Choisir le modèle »** — c’est parti 🚀
 onboarding_choose_model_button = 🚀 Choisir le modèle
 
 # Profil

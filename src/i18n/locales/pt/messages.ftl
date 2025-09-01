@@ -24,15 +24,15 @@ premium_benefit_1 = • Desconto em solicitações pagas
 premium_benefit_2 = • Prioridade na fila (respostas mais rápidas)
 premium_benefit_3 = • Limites aumentados e acesso a modelos poderosos
 premium_activate_button = Ativar por 10 SP
-premium_back_button = Voltar
+premium_back_button = ◀️ Voltar
 premium_activation_coming_soon = A ativação premium estará disponível em breve
 
 # Premium — status ativo
 premium_active_title = ⭐ <b>Premium ativo</b>
 premium_active_text = \n📅 <b>Válido até:</b> {$expires_at}\n⏳ <b>Restante:</b> {$days_left} dias\n🔄 <b>Renovação automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Vantagens:</b>\n• Desconto em solicitações pagas\n• Prioridade na fila (respostas mais rápidas)\n• Limites aumentados e acesso a modelos poderosos\n• Janela de contexto estendida (mais histórico de conversa salvo)\n• Suporte 24/7\n• Estabilidade garantida mesmo em picos de carga
-premium_extend_30_button = Prorrogar por 30 dias — 10 SP
-premium_autorenew_toggle_button_on = Renovação automática: {$on}
-premium_autorenew_toggle_button_off = Renovação automática: {$off}
+premium_extend_30_button = 🔄 Prorrogar por 30 dias — 10 SP
+premium_autorenew_toggle_button_on = ⚙️ Renovação automática: {$on}
+premium_autorenew_toggle_button_off = ⚙️ Renovação automática: {$off}
 switch_on = ATIVADO
 switch_off = DESATIVADO
 # Botões do menu
@@ -40,6 +40,7 @@ help_button = Ajuda
 profile_button = Perfil
 model_selection_button = Selecionar modelo
 profile_language_button = 🌍 Idioma
+topup_sp_button = 💳 Recarregar SP
 profile_change_plan_button = Alterar plano
 
 # Comandos
@@ -66,9 +67,15 @@ help_billing = /billing — cobrança e uso
 help_files = Arquivos suportados (até 15 MB): PDF, DOCX, PPTX, CSV, texto.
 help_content_rules = Restrições de conteúdo: proibidos materiais ilegais, maliciosos, ofensivos.
 
+# Suporte
+help_contact_support_button = 🆘 Contatar suporte
+support_premium_required = 👤 Contatar o suporte está disponível com Premium ativo.
+support_open_chat_button = 🆘 Abrir chat de suporte
+support_unavailable = O link de suporte está indisponível no momento. Tente novamente mais tarde.
+
 
 # Onboarding após seleção de idioma
-onboarding_promo = **Oi, {$first_name}!** 👋\n\n**Sou o assistente de IA SETUP.**\n\n**Texto, foto ou voz** — analiso e transformo em resultados: de ideias e planos a análises e documentos prontos.\n\n🎙 **Voz** → transcrição, resumos, ideias estruturadas\n📸 **Foto** → análise de conteúdo, descrição, extração de dados\n🧑‍💻 **Código** → dicas, depuração, otimização\n✉️ **Textos de negócios** → emails, ofertas, landing pages, roteiros de vendas\n🧭 **Estrutura** → briefing → especificação → plano/checklist em minutos\n🔎 **Análise** → fatos, riscos, conclusões, próximos passos\n🧩 **Personalização em escala** → 50–500 variações por template\n🧪 **Teste A/B** → títulos, primeiros parágrafos, CTAs\n📊 **Dados** → extração de entidades → Markdown / CSV / JSON\n🌍 **Idiomas e tom** → RU / EN / ES / PT / FR / DE, uma única voz de marca\n✨ **Modelos gratuitos disponíveis para começar.**\n🔥 **Para tarefas sérias — IAs pagas:** mais rápido, mais inteligente e com Premium — ainda mais barato e prioritário.\n\n👉 Toque em **“Escolher modelo”** e vamos 🚀
+onboarding_promo = **Oi, {$first_name}!** 👋\n\n**Sou o assistente de IA SETUP.**\n\n**Texto, foto ou voz** — analiso e transformo em resultados: de ideias e planos a análises e documentos prontos.\n\n🎙 **Voz** → transcrição, resumos, ideias estruturadas\n📸 **Foto** → análise de conteúdo, descrição, extração de dados\n🧑‍💻 **Código** → dicas, depuração, otimização\n✉️ **Textos de negócios** → emails, ofertas, landing pages, roteiros de vendas\n🧭 **Estrutura** → briefing → especificação → plano/checklist em minutos\n🔎 **Análise** → fatos, riscos, conclusões, próximos passos\n🧩 **Personalização em escala** → 50–500 variações por template\n🧪 **Teste A/B** → títulos, primeiros parágrafos, CTAs\n📊 **Dados** → extração de entidades → Markdown / CSV / JSON\n🌍 **Idiomas e tom** → RU / EN / ES / PT / FR / DE, uma única voz de marca\n\n✨ **Modelos gratuitos disponíveis para começar.**\n🔥 **Para tarefas sérias — IAs pagas:** mais rápido, mais inteligente e com Premium — ainda mais barato e prioritário.\n\n👉 Toque em **“Escolher modelo”** e vamos 🚀
 onboarding_choose_model_button = 🚀 Escolher modelo
 
 # Perfil
