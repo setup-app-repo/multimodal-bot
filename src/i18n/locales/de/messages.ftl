@@ -175,3 +175,6 @@ message_part = Teil {$current} von {$total}
 
 # Verarbeitungsindikator
 processing_request = ⏳ Verarbeite deine Anfrage...
+
+# Onboarding nach Sprachauswahl
+onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assistent.**\n\n**Text, Foto oder Stimme** — ich analysiere und verwandle es in Ergebnisse: von Ideen und Plänen bis hin zu Analysen und fertigen Dokumenten.\n\n🎙 **Stimme** → Transkription, Zusammenfassungen, strukturierte Ideen\n\n📸 **Foto** → Inhaltsanalyse, Beschreibung, Datenauszug\n\n🧑‍💻 **Code** → Tipps, Fehlersuche, Optimierung\n\n✉️ **Business-Texte** → E-Mails, Angebote, Landingpages, Vertriebsskripte\n\n🧭 **Struktur** → Briefing → Spezifikation → Plan/Checkliste in Minuten\n\n🔎 **Analytik** → Fakten, Risiken, Schlussfolgerungen, nächste Schritte\n\n🧩 **Skalierte Personalisierung** → 50–500 Varianten pro Vorlage\n\n🧪 **A/B-Test** → Überschriften, erste Absätze, CTAs\n\n📊 **Daten** → Entitätsextraktion → Markdown / CSV / JSON\n\n🌍 **Sprachen & Ton** → RU / EN / ES / PT / FR / DE, eine einheitliche Markenstimme\n\n✨ **Kostenlose Modelle zum Start verfügbar.**\n\n🔥 **Für ernsthafte Aufgaben — bezahlte KIs:** schneller, smarter, und mit Premium — günstiger und priorisiert.\n\n👉 Tippe **„Modell wählen“** — und los geht’s 🚀

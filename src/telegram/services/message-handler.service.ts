@@ -9,7 +9,7 @@ import { Filter } from 'grammy';
 import { getModelDisplayName } from '../utils/model-display';
 import { escapeMarkdown, sendLongMessage } from '../utils/message';
 import { TelegramFileService } from './telegram-file.service';
-import { getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from '../constants';
+import { getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT, DEFAULT_MODEL } from '../constants';
 
 @Injectable()
 export class MessageHandlerService {
@@ -40,15 +40,11 @@ export class MessageHandlerService {
             if ([helpButtonText, profileButtonText, modelSelectionButtonText].includes(text)) return;
 
             const userId = String(ctx.from?.id);
-            const model = await this.redisService.get<string>(`chat:${userId}:model`);
+            const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
             this.logger.log(`Processing text message from user ${userId}, model: ${model}`);
 
-            if (!model) {
-                this.logger.warn(`User ${userId} tried to send message without selecting model`);
-                await ctx.reply(this.t(ctx, 'warning_select_model_first'));
-                return;
-            }
+            // Модель по умолчанию всегда установлена через DEFAULT_MODEL
 
             await ctx.api.sendChatAction(ctx.chat.id, 'typing');
 

@@ -9,6 +9,9 @@ export const models = [
     'openai/gpt-4o-mini',
 ];
 
+// Модель по умолчанию (бесплатная)
+export const DEFAULT_MODEL = 'openai/gpt-4o-mini';
+
 export const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024; // 15 MB
 export const ALLOWED_MIME_TYPES = new Set([
     'application/pdf',
@@ -24,15 +27,19 @@ export const MODELS_SUPPORTING_FILES = new Set<string>([
     'openai/gpt-5',
 ]);
 
-// Стоимость (SP/запрос) и условная «сила ума» для отображения в меню выбора модели
+// Стоимость (SP/запрос) по умолчанию указываем как стоимость без подписки по уровню
+// Итоговая стоимость для пользователя берётся через getPriceSP(model, hasActiveSub)
 export const MODEL_INFO: Record<string, { price: number; power: number }> = {
-    'openai/gpt-5': { price: 0.01, power: 1000 },
+    // Top
+    'openai/gpt-5': { price: 0.03, power: 1000 },
     'anthropic/claude-3.7-sonnet': { price: 0.03, power: 850 },
-    'x-ai/grok-4': { price: 0.01, power: 750 },
-    'google/gemini-2.5-pro': { price: 0.01, power: 750 },
-    'deepseek/deepseek-chat-v3.1': { price: 0.01, power: 850 },
-    'google/gemini-2.5-flash': { price: 0.0015, power: 500 },
-    'qwen/qwen2.5-vl-32b-instruct': { price: 0.005, power: 500 },
+    'google/gemini-2.5-pro': { price: 0.03, power: 750 },
+    // Mid
+    'x-ai/grok-4': { price: 0.013, power: 750 },
+    'deepseek/deepseek-chat-v3.1': { price: 0.013, power: 850 },
+    'google/gemini-2.5-flash': { price: 0.013, power: 500 },
+    'qwen/qwen2.5-vl-32b-instruct': { price: 0.013, power: 500 },
+    // Base
     'openai/gpt-4o-mini': { price: 0, power: 200 },
 };
 
@@ -68,6 +75,7 @@ export const DAILY_BASE_FREE_LIMIT = 30
 
 // Возвращает цену в SP для конкретной модели с учётом подписки
 export function getPriceSP(model: string, hasActiveSub: boolean): number {
+    // Цена определяется тарифным уровнем модели
     const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
     const prices = TIER_PRICES_SP[tier];
     return hasActiveSub ? prices.withSub : prices.withoutSub;

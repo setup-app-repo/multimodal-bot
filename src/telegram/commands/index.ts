@@ -3,7 +3,7 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { models, MODEL_INFO } from '../constants';
+import { models, MODEL_INFO, DEFAULT_MODEL, getPriceSP } from '../constants';
 import { AppType } from '@setup-app-repo/setup.app-sdk';
 import { UserService } from 'src/user/user.service';
 import { getModelDisplayName } from '../utils/model-display';
@@ -136,9 +136,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
     const replyProfile = async (ctx: BotContext) => {
         const userId = String(ctx.from?.id);
-        const [model] = await Promise.all([
+        let [model] = await Promise.all([
             redisService.get<string>(`chat:${userId}:model`),
         ]);
+        if (!model) model = DEFAULT_MODEL;
 
         const currentLang = ctx.session.lang || i18n.getDefaultLocale();
         const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
@@ -148,14 +149,19 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
         const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
+        const balanceLine = t(ctx, 'profile_balance', { balance: spBalance }).replace(/^([^:]+:)/, '<b>$1</b>');
+        const premiumLine = t(ctx, 'profile_premium', { status: premiumLabel }).replace(/^([^:]+:)/, '<b>$1</b>');
+        const modelLine = t(ctx, 'current_model', { model: modelDisplay }).replace(/^([^:]+:)/, '<b>$1</b>');
+        const langLine = t(ctx, 'current_language', { lang: getLanguageNameWithoutFlag(ctx, currentLang) }).replace(/^([^:]+:)/, '<b>$1</b>');
+
         const text =
-            `💰 ${t(ctx, 'profile_balance', { balance: spBalance })}
+            `💰 ${balanceLine}
 ` +
-            `⭐ ${t(ctx, 'profile_premium', { status: premiumLabel })}
+            `⭐ ${premiumLine}
 ` +
-            `${t(ctx, 'current_model', { model: modelDisplay })}
+            `${modelLine}
 ` +
-            `${t(ctx, 'current_language', { lang: getLanguageLabel(ctx, currentLang) })}`;
+            `${langLine}`;
 
         const keyboard = new InlineKeyboard()
             .text(t(ctx, 'profile_language_button'), 'profile_language')
@@ -163,15 +169,17 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             .row()
             .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 
-        await ctx.reply(text, { reply_markup: keyboard });
+        await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
     };
 
     const replyModelSelection = async (ctx: BotContext) => {
         const userId = String(ctx.from?.id);
-        const selectedModel = await redisService.get<string>(`chat:${userId}:model`);
+        const selectedModel = (await redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
         const keyboard = new InlineKeyboard();
+        const hasActive = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
         models.forEach((model) => {
-            const { price, power } = MODEL_INFO[model] || { price: 0, power: 0 };
+            const { power } = MODEL_INFO[model] || { price: 0, power: 0 };
+            const price = getPriceSP(model, hasActive);
             const displayName = getModelDisplayName(model);
             const prefix = selectedModel === model ? '✅ ' : '';
             const label = `${prefix}${displayName} • ${price} SP • 🧠 ${power}`;
@@ -212,6 +220,11 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         return t(ctx, key);
     };
 
+    const getLanguageNameWithoutFlag = (ctx: BotContext, code: string): string => {
+        const fullLabel = getLanguageLabel(ctx, code);
+        return fullLabel.replace(/^(?:\uD83C[\uDDE6-\uDDFF]){2}\s*/, '').trim();
+    };
+
     const buildHelpText = (ctx: BotContext) => {
         return (
             `${t(ctx, 'help_title')}\n\n` +
@@ -236,10 +249,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
     const buildMainReplyKeyboard = (ctx: BotContext) => {
         return new Keyboard()
+            .text(t(ctx, 'model_selection_button'))
+            .row()
             .text(t(ctx, 'help_button'))
             .text(t(ctx, 'profile_button'))
-            .row()
-            .text(t(ctx, 'model_selection_button'))
             .resized();
     };
 
@@ -315,8 +328,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const profileLangCode = ctx.from?.language_code;
             const initialLang = profileLangCode && i18n.isLocaleSupported(profileLangCode) ? profileLangCode : 'ru';
             ctx.session.lang = initialLang;
-            // Сначала отправляем приветствие перед выбором языка
-            await ctx.reply(t(ctx, 'start_language_welcome'));
 
             const keyboard = new InlineKeyboard()
                 .text(t(ctx, 'language_english'), 'lang_en').row()
@@ -325,14 +336,15 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 .text(t(ctx, 'language_german'), 'lang_de').row()
                 .text(t(ctx, 'language_portuguese'), 'lang_pt').row()
                 .text(t(ctx, 'language_french'), 'lang_fr');
-            await ctx.reply(t(ctx, 'choose_language'), { reply_markup: keyboard });
+                await ctx.reply(t(ctx, 'start_language_welcome'), { reply_markup: keyboard });
             return;
         }
 
         // Язык есть — гарантируем его в сессии
         ctx.session.lang = ctx.session.lang || savedLang;
 
-        const promoTextStart = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' }).replace(/\\n/g, '\n');
+        const promoTextStart = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' });
+        const promoTextStartMd = promoTextStart.replace(/\*\*(.+?)\*\*/g, '*$1*').replace(/\\n/g, '\n');
 
         const telegramId = ctx.from?.id as number;
 
@@ -346,7 +358,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         promises.push(processMenuButtonAsync(ctx, telegramId));
         await Promise.all(promises);
 
-        await ctx.reply(promoTextStart, { reply_markup: buildMainReplyKeyboard(ctx) });
+        await ctx.reply(promoTextStartMd, { reply_markup: buildMainReplyKeyboard(ctx), parse_mode: 'Markdown' });
     });
 
     bot.command('help', async (ctx) => {
@@ -355,9 +367,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
     bot.command('profile', async (ctx) => {
         const userId = String(ctx.from?.id);
-        const [model] = await Promise.all([
+        let [model] = await Promise.all([
             redisService.get<string>(`chat:${userId}:model`),
         ]);
+        if (!model) model = DEFAULT_MODEL;
 
         const currentLang = ctx.session.lang || i18n.getDefaultLocale();
         const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
@@ -375,7 +388,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 ` +
             `${t(ctx, 'current_model', { model: modelDisplay })}
 ` +
-            `${t(ctx, 'current_language', { lang: getLanguageLabel(ctx, currentLang) })}`;
+            `${t(ctx, 'current_language', { lang: getLanguageNameWithoutFlag(ctx, currentLang) })}`;
 
         const keyboard = new InlineKeyboard()
             .text(t(ctx, 'profile_language_button'), 'profile_language')
@@ -424,18 +437,42 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             }
             await redisService.set(`chat:${String(ctx.from?.id)}:model`, selectedModel, 60 * 60);
             await safeAnswerCallbackQuery(ctx);
+
+            // Динамически обновляем галочку в текущем списке моделей
+            try {
+                const selectionKeyboard = new InlineKeyboard();
+                models.forEach((model) => {
+                    const { price, power } = MODEL_INFO[model] || { price: 0, power: 0 };
+                    const displayName = getModelDisplayName(model);
+                    const prefix = selectedModel === model ? '✅ ' : '';
+                    const label = `${prefix}${displayName} • ${price} SP • 🧠 ${power}`;
+                    selectionKeyboard.text(label, `model_${model}`).row();
+                });
+                selectionKeyboard.text(t(ctx, 'model_close_button'), 'model:close');
+                await ctx.editMessageReplyMarkup({ reply_markup: selectionKeyboard });
+            } catch {}
             const modelDisplayName = getModelDisplayName(selectedModel);
-            const { price } = MODEL_INFO[selectedModel] || { price: 0 };
             const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
-            const keyboard = new InlineKeyboard();
+            const priceWithoutSub = getPriceSP(selectedModel, false);
+            const priceWithSub = getPriceSP(selectedModel, true);
+
+            const codeModel = `<code>${modelDisplayName}</code>`;
+            const header = `🚀 <b>Ты подключил модель: ${codeModel}</b>`;
+            const priceLine = isPremium
+                ? `🔹 <b>Цена: <s>${priceWithoutSub.toFixed(3)}</s> SP → ${priceWithSub.toFixed(3)} SP / запрос с Премиум ⭐</b>`
+                : `🔹 <b>Цена: ${priceWithoutSub.toFixed(3)} SP / запрос</b>`;
+            const premiumHint = isPremium
+                ? ''
+                : `\n\n🔹 <b>С Премиум — меньше расходов и выше приоритет ⭐</b>`;
+            const footer = `\n\n💬 <b>Напиши сообщение в чат или задай вопрос — и я начну работать.</b>`;
+            const messageHtml = `${header}\n\n${priceLine}${premiumHint}${footer}`;
+
+            const confirmKeyboard = new InlineKeyboard();
             if (!isPremium) {
-                keyboard.text(t(ctx, 'model_buy_premium_button'), 'premium:buy').row();
+                confirmKeyboard.text(t(ctx, 'model_buy_premium_button'), 'premium:buy').row();
             }
-            keyboard.text(t(ctx, 'model_close_button'), 'model:close');
-            await ctx.reply(
-                t(ctx, 'model_active', { model: modelDisplayName, price }),
-                { reply_markup: keyboard }
-            );
+            confirmKeyboard.text(t(ctx, 'model_close_button'), 'model:close');
+            await ctx.reply(messageHtml, { reply_markup: confirmKeyboard, parse_mode: 'HTML' });
             return;
         }
 
@@ -453,9 +490,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         if (data === 'menu_profile') {
             await safeAnswerCallbackQuery(ctx);
             const userId = String(ctx.from?.id);
-            const [model] = await Promise.all([
+            let [model] = await Promise.all([
                 redisService.get<string>(`chat:${userId}:model`),
             ]);
+            if (!model) model = DEFAULT_MODEL;
 
             const currentLang = ctx.session.lang || i18n.getDefaultLocale();
             const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
@@ -465,16 +503,21 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
+            const balanceLine = t(ctx, 'profile_balance', { balance: spBalance }).replace(/^([^:]+:)/, '<b>$1</b>');
+            const premiumLine = t(ctx, 'profile_premium', { status: premiumLabel }).replace(/^([^:]+:)/, '<b>$1</b>');
+            const modelLine = t(ctx, 'current_model', { model: modelDisplay }).replace(/^([^:]+:)/, '<b>$1</b>');
+            const langLine = t(ctx, 'current_language', { lang: getLanguageNameWithoutFlag(ctx, currentLang) }).replace(/^([^:]+:)/, '<b>$1</b>');
+
             const text =
                 `👤 ${t(ctx, 'profile_title')}
 ` +
-                `💰 ${t(ctx, 'profile_balance', { balance: spBalance })}
+                `💰 ${balanceLine}
 ` +
-                `⭐ ${t(ctx, 'profile_premium', { status: premiumLabel })}
+                `⭐ ${premiumLine}
 ` +
-                `${t(ctx, 'current_model', { model: modelDisplay })}
+                `${modelLine}
 ` +
-                `${t(ctx, 'current_language', { lang: getLanguageLabel(ctx, currentLang) })}`;
+                `${langLine}`;
 
             const keyboard = new InlineKeyboard()
                 .text(t(ctx, 'profile_language_button'), 'profile_language')
@@ -482,7 +525,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 .row()
                 .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 
-            await ctx.reply(text, { reply_markup: keyboard });
+            await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
             return;
         }
         if (data === 'menu_model') {
@@ -566,8 +609,9 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
             if (!prevLang) {
                 // Первый выбор языка: показываем онбординг и сразу постоянную reply-клавиатуру
-                const promoText = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' }).replace(/\\n/g, '\n');
-                await ctx.reply(promoText, { reply_markup: buildMainReplyKeyboard(ctx) });
+                const promoText = t(ctx, 'onboarding_promo', { first_name: ctx.from?.first_name || ctx.from?.username || '' });
+                const promoTextMd = promoText.replace(/\*\*(.+?)\*\*/g, '*$1*').replace(/\\n/g, '\n');
+                await ctx.reply(promoTextMd, { reply_markup: buildMainReplyKeyboard(ctx), parse_mode: 'Markdown' });
             } else if (prevLang !== selected) {
                 // Смена языка: короткое сообщение и обновление reply-клавиатуры
                 await ctx.reply(
@@ -710,16 +754,21 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
             const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
+            const balanceLine = t(ctx, 'profile_balance', { balance: spBalance }).replace(/^([^:]+:)/, '<b>$1</b>');
+            const premiumLine = t(ctx, 'profile_premium', { status: premiumLabel }).replace(/^([^:]+:)/, '<b>$1</b>');
+            const modelLine = t(ctx, 'current_model', { model: modelDisplay }).replace(/^([^:]+:)/, '<b>$1</b>');
+            const langLine = t(ctx, 'current_language', { lang: getLanguageNameWithoutFlag(ctx, currentLang) }).replace(/^([^:]+:)/, '<b>$1</b>');
+
             const text =
                 `👤 ${t(ctx, 'profile_title')}
 ` +
-                `💰 ${t(ctx, 'profile_balance', { balance: spBalance })}
+                `💰 ${balanceLine}
 ` +
-                `⭐ ${t(ctx, 'profile_premium', { status: premiumLabel })}
+                `⭐ ${premiumLine}
 ` +
-                `${t(ctx, 'current_model', { model: modelDisplay })}
+                `${modelLine}
 ` +
-                `${t(ctx, 'current_language', { lang: getLanguageLabel(ctx, currentLang) })}`;
+                `${langLine}`;
 
             const keyboard = new InlineKeyboard()
                 .text(t(ctx, 'profile_language_button'), 'profile_language')
@@ -727,7 +776,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 .row()
                 .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 
-            await ctx.reply(text, { reply_markup: keyboard });
+            await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
             return;
         }
 

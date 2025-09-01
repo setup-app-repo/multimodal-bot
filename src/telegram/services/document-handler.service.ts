@@ -4,7 +4,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
 import { Filter } from 'grammy';
 import { TelegramFileService } from './telegram-file.service';
-import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES } from '../constants';
+import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, DEFAULT_MODEL } from '../constants';
 
 @Injectable()
 export class DocumentHandlerService {
@@ -27,7 +27,7 @@ export class DocumentHandlerService {
             if (!doc) return;
 
             const userId = String(ctx.from?.id);
-            const model = await this.redisService.get<string>(`chat:${userId}:model`);
+            const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
             this.logger.log(`Document received from user ${userId}: ${doc.file_name} (${doc.mime_type}, ${doc.file_size} bytes)`);
 
@@ -45,11 +45,7 @@ export class DocumentHandlerService {
                 return;
             }
 
-            if (!model) {
-                this.logger.warn(`User ${userId} tried to upload file without selecting model`);
-                await ctx.reply(this.t(ctx, 'warning_select_model_before_file'));
-                return;
-            }
+            // Модель по умолчанию всегда установлена через DEFAULT_MODEL
 
             if (!MODELS_SUPPORTING_FILES.has(model)) {
                 this.logger.warn(`User ${userId} tried to upload file with unsupported model: ${model}`);
