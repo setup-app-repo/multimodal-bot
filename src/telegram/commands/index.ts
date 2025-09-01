@@ -116,7 +116,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             .row()
             .text(t(ctx, 'topup_sp_button'), 'wallet:topup')
             .row()
-            .text(t(ctx, 'premium_back_button'), 'profile:back');
+            .text(t(ctx, 'premium_back_button'), 'premium:back');
 
         const text = `${header}\n${body}`;
         return { text, keyboard };
@@ -754,42 +754,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         if (data === 'premium:back') {
             await safeAnswerCallbackQuery(ctx);
-            // Возвращаемся в профиль
-            const userId = String(ctx.from?.id);
-            const [model] = await Promise.all([
-                redisService.get<string>(`chat:${userId}:model`),
-            ]);
-
-            const currentLang = ctx.session.lang || i18n.getDefaultLocale();
-            const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
-
-            const spBalance = 0;
-            const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
-            const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
-
-            const balanceLine = t(ctx, 'profile_balance', { balance: spBalance }).replace(/^([^:]+:)/, '<b>$1</b>');
-            const premiumLine = t(ctx, 'profile_premium', { status: premiumLabel }).replace(/^([^:]+:)/, '<b>$1</b>');
-            const modelLine = t(ctx, 'current_model', { model: modelDisplay }).replace(/^([^:]+:)/, '<b>$1</b>');
-            const langLine = t(ctx, 'current_language', { lang: getLanguageNameWithoutFlag(ctx, currentLang) }).replace(/^([^:]+:)/, '<b>$1</b>');
-
-            const text =
-                `👤 ${t(ctx, 'profile_title')}
-` +
-                `💰 ${balanceLine}
-` +
-                `⭐ ${premiumLine}
-` +
-                `${modelLine}
-` +
-                `${langLine}`;
-
-            const keyboard = new InlineKeyboard()
-                .text(t(ctx, 'profile_language_button'), 'profile_language')
-                .text(t(ctx, 'profile_premium_button'), 'profile:premium')
-                .row()
-                .text(t(ctx, 'profile_clear_button'), 'profile_clear');
-
-            await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
+            try { await ctx.deleteMessage(); } catch {}
             return;
         }
 
