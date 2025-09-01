@@ -24,6 +24,16 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     const { t, i18n, redisService, setupAppService, userService, subscriptionService } = deps;
 
 
+    // Глобальный middleware: при любом входящем сообщении обновляем только lastMessageAt
+    bot.use(async (ctx, next) => {
+        try {
+            if (ctx.message && ctx.from?.id) {
+                await userService.updateUser(String(ctx.from.id));
+            }
+        } catch {}
+        return next();
+    });
+
     // Безопасный ответ на callback query с обработкой ошибок
     const safeAnswerCallbackQuery = async (ctx: BotContext, options?: { text?: string; show_alert?: boolean }) => {
         try {

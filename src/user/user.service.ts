@@ -54,4 +54,12 @@ export class UserService {
 
     return user;
   }
+
+  /**
+   * Обновляет только поле lastMessageAt пользователя по telegramId.
+   */
+  @CreateRequestContext()
+  async updateUser(telegramId: string): Promise<void> {
+    await this.em.nativeUpdate(User, { telegramId }, { lastMessageAt: new Date() });
+  }
 }

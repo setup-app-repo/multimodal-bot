@@ -1,13 +1,12 @@
 import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
-import { v4 } from 'uuid';
 import { User } from '../user/user.entity';
 
 export type SubscriptionStatus = 'active' | 'expired' | 'canceled';
 
 @Entity()
 export class Subscription {
-  @PrimaryKey({ type: 'uuid' })
-  id: string = v4();
+  @PrimaryKey({ type: 'bigint' })
+  id!: string;
 
   @ManyToOne(() => User, { nullable: false, fieldName: 'telegram_id' })
   user!: User;

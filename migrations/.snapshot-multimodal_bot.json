@@ -6,15 +6,6 @@
   "tables": [
     {
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "serial",
-          "unsigned": false,
-          "autoincrement": true,
-          "primary": true,
-          "nullable": false,
-          "mappedType": "integer"
-        },
         "telegram_id": {
           "name": "telegram_id",
           "type": "varchar(255)",
@@ -119,19 +110,9 @@
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "telegram_id"
-          ],
-          "composite": false,
-          "keyName": "user_telegram_id_unique",
-          "constraint": true,
-          "primary": false,
-          "unique": true
-        },
-        {
           "keyName": "user_pkey",
           "columnNames": [
-            "id"
+            "telegram_id"
           ],
           "composite": false,
           "constraint": true,
@@ -147,21 +128,22 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "bigserial",
           "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
+          "autoincrement": true,
+          "primary": true,
           "nullable": false,
-          "mappedType": "uuid"
+          "mappedType": "bigint"
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "int",
+        "telegram_id": {
+          "name": "telegram_id",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "integer"
+          "length": 255,
+          "mappedType": "string"
         },
         "period_start": {
           "name": "period_start",
@@ -231,14 +213,14 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "subscription_user_id_foreign": {
-          "constraintName": "subscription_user_id_foreign",
+        "subscription_telegram_id_foreign": {
+          "constraintName": "subscription_telegram_id_foreign",
           "columnNames": [
-            "user_id"
+            "telegram_id"
           ],
           "localTableName": "public.subscription",
           "referencedColumnNames": [
-            "id"
+            "telegram_id"
           ],
           "referencedTableName": "public.user",
           "createForeignKeyConstraint": true,
