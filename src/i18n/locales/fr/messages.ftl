@@ -52,7 +52,6 @@ clear_command = Effacer l'historique du chat
 billing_command = Facturation et utilisation
 
 # Aide
-help_title = Aide :
 help_usage = Comment utiliser : envoyez du texte/voix/image/document ou un lien vidéo — je m’en charge et je réponds
 help_commands_title = Commandes :
 help_start = /start — menu principal
@@ -63,18 +62,10 @@ help_language = /language — langue de l'interface
 help_clear = /clear — effacer le contexte
 help_billing = /billing — facturation et utilisation
 
-help_context_rules_title = Règles du contexte :
-help_context_rules_1 = — Nous conservons une fenêtre des 20 derniers paires "Question-Réponse".
-help_context_rules_2 = — /clear efface complètement l'historique.
-help_context_rules_3 = — Pour "Démarrer" le contexte est désactivé.
 
 help_files = Fichiers supportés (jusqu'à 15 Mo) : PDF, DOCX, PPTX, CSV, texte.
-help_models = Modèles disponibles : OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Restrictions de contenu : interdits matériaux illégaux, malveillants, offensants.
-help_disclaimer = Avertissement : les réponses sont fournies "en l'état" et peuvent contenir des erreurs.
 
-# Bouton support
-help_support_button = 👤 Contacter le support
 
 # Onboarding après la sélection de la langue
 onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant IA SETUP.**\n\n**Texte, photo ou voix** — j’analyse et je transforme en résultats : des idées et plans jusqu’à l’analyse et des documents prêts à l’usage.\n\n🎙 **Voix** → transcription, résumés, idées structurées\n📸 **Photo** → analyse de contenu, description, extraction de données\n🧑‍💻 **Code** → conseils, débogage, optimisation\n✉️ **Textes business** → emails, offres, landing pages, scripts de vente\n🧭 **Structure** → brief → cahier des charges → plan/checklist en quelques minutes\n🔎 **Analytique** → faits, risques, conclusions, next steps\n🧩 **Personnalisation à grande échelle** → 50–500 variantes par modèle\n🧪 **A/B test** → titres, premiers paragraphes, CTAs\n📊 **Données** → extraction d’entités → Markdown / CSV / JSON\n🌍 **Langues et ton** → RU / EN / ES / PT / FR / DE, une seule voix de marque\n✨ **Des modèles gratuits sont disponibles pour commencer.**\n🔥 **Pour les tâches sérieuses — IA payantes :** plus rapide, plus intelligent, et avec le Premium — moins cher et prioritaire.\n\n👉 Appuyez sur **« Choisir le modèle »** — c’est parti 🚀

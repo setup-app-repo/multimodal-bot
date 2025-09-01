@@ -52,7 +52,6 @@ clear_command = Limpiar historial del chat
 billing_command = Facturación y uso
 
 # Ayuda
-help_title = Ayuda:
 help_usage = Cómo usar: envía texto/voz/imagen/documento o un enlace de video — lo procesaré y responderé
 help_commands_title = Comandos:
 help_start = /start — menú principal
@@ -63,18 +62,10 @@ help_language = /language — idioma de la interfaz
 help_clear = /clear — limpiar contexto
 help_billing = /billing — facturación y uso
 
-help_context_rules_title = Reglas del contexto:
-help_context_rules_1 = — Mantenemos una ventana de las últimas 20 pares "Pregunta-Respuesta".
-help_context_rules_2 = — /clear limpia completamente el historial.
-help_context_rules_3 = — Para "Inicio" el contexto está desactivado.
 
 help_files = Archivos soportados (hasta 15 MB): PDF, DOCX, PPTX, CSV, texto.
-help_models = Modelos disponibles: OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Restricciones de contenido: prohibidos materiales ilegales, maliciosos, ofensivos.
-help_disclaimer = Descargo de responsabilidad: las respuestas se proporcionan "tal como están" y pueden contener errores.
 
-# Botón de soporte
-help_support_button = 👤 Contactar soporte
 
 # Onboarding después de seleccionar idioma
 onboarding_promo = **¡Hola, {$first_name}!** 👋\n\n**Soy el asistente de IA SETUP.**\n\n**Texto, foto o voz** — analizo y lo convierto en resultados: desde ideas y planes hasta análisis y documentos listos.\n\n🎙 **Voz** → transcripción, resúmenes, ideas estructuradas\n📸 **Foto** → análisis de contenido, descripción, extracción de datos\n🧑‍💻 **Código** → consejos, depuración, optimización\n✉️ **Textos de negocio** → emails, ofertas, landings, guiones de ventas\n🧭 **Estructura** → briefing → especificación → plan/checklist en minutos\n🔎 **Analítica** → hechos, riesgos, conclusiones, próximos pasos\n🧩 **Personalización a escala** → 50–500 variantes por plantilla\n🧪 **A/B test** → titulares, primeros párrafos, CTAs\n📊 **Datos** → extracción de entidades → Markdown / CSV / JSON\n🌍 **Idiomas y tono** → RU / EN / ES / PT / FR / DE, una sola voz de marca\n✨ **Modelos gratuitos disponibles para empezar.**\n🔥 **Para tareas serias — IA de pago:** más rápido, más inteligente y con Premium — más barato y con prioridad.\n\n👉 Pulsa **«Elegir modelo»** y vamos 🚀

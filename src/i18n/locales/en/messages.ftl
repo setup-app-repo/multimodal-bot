@@ -60,7 +60,6 @@ clear_command = Clear chat history
 billing_command = Billing and usage
 
 # Help
-help_title = Help:
 help_usage = How to use: send text/voice/image/document or a video link — I’ll handle it and reply
 help_commands_title = Commands:
 help_start = /start — main menu
@@ -71,18 +70,10 @@ help_language = /language — interface language
 help_clear = /clear — clear context
 help_billing = /billing — billing and usage
 
-help_context_rules_title = Context rules:
-help_context_rules_1 = — We store a window of the last 20 "Question-Answer" pairs.
-help_context_rules_2 = — /clear completely clears the history.
-help_context_rules_3 = — For "Start" plan, context is disabled.
 
 help_files = Supported files (up to 15 MB): PDF, DOCX, PPTX, CSV, text.
-help_models = Available models: OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Content restrictions: illegal, harmful, offensive materials are prohibited.
-help_disclaimer = Disclaimer: answers are provided "as is" and may contain errors.
 
-# Support button
-help_support_button = 👤 Contact support
 
 # Onboarding after language selection
 onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant.**\n\n**Text, photo, or voice** — I analyze and turn it into results: from ideas and plans to analysis and finished documents.\n\n🎙 **Voice** → transcription, summaries, structured ideas\n📸 **Photo** → content analysis, description, data extraction\n🧑‍💻 **Code** → tips, debugging, optimization\n✉️ **Business writing** → emails, offers, landing pages, sales scripts\n🧭 **Structure** → brief → spec → plan/checklist in minutes\n🔎 **Analytics** → facts, risks, conclusions, next steps\n🧩 **Personalization at scale** → 50–500 variations by template\n🧪 **A/B testing** → headlines, first paragraphs, CTAs\n📊 **Data** → entity extraction → Markdown / CSV / JSON\n🌍 **Languages & tone** → RU / EN / ES / PT / FR / DE, one brand voice\n✨ **Free models available to start.**\n🔥 **For serious tasks — paid AIs:** faster, smarter, and with Premium — cheaper and prioritized.\n\n👉 Tap **“Choose model”** to begin 🚀

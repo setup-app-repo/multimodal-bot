@@ -52,7 +52,6 @@ clear_command = Limpar histórico do chat
 billing_command = Cobrança e uso
 
 # Ajuda
-help_title = Ajuda:
 help_usage = Como usar: envie texto/voz/imagem/documento ou um link de vídeo — eu resolvo e respondo
 help_commands_title = Comandos:
 help_start = /start — menu principal
@@ -63,18 +62,10 @@ help_language = /language — idioma da interface
 help_clear = /clear — limpar contexto
 help_billing = /billing — cobrança e uso
 
-help_context_rules_title = Regras do contexto:
-help_context_rules_1 = — Mantemos uma janela das últimas 20 pares "Pergunta-Resposta".
-help_context_rules_2 = — /clear limpa completamente o histórico.
-help_context_rules_3 = — Para "Início" o contexto está desativado.
 
 help_files = Arquivos suportados (até 15 MB): PDF, DOCX, PPTX, CSV, texto.
-help_models = Modelos disponíveis: OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Restrições de conteúdo: proibidos materiais ilegais, maliciosos, ofensivos.
-help_disclaimer = Isenção de responsabilidade: as respostas são fornecidas "como estão" e podem conter erros.
 
-# Botão de suporte
-help_support_button = 👤 Falar com o suporte
 
 # Onboarding após seleção de idioma
 onboarding_promo = **Oi, {$first_name}!** 👋\n\n**Sou o assistente de IA SETUP.**\n\n**Texto, foto ou voz** — analiso e transformo em resultados: de ideias e planos a análises e documentos prontos.\n\n🎙 **Voz** → transcrição, resumos, ideias estruturadas\n📸 **Foto** → análise de conteúdo, descrição, extração de dados\n🧑‍💻 **Código** → dicas, depuração, otimização\n✉️ **Textos de negócios** → emails, ofertas, landing pages, roteiros de vendas\n🧭 **Estrutura** → briefing → especificação → plano/checklist em minutos\n🔎 **Análise** → fatos, riscos, conclusões, próximos passos\n🧩 **Personalização em escala** → 50–500 variações por template\n🧪 **Teste A/B** → títulos, primeiros parágrafos, CTAs\n📊 **Dados** → extração de entidades → Markdown / CSV / JSON\n🌍 **Idiomas e tom** → RU / EN / ES / PT / FR / DE, uma única voz de marca\n✨ **Modelos gratuitos disponíveis para começar.**\n🔥 **Para tarefas sérias — IAs pagas:** mais rápido, mais inteligente e com Premium — ainda mais barato e prioritário.\n\n👉 Toque em **“Escolher modelo”** e vamos 🚀

@@ -52,7 +52,6 @@ clear_command = Chat-Verlauf löschen
 billing_command = Abrechnung und Nutzung
 
 # Hilfe
-help_title = Hilfe:
 help_usage = So verwenden Sie es: Senden Sie Text/Sprach-/Bild-/Dokumente oder einen Videolink — ich kümmere mich darum und antworte
 help_commands_title = Befehle:
 help_start = /start — Hauptmenü
@@ -63,18 +62,10 @@ help_language = /language — Interface-Sprache
 help_clear = /clear — Kontext löschen
 help_billing = /billing — Abrechnung und Nutzung
 
-help_context_rules_title = Kontextregeln:
-help_context_rules_1 = — Wir behalten ein Fenster der letzten 20 "Frage-Antwort"-Paare.
-help_context_rules_2 = — /clear löscht den Verlauf vollständig.
-help_context_rules_3 = — Für "Start" ist der Kontext deaktiviert.
 
 help_files = Unterstützte Dateien (bis 15 MB): PDF, DOCX, PPTX, CSV, Text.
-help_models = Verfügbare Modelle: OpenAI, DeepSeek, Sonet, GPT Mini, Grok.
 help_content_rules = Inhaltsbeschränkungen: illegale, schädliche, beleidigende Materialien verboten.
-help_disclaimer = Haftungsausschluss: Antworten werden "wie besehen" bereitgestellt und können Fehler enthalten.
 
-# Support-Schaltfläche
-help_support_button = 👤 Support kontaktieren
 
 # Profil
 profile_coming_soon =  👤 Profil: bald verfügbar.

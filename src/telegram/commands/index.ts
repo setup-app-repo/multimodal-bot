@@ -130,9 +130,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     };
 
     const replyHelp = async (ctx: BotContext) => {
-        const keyboard = new InlineKeyboard()
-            .url(t(ctx, 'help_support_button'), 'https://t.me/setupmultisupport_bot');
-        await ctx.reply(buildHelpText(ctx), { reply_markup: keyboard });
+        await ctx.reply(buildHelpText(ctx));
     };
 
     const replyProfile = async (ctx: BotContext) => {
@@ -228,7 +226,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
     const buildHelpText = (ctx: BotContext) => {
         return (
-            `${t(ctx, 'help_title')}\n\n` +
             `${t(ctx, 'help_usage')}\n\n` +
             `${t(ctx, 'help_commands_title')}\n` +
             `${t(ctx, 'help_start')}\n` +
@@ -238,13 +235,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             `${t(ctx, 'help_language')}\n` +
             `${t(ctx, 'help_clear')}\n` +
             `${t(ctx, 'help_billing')}\n\n` +
-            `${t(ctx, 'help_context_rules_title')}\n` +
-            `${t(ctx, 'help_context_rules_1')}\n` +
-            `${t(ctx, 'help_context_rules_2')}\n` +
-            `${t(ctx, 'help_context_rules_3')}\n\n` +
             `${t(ctx, 'help_files')}\n\n` +
-            `${t(ctx, 'help_content_rules')}\n` +
-            `${t(ctx, 'help_disclaimer')}`
+            `${t(ctx, 'help_content_rules')}`
         );
     };
 
