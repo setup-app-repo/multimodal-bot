@@ -41,7 +41,7 @@ export class VoiceHandlerService {
             const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
             if (!MODELS_SUPPORTING_AUDIO.has(model)) {
-                await ctx.reply(this.t(ctx, 'warning_model_no_file_support'));
+                await ctx.reply(this.t(ctx, 'warning_model_no_voice_support'));
                 return;
             }
 

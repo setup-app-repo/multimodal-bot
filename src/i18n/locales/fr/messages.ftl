@@ -166,6 +166,8 @@ warning_file_size_limit =  ⚠️ La taille du fichier dépasse la limite de 15 
 warning_unsupported_file_type =  ⚠️ Seuls les fichiers PDF, DOCX, PPTX, CSV et texte jusqu'à 15 Mo sont supportés.
 warning_select_model_before_file =  ⚠️ Sélectionnez d'abord un modèle via /model, puis envoyez le fichier.
 warning_model_no_file_support =  🚫 Le modèle actuel ne supporte pas le travail avec les fichiers. Veuillez en sélectionner un autre dans /model.
+warning_model_no_voice_support =  🚫 Ce modèle ne supporte pas les messages vocaux. Veuillez essayer un autre modèle.
+warning_model_no_photo_support =  🚫 Ce modèle ne supporte pas le traitement des photos. Veuillez essayer un autre modèle.
 
 # Fichiers
 file_accepted =  📎 Fichier accepté ! Maintenant envoyez votre question et j'analyserai le contenu du fichier.

@@ -53,7 +53,7 @@ export class PhotoHandlerService {
 
             if (!MODELS_SUPPORTING_PHOTOS.has(model)) {
                 this.logger.warn(`User ${userId} tried to upload photo with unsupported model: ${model}`);
-                await ctx.reply(this.t(ctx, 'warning_model_no_file_support'));
+                await ctx.reply(this.t(ctx, 'warning_model_no_photo_support'));
                 return;
             }
 
