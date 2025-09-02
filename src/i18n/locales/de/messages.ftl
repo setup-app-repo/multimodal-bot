@@ -47,7 +47,7 @@ premium_insufficient_sp = ⚠️ <b>Nicht genügend SP</b>
 premium_activated_success = Premium aktiviert! Viel Erfolg ✨
 premium_enable_autorenew_button = Automatische Verlängerung aktivieren
 premium_later_button = Später
-premium_autorenew_enabled = Automatische Verlängerung aktiviert ✅\nWir werden 10 SP am Verlängerungstag belasten — {$expires_at}. Sie können es in Profil → Premium deaktivieren.
+premium_autorenew_enabled = <b>Automatische Verlängerung aktiviert</b> ✅\n\nSie können es im Profil deaktivieren
 premium_autorenew_later_info = Sie können die automatische Verlängerung später in Profil → Premium aktivieren
 
 # Bestätigung für automatische Verlängerung
@@ -151,7 +151,7 @@ model_connected_title = 🚀 Du hast das Modell verbunden: <b>{$model}</b>!
 model_price_line_with_premium = 🔹 <b>Preis: <s>{$price_without} SP</s> → {$price_with} SP / Anfrage mit Premium ⭐</b>
 model_price_line_without_premium =
     🔹 <b>Preis: {$price_without} SP</b>
-    🔹 <b>Mit Premium — geringere Kosten und höhere Priorität ⭐</b>
+    🔹 <b>Mit Premium {$price_with} SP — geringere Kosten und höhere Priorität ⭐</b>
 model_price_line_free = 🔹 <b>Preis: kostenlos</b>
 price_free_short = kostenlos
 attachments_double_cost_note = 📎 Anhänge (Fotos/Audio/Dateien) verdoppeln die Kosten der Anfrage.

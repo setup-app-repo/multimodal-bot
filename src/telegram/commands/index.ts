@@ -611,7 +611,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 ? t(ctx, 'model_price_line_free')
                 : (isPremium
                     ? t(ctx, 'model_price_line_with_premium', { price_without: priceWithoutSub.toFixed(3), price_with: priceWithSub.toFixed(3) })
-                    : t(ctx, 'model_price_line_without_premium', { price_without: priceWithoutSub.toFixed(3) })
+                    : t(ctx, 'model_price_line_without_premium', { price_without: priceWithoutSub.toFixed(3), price_with: priceWithSub.toFixed(3) })
                   );
 
             const attachmentsNote = t(ctx, 'attachments_double_cost_note');
@@ -632,7 +632,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
             const confirmKeyboard = new InlineKeyboard();
             if (!isPremium) {
-                confirmKeyboard.text(t(ctx, 'model_buy_premium_button'), 'premium:activate').row();
+                confirmKeyboard.text(t(ctx, 'model_buy_premium_button'), 'profile:premium').row();
             }
             confirmKeyboard.text(t(ctx, 'model_close_button'), 'model:close');
             await renderScreen(ctx, { text: messageHtml, keyboard: confirmKeyboard, parse_mode: 'HTML' });
@@ -853,6 +853,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
 
         if (data === 'premium:enable_autorenew') {
+            console.log('>>>>>>>');
+            
             await safeAnswerCallbackQuery(ctx);
             const telegramId = String(ctx.from?.id);
             const updated = await subscriptionService.setAutoRenew(telegramId, true);

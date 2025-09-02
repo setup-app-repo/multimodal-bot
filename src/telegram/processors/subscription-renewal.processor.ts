@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-import { EntityManager } from '@mikro-orm/core';
+import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
 
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { Subscription } from 'src/subscription/subscription.entity';
@@ -21,9 +21,11 @@ export class SubscriptionRenewalProcessor extends WorkerHost {
   /**
    * Доклады job.data: { telegramId: number, subscriptionId: string }
    */
+  @CreateRequestContext()
   async process(job: Job<{ telegramId: number; subscriptionId: string }>): Promise<void> {
     const { telegramId, subscriptionId } = job.data;
     try {
+      
       const sub = await this.em.findOne(Subscription, { id: subscriptionId }, { populate: ['user'] });
       if (!sub || sub.status !== 'active' || !sub.autoRenew) {
         return;
@@ -48,7 +50,7 @@ export class SubscriptionRenewalProcessor extends WorkerHost {
 
       await this.setupAppService.deduct(telegramId, amount, description);
 
-      // Обновляем период: с текущего момента на 30 дней
+      // // Обновляем период: с текущего момента на 30 дней
       const newStart = new Date();
       const newEnd = new Date(newStart);
       newEnd.setDate(newEnd.getDate() + 30);

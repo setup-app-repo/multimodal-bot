@@ -47,7 +47,7 @@ premium_insufficient_sp = ⚠️ <b>SP insuficientes</b>
 premium_activated_success = ¡Premium activado! Buen trabajo ✨
 premium_enable_autorenew_button = Activar renovación automática
 premium_later_button = Más tarde
-premium_autorenew_enabled = Renovación automática activada ✅\nCobraremos 10 SP el día de renovación — {$expires_at}. Puedes desactivarlo en Perfil → Premium.
+premium_autorenew_enabled = <b>Renovación automática activada</b> ✅\n\nPuedes desactivarla en Perfil
 premium_autorenew_later_info = Puedes activar la renovación automática más tarde en Perfil → Premium
 
 # Confirmación de renovación automática
@@ -156,7 +156,7 @@ model_connected_title = 🚀 Has conectado el modelo: <b>{$model}</b>!
 model_price_line_with_premium = 🔹 <b>Precio: <s>{$price_without} SP</s> → {$price_with} SP / solicitud con Premium ⭐</b>
 model_price_line_without_premium =
     🔹 <b>Precio: {$price_without} SP</b>
-    🔹 <b>Con Premium — menor costo y mayor prioridad ⭐</b>
+    🔹 <b>Con Premium {$price_with} SP — menor costo y mayor prioridad ⭐</b>
 model_price_line_free = 🔹 <b>Precio: gratis</b>
 price_free_short = gratis
 attachments_double_cost_note = 📎 Los adjuntos (fotos/audio/archivos) duplican el costo de la solicitud.

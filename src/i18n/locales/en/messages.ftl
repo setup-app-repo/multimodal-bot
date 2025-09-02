@@ -45,7 +45,7 @@ topup_sp_button = 💳 Top up SP
 premium_activated_success = Premium activated! Enjoy ✨
 premium_enable_autorenew_button = Enable auto-renewal
 premium_later_button = Later
-premium_autorenew_enabled = Auto-renewal enabled ✅\nWe will charge 10 SP on renewal day — {$expires_at}. You can disable it in Profile → Premium.
+premium_autorenew_enabled = <b>Auto-renewal enabled</b> ✅\n\nYou can disable it in Profile
 premium_autorenew_later_info = You can enable auto-renewal later in Profile → Premium
 
 # Auto-renewal confirmation
@@ -150,7 +150,7 @@ model_connected_title = 🚀 You connected the model: <b>{$model}</b>!
 model_price_line_with_premium = 🔹 <b>Price: <s>{$price_without} SP</s> → {$price_with} SP / request with Premium ⭐</b>
 model_price_line_without_premium =
     🔹 <b>Price: {$price_without} SP</b>
-    🔹 <b>With Premium — lower cost and higher priority ⭐</b>
+    🔹 <b>With Premium {$price_with} SP — lower cost and higher priority ⭐</b>
 model_price_line_free = 🔹 <b>Price: Free</b>
 price_free_short = free
 attachments_double_cost_note = 📎 Attachments (photos/audio/files) double the cost of the request.
