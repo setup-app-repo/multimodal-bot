@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { BullModule } from '@nestjs/bullmq';
+import { Redis } from 'ioredis';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,6 +20,18 @@ import { SubscriptionModule } from './subscription/subscription.module';
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
     ScheduleModule.forRoot(),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => {
+        const redisUrl = config.get<string>('REDIS_URL');
+        if (!redisUrl) {
+          throw new Error('REDIS_URL is required for BullMQ connection');
+        }
+        return {
+          connection: new Redis(redisUrl),
+        };
+      },
+    }),
     MikroOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => createMikroOrmConfig(config),

@@ -15,11 +15,22 @@ import { DocumentHandlerService } from './services/document-handler.service';
 import { PhotoHandlerService } from './services/photo-handler.service';
 import { VoiceHandlerService } from './services/voice-handler.service';
 import { AudioConversionService } from './services/audio-conversion.service';
+import { BullModule } from '@nestjs/bullmq';
+import { SubscriptionRenewalProcessor } from './processors/subscription-renewal.processor';
 
 @Module({
-  imports: [RedisModule, AppConfigModule, I18nModule, OpenRouterModule, SetupAppModule, UserModule, SubscriptionModule],
+  imports: [
+    RedisModule,
+    AppConfigModule,
+    I18nModule,
+    OpenRouterModule,
+    SetupAppModule,
+    UserModule,
+    SubscriptionModule,
+    BullModule.registerQueue({ name: 'subscription-renewal' }),
+  ],
   controllers: [TelegramController],
-  providers: [TelegramService, BotService, TelegramFileService, MessageHandlerService, DocumentHandlerService, PhotoHandlerService, VoiceHandlerService, AudioConversionService],
+  providers: [TelegramService, BotService, TelegramFileService, MessageHandlerService, DocumentHandlerService, PhotoHandlerService, VoiceHandlerService, AudioConversionService, SubscriptionRenewalProcessor],
   exports: [BotService]
 })
 export class TelegramModule {}

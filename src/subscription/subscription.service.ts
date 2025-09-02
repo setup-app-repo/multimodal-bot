@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { Subscription } from './subscription.entity';
@@ -10,6 +13,7 @@ export class SubscriptionService {
   constructor(
     private readonly em: EntityManager,
     private readonly setupAppService: SetupAppService,
+    @InjectQueue('subscription-renewal') private readonly renewalQueue: Queue,
   ) {}
   /**
    * Списывает средства у пользователя через Setup.app и создаёт запись подписки в БД в одной операции.
@@ -131,5 +135,35 @@ export class SubscriptionService {
     subscription.autoRenew = value;
     await this.em.persistAndFlush(subscription);
     return subscription;
+  }
+
+  /**
+   * Крон: каждые 5 минут находит активные подписки, у которых истёк период, и авто-продление включено.
+   * Кладёт задачи в очередь на продление.
+   */
+  @Cron(CronExpression.EVERY_5_MINUTES)
+  @CreateRequestContext()
+  async enqueueExpiredAutoRenewals(): Promise<void> {
+    const now = new Date();
+    const subs = await this.em.find(Subscription, {
+      status: 'active',
+      periodEnd: { $lte: now },
+      autoRenew: true,
+    }, { populate: ['user'] });
+
+    if (!subs.length) return;
+
+    for (const sub of subs) {
+      const telegramId = Number(sub.user.telegramId);
+      await this.renewalQueue.add('renew', {
+        telegramId,
+        subscriptionId: sub.id,
+      }, {
+        attempts: 3,
+        backoff: { type: 'exponential', delay: 10_000 },
+        removeOnComplete: 1000,
+        removeOnFail: 1000,
+      });
+    }
   }
 }

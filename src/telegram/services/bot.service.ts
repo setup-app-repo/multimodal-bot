@@ -157,4 +157,12 @@ export class BotService implements OnModuleInit {
         const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
         return this.i18n.t(key, userLang, args);
     }
+
+    /**
+     * Внешняя отправка простого текстового сообщения пользователю по telegramId
+     */
+    async sendPlainText(telegramId: number, text: string) {
+        if (!this.bot) throw new Error('Bot is not initialized');
+        await this.bot.api.sendMessage(telegramId, text, { parse_mode: 'HTML' });
+    }
 }
