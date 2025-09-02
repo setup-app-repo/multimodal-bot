@@ -5,7 +5,7 @@ import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { SubscriptionService } from 'src/subscription/subscription.service';
 import { BotContext } from '../interfaces';
-import { Filter } from 'grammy';
+import { Filter, InlineKeyboard } from 'grammy';
 import { getModelDisplayName } from '../utils/model-display';
 import { escapeMarkdown, sendLongMessage } from '../utils/message';
 import { TelegramFileService } from './telegram-file.service';
@@ -76,7 +76,8 @@ export class MessageHandlerService {
 
             const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
             if (!hasEnoughSP && !isBaseNoSub) {
-                await ctx.reply(this.t(ctx, 'insufficient_funds'));
+                const keyboard = new InlineKeyboard().text(this.t(ctx, 'topup_sp_button'), 'wallet:topup');
+                await ctx.reply(this.t(ctx, 'insufficient_funds'), { reply_markup: keyboard });
                 return;
             }
 

@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { Filter } from 'grammy';
+import { Filter, InlineKeyboard } from 'grammy';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { SubscriptionService } from 'src/subscription/subscription.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -92,7 +92,8 @@ export class VoiceHandlerService {
 
             const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
             if (!hasEnoughSP && !isBaseNoSub) {
-                await ctx.reply(this.t(ctx, 'insufficient_funds'));
+                const keyboard = new InlineKeyboard().text(this.t(ctx, 'topup_sp_button'), 'wallet:topup');
+                await ctx.reply(this.t(ctx, 'insufficient_funds'), { reply_markup: keyboard });
                 return;
             }
 

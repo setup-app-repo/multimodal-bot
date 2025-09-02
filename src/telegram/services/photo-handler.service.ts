@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { Filter } from 'grammy';
+import { Filter, InlineKeyboard } from 'grammy';
 import { TelegramFileService } from './telegram-file.service';
 import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL, getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from '../constants';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
@@ -85,7 +85,8 @@ export class PhotoHandlerService {
 
             const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
             if (!hasEnoughSP && !isBaseNoSub) {
-                await ctx.reply(this.t(ctx, 'insufficient_funds'));
+                const keyboard = new InlineKeyboard().text(this.t(ctx, 'topup_sp_button'), 'wallet:topup');
+                await ctx.reply(this.t(ctx, 'insufficient_funds'), { reply_markup: keyboard });
                 return;
             }
 

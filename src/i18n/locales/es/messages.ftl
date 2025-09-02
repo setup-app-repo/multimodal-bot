@@ -154,11 +154,12 @@ capability_voice = Mensajes de voz
 # Bloque de confirmación de selección de modelo
 model_connected_title = 🚀 Has conectado el modelo: <b>{$model}</b>!
 model_price_line_with_premium = 🔹 <b>Precio: <s>{$price_without} SP</s> → {$price_with} SP / solicitud con Premium ⭐</b>
-model_price_line_without_premium = 🔹 <b>Precio: {$price_without} SP / solicitud</b>
+model_price_line_without_premium =
+    🔹 <b>Precio: {$price_without} SP</b>
+    🔹 <b>Con Premium — menor costo y mayor prioridad ⭐</b>
 model_price_line_free = 🔹 <b>Precio: gratis</b>
 price_free_short = gratis
 attachments_double_cost_note = 📎 Los adjuntos (fotos/audio/archivos) duplican el costo de la solicitud.
-model_change_hint = <i>Puedes cambiar el modelo en cualquier momento desde Menú → Modelo.</i>
 chat_start_hint = 💬 <b>Escribe un mensaje o haz una pregunta — me pondré a trabajar.</b>
 
 # Errores

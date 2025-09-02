@@ -615,21 +615,17 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                   );
 
             const attachmentsNote = t(ctx, 'attachments_double_cost_note');
-            const italicHint = t(ctx, 'model_change_hint');
             const footer = t(ctx, 'chat_start_hint');
 
             const messageHtml = [
                 header,
                 '',
                 capabilitiesTitle,
-                '',
                 capabilityLines.join('\n'),
                 '',
                 priceLine,
                 '',
                 attachmentsNote,
-                '',
-                italicHint,
                 '',
                 footer,
             ].join('\n');
@@ -659,7 +655,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const userId = String(ctx.from?.id);
             const hasActive = await subscriptionService.hasActiveSubscription(userId);
             if (!hasActive) {
-                const kb = new InlineKeyboard().text(t(ctx, 'model_buy_premium_button'), 'premium:activate');
+                const kb = new InlineKeyboard().text(t(ctx, 'model_buy_premium_button'), 'profile:premium');
                 await ctx.reply(t(ctx, 'support_premium_required'), { reply_markup: kb });
                 return;
             }
