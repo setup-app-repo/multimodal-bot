@@ -50,6 +50,23 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
     };
 
+    // Единый helper: при callback сначала пытаемся отредактировать текущее сообщение.
+    // Если не получилось (например, сообщение слишком старое/не наше) — удаляем его и отправляем новое,
+    // чтобы на экране оставалось только одно актуальное сообщение.
+    const renderScreen = async (
+        ctx: BotContext,
+        params: { text: string; keyboard?: InlineKeyboard; parse_mode?: 'HTML' | 'Markdown' }
+    ) => {
+        await safeAnswerCallbackQuery(ctx);
+        const { text, keyboard, parse_mode } = params;
+        try {
+            await ctx.editMessageText(text, { reply_markup: keyboard, parse_mode });
+        } catch {
+            try { await ctx.deleteMessage(); } catch {}
+            await ctx.reply(text, { reply_markup: keyboard, parse_mode });
+        }
+    };
+
     const getLocaleCode = (ctx: BotContext): string => (
         ctx.session.lang === 'ru' ? 'ru-RU'
             : ctx.session.lang === 'es' ? 'es-ES'

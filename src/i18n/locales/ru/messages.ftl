@@ -153,7 +153,7 @@ capability_voice = Голосовые сообщения
 
 # Блок подтверждения выбора модели
 model_connected_title = 🚀 Ты подключил модель: <b>{$model}</b>!
-model_price_line_with_premium = 🔹 <b>Цена: {$price_without} SP → {$price_with} SP / запрос с Премиум ⭐</b>
+model_price_line_with_premium = 🔹 <b>Цена: <s>{$price_without} SP</s> → {$price_with} SP / запрос с Премиум ⭐</b>
 model_price_line_without_premium = 🔹 <b>Цена: {$price_without} SP / запрос</b>
 model_price_line_free = 🔹 <b>Цена: бесплатно</b>
 price_free_short = бесплатно
