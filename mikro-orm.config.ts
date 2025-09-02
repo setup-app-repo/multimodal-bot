@@ -4,10 +4,27 @@ import { ConfigService } from '@nestjs/config';
 import 'dotenv/config';
 
 export function createMikroOrmConfig(config: ConfigService): Options<PostgreSqlDriver> {
+  const databaseUrl = config.get<string>('DATABASE_URL');
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is required');
+  }
+
+  const connectionFromUrl = (urlString: string) => {
+    const url = new URL(urlString);
+    const dbName = url.pathname.replace(/^\//, '');
+    return {
+      dbName,
+      user: url.username,
+      password: url.password,
+      host: url.hostname,
+      port: url.port ? Number(url.port) : 5432,
+    } as const;
+  };
+
+  const connection = connectionFromUrl(databaseUrl);
+
   return {
-    dbName: config.get<string>('DB_NAME'),
-    user: config.get<string>('DB_USER'),
-    password: config.get<string>('DB_PASSWORD'),
+    ...connection,
     driver: PostgreSqlDriver,
     debug: true,
     entities: ['dist/**/*.entity.js'],
@@ -19,12 +36,24 @@ export function createMikroOrmConfig(config: ConfigService): Options<PostgreSqlD
   };
 }
 
+const parseConnectionFromUrl = (urlString: string) => {
+  const url = new URL(urlString);
+  const dbName = url.pathname.replace(/^\//, '');
+  return {
+    dbName,
+    user: url.username,
+    password: url.password,
+    host: url.hostname,
+    port: url.port ? Number(url.port) : 5432,
+  } as const;
+};
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is required');
+}
+
 const defaultConfig = defineConfig({
-  dbName: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+  ...parseConnectionFromUrl(process.env.DATABASE_URL),
   debug: true,
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],

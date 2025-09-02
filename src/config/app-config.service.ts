@@ -16,6 +16,11 @@ export class AppConfigService {
       PORT: Joi.number().default(3000),
       BOT_TOKEN: Joi.string().required(),
 
+      // Database URL (preferred)
+      DATABASE_URL: Joi.string()
+        .uri({ scheme: [/postgres/, /postgresql/] })
+        .required(),
+
       // // Postgres
       // DB_HOST: Joi.string().default('localhost'),
       // DB_PORT: Joi.number().default(5432),
@@ -33,6 +38,10 @@ export class AppConfigService {
       OPENROUTER_API_KEY: Joi.string().required(),
       SITE_URL: Joi.string().uri().optional(),
       SITE_NAME: Joi.string().optional(),
+      OPENROUTER_TIMEOUT_MS: Joi.number().default(60000),
+      OPENROUTER_MAX_ATTEMPTS: Joi.number().default(3),
+      OPENROUTER_RETRY_BASE_MS: Joi.number().default(500),
+      OPENROUTER_RETRY_MAX_MS: Joi.number().default(5000),
       
       // Localization
       FALLBACK_LANGUAGE: Joi.string().default('ru'),
@@ -61,11 +70,11 @@ export class AppConfigService {
     return this.get<string>('BOT_TOKEN');
   }
 
-  get dbHost(): string { return this.get<string>('DB_HOST'); }
-  get dbPort(): number { return this.get<number>('DB_PORT'); }
-  get dbUser(): string { return this.get<string>('DB_USER'); }
-  get dbPassword(): string { return this.get<string>('DB_PASSWORD'); }
-  get dbName(): string { return this.get<string>('DB_NAME'); }
+  get dbHost(): string { return new URL(this.get<string>('DATABASE_URL')).hostname; }
+  get dbPort(): number { return Number(new URL(this.get<string>('DATABASE_URL')).port || 5432); }
+  get dbUser(): string { return new URL(this.get<string>('DATABASE_URL')).username; }
+  get dbPassword(): string { return new URL(this.get<string>('DATABASE_URL')).password; }
+  get dbName(): string { return new URL(this.get<string>('DATABASE_URL')).pathname.replace(/^\//, ''); }
 
   get redisHost(): string { return this.get<string>('REDIS_HOST'); }
   get redisPort(): number { return this.get<number>('REDIS_PORT'); }
