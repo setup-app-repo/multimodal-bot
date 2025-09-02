@@ -506,7 +506,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
             const confirmKeyboard = new InlineKeyboard();
             if (!isPremium) {
-                confirmKeyboard.text(t(ctx, 'model_buy_premium_button'), 'premium:buy').row();
+                confirmKeyboard.text(t(ctx, 'model_buy_premium_button'), 'premium:activate').row();
             }
             confirmKeyboard.text(t(ctx, 'model_close_button'), 'model:close');
             await ctx.reply(messageHtml, { reply_markup: confirmKeyboard, parse_mode: 'HTML' });
@@ -529,7 +529,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const userId = String(ctx.from?.id);
             const hasActive = await subscriptionService.hasActiveSubscription(userId);
             if (!hasActive) {
-                const kb = new InlineKeyboard().text(t(ctx, 'model_buy_premium_button'), 'premium:buy');
+                const kb = new InlineKeyboard().text(t(ctx, 'model_buy_premium_button'), 'premium:activate');
                 await ctx.reply(t(ctx, 'support_premium_required'), { reply_markup: kb });
                 return;
             }
@@ -595,14 +595,15 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
             } else {
                 const premiumText = 
-                    `${t(ctx, 'premium_title')}\n\n` +
-                    `${t(ctx, 'premium_benefits_title')}\n` +
-                    `${t(ctx, 'premium_benefit_1')}\n` +
-                    `${t(ctx, 'premium_benefit_2')}\n` +
-                    `${t(ctx, 'premium_benefit_3')}\n` +
-                    `${t(ctx, 'premium_benefit_4')}\n` +
-                    `${t(ctx, 'premium_benefit_5')}\n` +
-                    `${t(ctx, 'premium_benefit_6')}`;
+                    `${t(ctx, 'premium_confirm_title')}\n\n` +
+                    `${t(ctx, 'premium_confirm_benefits_title')}\n` +
+                    `${t(ctx, 'premium_confirm_benefit_1')}\n` +
+                    `${t(ctx, 'premium_confirm_benefit_2')}\n` +
+                    `${t(ctx, 'premium_confirm_benefit_3')}\n` +
+                    `${t(ctx, 'premium_confirm_benefit_4')}\n` +
+                    `${t(ctx, 'premium_confirm_benefit_5')}\n` +
+                    `${t(ctx, 'premium_confirm_benefit_6')}\n\n` +
+                    `${t(ctx, 'premium_confirm_footer')}`;
 
                 const keyboard = new InlineKeyboard()
                     .text(t(ctx, 'premium_activate_button'), 'premium:activate')
@@ -706,8 +707,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         if (data === 'premium:activate') {
             await safeAnswerCallbackQuery(ctx);
-            const cost = 10;
-            const telegramId = ctx.from?.id;
+            const telegramId = ctx.from?.id as number;
 
             if (!telegramId) {
                 await ctx.reply(t(ctx, 'unexpected_error'));
@@ -715,50 +715,44 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             }
 
             try {
-                const hasEnough = await setupAppService.have(telegramId, cost);
-                if (!hasEnough) {
-                    const currentBalance = await setupAppService.getBalance(telegramId);
-                    const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard, parse_mode: 'HTML' });
+                const alreadyActive = await subscriptionService.hasActiveSubscription(String(telegramId));
+                if (alreadyActive) {
+                    const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
+                    await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
                     return;
                 }
 
-                await subscriptionService.chargeAndCreateSubscription(
-                    telegramId,
-                    cost,
-                    'Подписка "Premium" 10 SP на Multimodal bot',
-                    { periodDays: 30, autoRenew: false }
-                );
-
                 const keyboard = new InlineKeyboard()
-                    .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
+                    .text(t(ctx, 'premium_confirm_yes'), 'premium:confirm_buy')
                     .row()
-                    .text(t(ctx, 'premium_later_button'), 'profile:back');
-                await ctx.reply(t(ctx, 'premium_activated_success'), { reply_markup: keyboard });
-            } catch (error: any) {
-                // Разделяем ошибки недостатка средств и ошибки БД/прочие
-                const message = String(error?.message || '');
-                if (message.includes('INSUFFICIENT_FUNDS') || message.includes('not enough') || message.includes('Недостаточно')) {
-                    const currentBalance = await setupAppService.getBalance(telegramId);
-                    const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
-                    await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), { reply_markup: keyboard, parse_mode: 'HTML' });
-                } else if (message.includes('USER_NOT_FOUND')) {
-                    await ctx.reply(t(ctx, 'unexpected_error'));
-                } else {
-                    console.error('premium:activate failed', error);
-                    await ctx.reply(t(ctx, 'unexpected_error'));
+                    .text(t(ctx, 'premium_confirm_no'), 'premium:cancel_buy');
+                
+                try {
+                    await ctx.editMessageReplyMarkup({ reply_markup: keyboard });
+                } catch {
+                    // Если не удалось отредактировать, отправим новое сообщение с минимальным текстом
+                    await ctx.reply('💎', { reply_markup: keyboard });
                 }
+            } catch (error) {
+                console.error('premium:activate confirm prepare failed', error);
+                await ctx.reply(t(ctx, 'unexpected_error'));
             }
             return;
         }
 
-        if (data === 'premium:buy') {
+
+
+        if (data === 'premium:cancel_buy') {
+            await safeAnswerCallbackQuery(ctx);
+            try { await ctx.deleteMessage(); } catch {}
+            return;
+        }
+
+        if (data === 'premium:confirm_buy') {
             await safeAnswerCallbackQuery(ctx);
             const cost = 10;
             const telegramId = ctx.from?.id as number;
-
             try {
-                // Проверка активной подписки: если уже активна — показываем экран состояния
                 const alreadyActive = await subscriptionService.hasActiveSubscription(String(telegramId));
                 if (alreadyActive) {
                     const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
@@ -796,7 +790,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                     const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
                     await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
                 } else {
-                    console.error('premium:buy failed', error);
+                    console.error('premium:confirm_buy failed', error);
                     await ctx.reply(t(ctx, 'unexpected_error'));
                 }
             }

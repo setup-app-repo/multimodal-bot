@@ -27,6 +27,29 @@ premium_activate_button = Activar por 10 SP
 premium_back_button = ◀️ Atrás
 premium_activation_coming_soon = La activación premium estará disponible pronto
 
+# Premium — confirmación de compra
+premium_confirm_title = ⭐ <b>Premium — 10 SP / 30 días</b>
+premium_confirm_benefits_title = <b>Qué incluye:</b>
+premium_confirm_benefit_1 = <code>📉 Descuento en solicitudes de pago</code>
+premium_confirm_benefit_2 = <code>⚡ Prioridad en la cola</code>
+premium_confirm_benefit_3 = <code>📈 Límites aumentados y acceso a modelos potentes</code>
+premium_confirm_benefit_4 = <code>🧠 Ventana de contexto ampliada</code>
+premium_confirm_benefit_5 = <code>👤 Soporte 24/7</code>
+premium_confirm_benefit_6 = <code>🔒 Estabilidad incluso en picos de carga</code>
+premium_confirm_footer = <b>⬇️ Confirma la compra de Premium por 10 SP.</b>
+premium_confirm_yes = ✅ Confirmar compra
+premium_confirm_no = ❌ Cancelar
+
+# Premium — escenarios de activación
+premium_insufficient_sp = ⚠️ <b>SP insuficientes</b>
+    Necesario: <b>10 SP</b>
+    Tienes: <b>{$balance} SP</b>
+premium_activated_success = ¡Premium activado! Buen trabajo ✨
+premium_enable_autorenew_button = Activar renovación automática
+premium_later_button = Más tarde
+premium_autorenew_enabled = Renovación automática activada ✅\nCobraremos 10 SP el día de renovación — {$expires_at}. Puedes desactivarlo en Perfil → Premium.
+premium_autorenew_later_info = Puedes activar la renovación automática más tarde en Perfil → Premium
+
 # Premium — estado activo
 premium_active_title = ⭐ <b>Premium activo</b>
 premium_active_text = \n📅 <b>Válido hasta:</b> {$expires_at}\n⏳ <b>Restan:</b> {$days_left} días\n🔄 <b>Renovación automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Beneficios:</b>\n• Descuento en solicitudes de pago\n• Prioridad en la cola (respuestas más rápidas)\n• Límites aumentados y acceso a modelos potentes\n• Ventana de contexto ampliada (se guarda más historial de conversación)\n• Soporte 24/7\n• Estabilidad garantizada incluso en picos de carga

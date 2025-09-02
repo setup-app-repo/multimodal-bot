@@ -27,6 +27,29 @@ premium_activate_button = Für 10 SP aktivieren
 premium_back_button = ◀️ Zurück
 premium_activation_coming_soon = Premium-Aktivierung wird bald verfügbar sein
 
+# Premium — Kaufbestätigung
+premium_confirm_title = ⭐ <b>Premium — 10 SP / 30 Tage</b>
+premium_confirm_benefits_title = <b>Was enthalten ist:</b>
+premium_confirm_benefit_1 = <code>📉 Rabatt auf kostenpflichtige Anfragen</code>
+premium_confirm_benefit_2 = <code>⚡ Priorität in der Warteschlange</code>
+premium_confirm_benefit_3 = <code>📈 Höhere Limits und Zugang zu leistungsstarken Modellen</code>
+premium_confirm_benefit_4 = <code>🧠 Erweitertes Kontextfenster</code>
+premium_confirm_benefit_5 = <code>👤 24/7 Support</code>
+premium_confirm_benefit_6 = <code>🔒 Stabilität auch bei Spitzenlast</code>
+premium_confirm_footer = <b>⬇️ Bestätigen Sie den Premium-Kauf für 10 SP.</b>
+premium_confirm_yes = ✅ Kauf bestätigen
+premium_confirm_no = ❌ Abbrechen
+
+# Premium — Aktivierungsszenarien
+premium_insufficient_sp = ⚠️ <b>Nicht genügend SP</b>
+    Benötigt: <b>10 SP</b>
+    Sie haben: <b>{$balance} SP</b>
+premium_activated_success = Premium aktiviert! Viel Erfolg ✨
+premium_enable_autorenew_button = Automatische Verlängerung aktivieren
+premium_later_button = Später
+premium_autorenew_enabled = Automatische Verlängerung aktiviert ✅\nWir werden 10 SP am Verlängerungstag belasten — {$expires_at}. Sie können es in Profil → Premium deaktivieren.
+premium_autorenew_later_info = Sie können die automatische Verlängerung später in Profil → Premium aktivieren
+
 # Premium — aktiver Status
 premium_active_title = ⭐ <b>Premium aktiv</b>
 premium_active_text = \n📅 <b>Gültig bis:</b> {$expires_at}\n⏳ <b>Verbleibend:</b> {$days_left} Tage\n🔄 <b>Automatische Verlängerung:</b> <b>{$autorenew}</b>\n💰 <b>Guthaben:</b> {$balance} SP\n\n<b>Vorteile:</b>\n• Rabatt auf kostenpflichtige Anfragen\n• Priorität in der Warteschlange (schnellere Antworten)\n• Höhere Limits und Zugang zu leistungsstarken Modellen\n• Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)\n• 24/7 Support\n• Garantierte Stabilität auch bei Spitzenlast

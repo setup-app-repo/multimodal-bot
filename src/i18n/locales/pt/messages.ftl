@@ -27,6 +27,29 @@ premium_activate_button = Ativar por 10 SP
 premium_back_button = ◀️ Voltar
 premium_activation_coming_soon = A ativação premium estará disponível em breve
 
+# Premium — confirmação de compra
+premium_confirm_title = ⭐ <b>Premium — 10 SP / 30 dias</b>
+premium_confirm_benefits_title = <b>O que está incluído:</b>
+premium_confirm_benefit_1 = <code>📉 Desconto em solicitações pagas</code>
+premium_confirm_benefit_2 = <code>⚡ Prioridade na fila</code>
+premium_confirm_benefit_3 = <code>📈 Limites aumentados e acesso a modelos poderosos</code>
+premium_confirm_benefit_4 = <code>🧠 Janela de contexto estendida</code>
+premium_confirm_benefit_5 = <code>👤 Suporte 24/7</code>
+premium_confirm_benefit_6 = <code>🔒 Estabilidade mesmo em picos de carga</code>
+premium_confirm_footer = <b>⬇️ Confirme a compra do Premium por 10 SP.</b>
+premium_confirm_yes = ✅ Confirmar compra
+premium_confirm_no = ❌ Cancelar
+
+# Premium — cenários de ativação
+premium_insufficient_sp = ⚠️ <b>SP insuficientes</b>
+    Necessário: <b>10 SP</b>
+    Você tem: <b>{$balance} SP</b>
+premium_activated_success = Premium ativado! Bom trabalho ✨
+premium_enable_autorenew_button = Ativar renovação automática
+premium_later_button = Mais tarde
+premium_autorenew_enabled = Renovação automática ativada ✅\nCobraremos 10 SP no dia da renovação — {$expires_at}. Você pode desativar em Perfil → Premium.
+premium_autorenew_later_info = Você pode ativar a renovação automática mais tarde em Perfil → Premium
+
 # Premium — status ativo
 premium_active_title = ⭐ <b>Premium ativo</b>
 premium_active_text = \n📅 <b>Válido até:</b> {$expires_at}\n⏳ <b>Restante:</b> {$days_left} dias\n🔄 <b>Renovação automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Vantagens:</b>\n• Desconto em solicitações pagas\n• Prioridade na fila (respostas mais rápidas)\n• Limites aumentados e acesso a modelos poderosos\n• Janela de contexto estendida (mais histórico de conversa salvo)\n• Suporte 24/7\n• Estabilidade garantida mesmo em picos de carga

@@ -26,6 +26,19 @@ premium_benefit_3 = • Higher limits and access to powerful models
 premium_activate_button = Activate for 10 SP
 premium_back_button = ◀️ Back
 premium_activation_coming_soon = Premium activation will be available soon
+
+# Premium — purchase confirmation
+premium_confirm_title = ⭐ <b>Premium — 10 SP / 30 days</b>
+premium_confirm_benefits_title = <b>What’s included:</b>
+premium_confirm_benefit_1 = <code>📉 Discount on paid requests</code>
+premium_confirm_benefit_2 = <code>⚡ Priority in the queue</code>
+premium_confirm_benefit_3 = <code>📈 Higher limits and access to powerful models</code>
+premium_confirm_benefit_4 = <code>🧠 Extended context window</code>
+premium_confirm_benefit_5 = <code>👤 24/7 support</code>
+premium_confirm_benefit_6 = <code>🔒 Stability even at peak loads</code>
+premium_confirm_footer = <b>⬇️ Confirm Premium purchase for 10 SP.</b>
+premium_confirm_yes = ✅ Confirm purchase
+premium_confirm_no = ❌ Cancel
 # Premium — activation scenarios
 premium_insufficient_sp = Not enough SP: need 10, you have {$balance}. Top up and try again.
 topup_sp_button = 💳 Top up SP

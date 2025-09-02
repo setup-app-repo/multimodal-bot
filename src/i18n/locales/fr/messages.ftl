@@ -27,6 +27,29 @@ premium_activate_button = Activer pour 10 SP
 premium_back_button = ◀️ Retour
 premium_activation_coming_soon = L'activation premium sera disponible prochainement
 
+# Premium — confirmation d'achat
+premium_confirm_title = ⭐ <b>Premium — 10 SP / 30 jours</b>
+premium_confirm_benefits_title = <b>Ce qui est inclus :</b>
+premium_confirm_benefit_1 = <code>📉 Réduction sur les requêtes payantes</code>
+premium_confirm_benefit_2 = <code>⚡ Priorité dans la file d'attente</code>
+premium_confirm_benefit_3 = <code>📈 Limites augmentées et accès aux modèles puissants</code>
+premium_confirm_benefit_4 = <code>🧠 Fenêtre de contexte étendue</code>
+premium_confirm_benefit_5 = <code>👤 Support 24/7</code>
+premium_confirm_benefit_6 = <code>🔒 Stabilité même en période de forte charge</code>
+premium_confirm_footer = <b>⬇️ Confirmez l'achat Premium pour 10 SP.</b>
+premium_confirm_yes = ✅ Confirmer l'achat
+premium_confirm_no = ❌ Annuler
+
+# Premium — scénarios d'activation
+premium_insufficient_sp = ⚠️ <b>SP insuffisants</b>
+    Nécessaire : <b>10 SP</b>
+    Vous avez : <b>{$balance} SP</b>
+premium_activated_success = Premium activé ! Bon travail ✨
+premium_enable_autorenew_button = Activer le renouvellement automatique
+premium_later_button = Plus tard
+premium_autorenew_enabled = Renouvellement automatique activé ✅\nNous prélèverons 10 SP le jour du renouvellement — {$expires_at}. Vous pouvez le désactiver dans Profil → Premium.
+premium_autorenew_later_info = Vous pouvez activer le renouvellement automatique plus tard dans Profil → Premium
+
 # Premium — statut actif
 premium_active_title = ⭐ <b>Premium actif</b>
 premium_active_text = \n📅 <b>Valable jusqu’au :</b> {$expires_at}\n⏳ <b>Restant :</b> {$days_left} jours\n🔄 <b>Renouvellement auto :</b> <b>{$autorenew}</b>\n💰 <b>Solde :</b> {$balance} SP\n\n<b>Avantages :</b>\n• Réduction sur les requêtes payantes\n• Priorité dans la file (réponses plus rapides)\n• Limites augmentées et accès aux modèles puissants\n• Fenêtre de contexte étendue (plus d’historique conservé)\n• Support 24/7\n• Stabilité garantie même en période de forte charge
