@@ -109,4 +109,27 @@ export class SubscriptionService {
 
     return subscription;
   }
+
+  @CreateRequestContext()
+  /**
+   * Устанавливает флаг автопродления для активной подписки пользователя
+   */
+  async setAutoRenew(telegramId: string, value: boolean): Promise<Subscription | null> {
+    const now = new Date();
+    const user = await this.em.findOne(User, { telegramId });
+    if (!user) return null;
+
+    const subscription = await this.em.findOne(Subscription, {
+      user,
+      status: 'active',
+      periodStart: { $lte: now },
+      periodEnd: { $gte: now },
+    });
+
+    if (!subscription) return null;
+
+    subscription.autoRenew = value;
+    await this.em.persistAndFlush(subscription);
+    return subscription;
+  }
 }

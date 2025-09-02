@@ -50,6 +50,14 @@ premium_later_button = Plus tard
 premium_autorenew_enabled = Renouvellement automatique activé ✅\nNous prélèverons 10 SP le jour du renouvellement — {$expires_at}. Vous pouvez le désactiver dans Profil → Premium.
 premium_autorenew_later_info = Vous pouvez activer le renouvellement automatique plus tard dans Profil → Premium
 
+# Confirmation du renouvellement automatique
+premium_autorenew_confirm_enable = 🔄 Activer le renouvellement automatique ?
+    Nous renouvellerons automatiquement votre abonnement et prélèverons 10 SP le jour du renouvellement — {$expires_at}.
+premium_autorenew_confirm_disable = ⏹ Désactiver le renouvellement automatique ?
+    Après {$expires_at}, l'abonnement ne sera pas renouvelé automatiquement.
+premium_autorenew_confirm_yes = ✅ Confirmer
+premium_autorenew_confirm_no = ❌ Annuler
+
 # Premium — statut actif
 premium_active_title = ⭐ <b>Premium actif</b>
 premium_active_text = \n📅 <b>Valable jusqu’au :</b> {$expires_at}\n⏳ <b>Restant :</b> {$days_left} jours\n🔄 <b>Renouvellement auto :</b> <b>{$autorenew}</b>\n💰 <b>Solde :</b> {$balance} SP\n\n<b>Avantages :</b>\n• Réduction sur les requêtes payantes\n• Priorité dans la file (réponses plus rapides)\n• Limites augmentées et accès aux modèles puissants\n• Fenêtre de contexte étendue (plus d’historique conservé)\n• Support 24/7\n• Stabilité garantie même en période de forte charge

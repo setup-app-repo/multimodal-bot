@@ -48,6 +48,14 @@ premium_later_button = Later
 premium_autorenew_enabled = Auto-renewal enabled ✅\nWe will charge 10 SP on renewal day — {$expires_at}. You can disable it in Profile → Premium.
 premium_autorenew_later_info = You can enable auto-renewal later in Profile → Premium
 
+# Auto-renewal confirmation
+premium_autorenew_confirm_enable = 🔄 Enable auto-renewal?
+    We will automatically renew your subscription and charge 10 SP on the renewal day — {$expires_at}.
+premium_autorenew_confirm_disable = ⏹ Disable auto-renewal?
+    After {$expires_at} the subscription will not renew automatically.
+premium_autorenew_confirm_yes = ✅ Confirm
+premium_autorenew_confirm_no = ❌ Cancel
+
 # Premium — active status
 premium_active_title = ⭐ <b>Premium is active</b>
 premium_active_text = \n📅 <b>Valid until:</b> {$expires_at}\n⏳ <b>Time left:</b> {$days_left} days\n🔄 <b>Auto-renewal:</b> <b>{$autorenew}</b>\n💰 <b>Balance:</b> {$balance} SP\n\n<b>Benefits:</b>\n• Discount on paid requests\n• Priority in the queue (faster responses)\n• Higher limits and access to powerful models\n• Extended context window (more conversation history is saved)\n• 24/7 support\n• Guaranteed stability even during peak load

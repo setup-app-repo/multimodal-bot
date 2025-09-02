@@ -852,15 +852,18 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         if (data === 'premium:enable_autorenew') {
             await safeAnswerCallbackQuery(ctx);
-            const addDays = 30;
-            const expires = new Date(Date.now() + addDays * 24 * 60 * 60 * 1000);
+            const telegramId = String(ctx.from?.id);
+            const updated = await subscriptionService.setAutoRenew(telegramId, true);
             const locale = getLocaleCode(ctx);
-            const expiresAt = expires.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '');
+            let expiresAt = '';
+            if (updated?.periodEnd) {
+                const expires = new Date(updated.periodEnd);
+                expiresAt = expires.toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '');
+            }
+            const msg = t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }).replace(/\\n/g, '\n');
             try {
-                const msg = t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }).replace(/\\n/g, '\n');
                 await ctx.editMessageText(msg);
             } catch {
-                const msg = t(ctx, 'premium_autorenew_enabled', { expires_at: expiresAt }).replace(/\\n/g, '\n');
                 try { await ctx.deleteMessage(); } catch {}
                 await ctx.reply(msg);
             }
@@ -869,7 +872,45 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         if (data === 'premium:toggle_autorenew') {
             await safeAnswerCallbackQuery(ctx);
-            ctx.session.premiumAutorenew = !ctx.session.premiumAutorenew;
+            const telegramId = String(ctx.from?.id);
+            const activeSub = await subscriptionService.getActiveSubscription(telegramId);
+            const current = Boolean(activeSub?.autoRenew);
+            const targetEnable = !current;
+            const locale = getLocaleCode(ctx);
+            const expiresAt = activeSub?.periodEnd
+                ? new Date(activeSub.periodEnd).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' }).replace(/[\u2068\u2069]/g, '')
+                : '';
+            const confirmText = targetEnable
+                ? t(ctx, 'premium_autorenew_confirm_enable', { expires_at: expiresAt }).replace(/\\n/g, '\n')
+                : t(ctx, 'premium_autorenew_confirm_disable', { expires_at: expiresAt }).replace(/\\n/g, '\n');
+            const kb = new InlineKeyboard()
+                .text(t(ctx, 'premium_autorenew_confirm_yes'), targetEnable ? 'premium:autorenew:set_on' : 'premium:autorenew:set_off')
+                .row()
+                .text(t(ctx, 'premium_autorenew_confirm_no'), 'premium:autorenew:cancel');
+            await renderScreen(ctx, { text: confirmText, keyboard: kb, parse_mode: 'HTML' });
+            return;
+        }
+
+        if (data === 'premium:autorenew:set_on') {
+            await safeAnswerCallbackQuery(ctx);
+            const telegramId = String(ctx.from?.id);
+            await subscriptionService.setAutoRenew(telegramId, true);
+            const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
+            try { await ctx.editMessageText(text, { reply_markup: keyboard, parse_mode: 'HTML' }); } catch { try { await ctx.deleteMessage(); } catch {} await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' }); }
+            return;
+        }
+
+        if (data === 'premium:autorenew:set_off') {
+            await safeAnswerCallbackQuery(ctx);
+            const telegramId = String(ctx.from?.id);
+            await subscriptionService.setAutoRenew(telegramId, false);
+            const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
+            try { await ctx.editMessageText(text, { reply_markup: keyboard, parse_mode: 'HTML' }); } catch { try { await ctx.deleteMessage(); } catch {} await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' }); }
+            return;
+        }
+
+        if (data === 'premium:autorenew:cancel') {
+            await safeAnswerCallbackQuery(ctx);
             const { text, keyboard } = await buildPremiumActiveTextAndKeyboard(ctx);
             try { await ctx.editMessageText(text, { reply_markup: keyboard, parse_mode: 'HTML' }); } catch { try { await ctx.deleteMessage(); } catch {} await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' }); }
             return;

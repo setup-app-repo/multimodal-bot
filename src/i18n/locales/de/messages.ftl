@@ -50,6 +50,14 @@ premium_later_button = Später
 premium_autorenew_enabled = Automatische Verlängerung aktiviert ✅\nWir werden 10 SP am Verlängerungstag belasten — {$expires_at}. Sie können es in Profil → Premium deaktivieren.
 premium_autorenew_later_info = Sie können die automatische Verlängerung später in Profil → Premium aktivieren
 
+# Bestätigung für automatische Verlängerung
+premium_autorenew_confirm_enable = 🔄 Automatische Verlängerung aktivieren?
+    Wir verlängern Ihr Abonnement automatisch und belasten 10 SP am Verlängerungstag — {$expires_at}.
+premium_autorenew_confirm_disable = ⏹ Automatische Verlängerung deaktivieren?
+    Nach {$expires_at} wird das Abonnement nicht automatisch verlängert.
+premium_autorenew_confirm_yes = ✅ Bestätigen
+premium_autorenew_confirm_no = ❌ Abbrechen
+
 # Premium — aktiver Status
 premium_active_title = ⭐ <b>Premium aktiv</b>
 premium_active_text = \n📅 <b>Gültig bis:</b> {$expires_at}\n⏳ <b>Verbleibend:</b> {$days_left} Tage\n🔄 <b>Automatische Verlängerung:</b> <b>{$autorenew}</b>\n💰 <b>Guthaben:</b> {$balance} SP\n\n<b>Vorteile:</b>\n• Rabatt auf kostenpflichtige Anfragen\n• Priorität in der Warteschlange (schnellere Antworten)\n• Höhere Limits und Zugang zu leistungsstarken Modellen\n• Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)\n• 24/7 Support\n• Garantierte Stabilität auch bei Spitzenlast

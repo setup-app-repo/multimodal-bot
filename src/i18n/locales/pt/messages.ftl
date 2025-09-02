@@ -50,6 +50,14 @@ premium_later_button = Mais tarde
 premium_autorenew_enabled = Renovação automática ativada ✅\nCobraremos 10 SP no dia da renovação — {$expires_at}. Você pode desativar em Perfil → Premium.
 premium_autorenew_later_info = Você pode ativar a renovação automática mais tarde em Perfil → Premium
 
+# Confirmação de renovação automática
+premium_autorenew_confirm_enable = 🔄 Ativar renovação automática?
+    Renovaremos sua assinatura automaticamente e cobraremos 10 SP no dia da renovação — {$expires_at}.
+premium_autorenew_confirm_disable = ⏹ Desativar renovação automática?
+    Após {$expires_at} a assinatura não será renovada automaticamente.
+premium_autorenew_confirm_yes = ✅ Confirmar
+premium_autorenew_confirm_no = ❌ Cancelar
+
 # Premium — status ativo
 premium_active_title = ⭐ <b>Premium ativo</b>
 premium_active_text = \n📅 <b>Válido até:</b> {$expires_at}\n⏳ <b>Restante:</b> {$days_left} dias\n🔄 <b>Renovação automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Vantagens:</b>\n• Desconto em solicitações pagas\n• Prioridade na fila (respostas mais rápidas)\n• Limites aumentados e acesso a modelos poderosos\n• Janela de contexto estendida (mais histórico de conversa salvo)\n• Suporte 24/7\n• Estabilidade garantida mesmo em picos de carga

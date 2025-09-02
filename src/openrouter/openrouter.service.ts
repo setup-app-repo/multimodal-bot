@@ -9,13 +9,21 @@ import csvParse from 'csv-parse';
 export class OpenRouterService {
   private readonly logger = new Logger(OpenRouterService.name);
   private client: OpenAI;
+  private readonly requestTimeoutMs: number;
+  private readonly maxAttemptsDefault: number;
+  private readonly retryBaseMs: number;
+  private readonly retryMaxMs: number;
 
   constructor(private readonly configService: ConfigService) {
+    this.requestTimeoutMs = Number(this.configService.get<string>('OPENROUTER_TIMEOUT_MS')) || 60000;
+    this.maxAttemptsDefault = Number(this.configService.get<string>('OPENROUTER_MAX_ATTEMPTS')) || 3;
+    this.retryBaseMs = Number(this.configService.get<string>('OPENROUTER_RETRY_BASE_MS')) || 500;
+    this.retryMaxMs = Number(this.configService.get<string>('OPENROUTER_RETRY_MAX_MS')) || 5000;
     this.client = new OpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: this.configService.get<string>('OPENROUTER_API_KEY'),
       // Дадим SDK базовые параметры устойчивости
-      timeout: 60000, // 60s на попытку
+      timeout: this.requestTimeoutMs, // на попытку
       maxRetries: 0, // собственные ретраи ниже
       defaultHeaders: {
         'HTTP-Referer': this.configService.get<string>('SITE_URL') || '',
@@ -50,7 +58,7 @@ export class OpenRouterService {
 
     messagesForModel.push({ role: 'user', content: contentParts });
 
-    const maxAttempts = 3;
+    const maxAttempts = this.maxAttemptsDefault;
     let attempt = 0;
     let lastError: any;
 
@@ -63,7 +71,7 @@ export class OpenRouterService {
             messages: messagesForModel,
           },
           {
-            timeout: 60000,
+            timeout: this.requestTimeoutMs,
           },
         );
 
@@ -74,9 +82,10 @@ export class OpenRouterService {
         lastError = error;
         const status = (error && error.status) || (error && error.response && error.response.status);
         const code = error?.code;
+        const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(code, status, messageText);
+        const retriable = this.isRetriableError(code, status, messageText, name);
         if (!retriable || attempt >= maxAttempts) {
           this.logger.error(`Error calling OpenRouter API (audio), model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
           break;
@@ -111,7 +120,7 @@ export class OpenRouterService {
 
     messagesForModel.push({ role: 'user', content: contentParts });
 
-    const maxAttempts = 3;
+    const maxAttempts = this.maxAttemptsDefault;
     let attempt = 0;
     let lastError: any;
 
@@ -124,7 +133,7 @@ export class OpenRouterService {
             messages: messagesForModel,
           },
           {
-            timeout: 60000,
+            timeout: this.requestTimeoutMs,
           },
         );
 
@@ -135,9 +144,10 @@ export class OpenRouterService {
         lastError = error;
         const status = (error && error.status) || (error && error.response && error.response.status);
         const code = error?.code;
+        const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(code, status, messageText);
+        const retriable = this.isRetriableError(code, status, messageText, name);
         if (!retriable || attempt >= maxAttempts) {
           this.logger.error(`Error calling OpenRouter API (multimodal), model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
           break;
@@ -172,7 +182,7 @@ export class OpenRouterService {
       messagesForModel.push(fileMessage);
     }
     
-    const maxAttempts = 3;
+    const maxAttempts = this.maxAttemptsDefault;
     let attempt = 0;
     let lastError: any;
 
@@ -185,7 +195,7 @@ export class OpenRouterService {
             messages: messagesForModel,
           },
           {
-            timeout: 60000,
+            timeout: this.requestTimeoutMs,
           },
         );
 
@@ -196,9 +206,10 @@ export class OpenRouterService {
         lastError = error;
         const status = (error && error.status) || (error && error.response && error.response.status);
         const code = error?.code;
+        const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(code, status, messageText);
+        const retriable = this.isRetriableError(code, status, messageText, name);
         if (!retriable || attempt >= maxAttempts) {
           this.logger.error(`Error calling OpenRouter API, model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
           break;
@@ -320,20 +331,42 @@ export class OpenRouterService {
   }
 
   private getBackoffWithJitter(attempt: number): number {
-    const base = 500; // 0.5s
-    const max = 5000; // 5s
+    const base = this.retryBaseMs;
+    const max = this.retryMaxMs;
     const expo = Math.min(max, base * Math.pow(2, attempt - 1));
-    const jitter = Math.floor(Math.random() * 250);
+    const jitter = Math.floor(Math.random() * Math.floor(base / 2));
     return expo + jitter;
   }
 
-  private isRetriableError(code?: string, status?: number, message?: string): boolean {
+  private isRetriableError(code?: string, status?: number, message?: string, name?: string): boolean {
     // HTTP статусы: 429, 500-599 — ретраим
     if (typeof status === 'number' && (status === 429 || status >= 500)) return true;
     // Сетевые ошибки undici / node
     const lower = (message || '').toLowerCase();
-    if (code === 'UND_ERR_SOCKET' || code === 'ECONNRESET' || code === 'ETIMEDOUT') return true;
-    if (lower.includes('terminated') || lower.includes('socket hang up') || lower.includes('other side closed')) return true;
+    const nameLower = (name || '').toLowerCase();
+    if (
+      code === 'UND_ERR_SOCKET' ||
+      code === 'UND_ERR_CONNECT_TIMEOUT' ||
+      code === 'UND_ERR_HEADERS_TIMEOUT' ||
+      code === 'UND_ERR_BODY_TIMEOUT' ||
+      code === 'UND_ERR_RESPONSE_TIMEOUT' ||
+      code === 'ECONNRESET' ||
+      code === 'ECONNABORTED' ||
+      code === 'ETIMEDOUT' ||
+      code === 'ENOTFOUND' ||
+      code === 'EAI_AGAIN'
+    ) return true;
+    if (
+      nameLower.includes('timeout') ||
+      lower.includes('timeout') ||
+      lower.includes('timed out') ||
+      lower.includes('request timed out') ||
+      lower.includes('terminated') ||
+      lower.includes('socket hang up') ||
+      lower.includes('other side closed') ||
+      lower.includes('fetch failed') ||
+      lower.includes('network error')
+    ) return true;
     return false;
   }
 }

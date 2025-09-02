@@ -97,6 +97,24 @@ export class MessageHandlerService {
             let answer: string;
             try {
                 answer = await this.openRouterService.ask(history, model, fileContent);
+            } catch (err: any) {
+                const status = (err && err.status) || (err && err.response && err.response.status);
+                const code = err?.code;
+                const name = err?.name;
+                const messageText = String(err?.message || err || '');
+                const lower = messageText.toLowerCase();
+                this.logger.error(`Error calling model for user ${userId}: code=${code} status=${status} name=${name} message=${messageText}`);
+
+                if (
+                    (typeof status === 'number' && (status === 429 || status >= 500)) ||
+                    (name && String(name).toLowerCase().includes('timeout')) ||
+                    lower.includes('timeout') || lower.includes('timed out') || lower.includes('request timed out')
+                ) {
+                    try { await ctx.reply(this.t(ctx, 'error_timeout')); } catch {}
+                } else {
+                    try { await ctx.reply(this.t(ctx, 'unexpected_error')); } catch {}
+                }
+                return;
             } finally {
                 // Удаляем индикатор независимо от результата
                 try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch {}
