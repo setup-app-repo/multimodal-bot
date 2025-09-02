@@ -108,6 +108,23 @@ model_close_button = Schließen
 model_selected =  ✅ Modell ausgewählt: **{$model}**
 invalid_model = Ungültiges Modell
 
+# Modelfähigkeiten
+model_capabilities_title = ✨ <b>Fähigkeiten des Modells:</b>
+capability_text = Text
+capability_photos = Fotos
+capability_files = Dateien
+capability_voice = Sprachnachrichten
+
+# Bestätigungsblock der Modellauswahl
+model_connected_title = 🚀 Du hast das Modell verbunden: <b>{$model}</b>!
+model_price_line_with_premium = 🔹 <b>Preis: {$price_without} SP → {$price_with} SP / Anfrage mit Premium ⭐</b>
+model_price_line_without_premium = 🔹 <b>Preis: {$price_without} SP / Anfrage</b>
+model_price_line_free = 🔹 <b>Preis: kostenlos</b>
+price_free_short = kostenlos
+attachments_double_cost_note = 📎 Anhänge (Fotos/Audio/Dateien) verdoppeln die Kosten der Anfrage.
+model_change_hint = <i>Du kannst das Modell jederzeit über Menü → Modell ändern.</i>
+chat_start_hint = 💬 <b>Schreibe eine Nachricht oder stelle eine Frage — ich lege los.</b>
+
 # Fehler
 error_processing_message =  ❌ Beim Verarbeiten deiner Nachricht ist ein Fehler aufgetreten.
 error_processing_file =  ❌ Beim Verarbeiten der Datei ist ein Fehler aufgetreten.

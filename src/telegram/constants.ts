@@ -89,6 +89,7 @@ export function getPriceSP(model: string, hasActiveSub: boolean): number {
 // Модели, поддерживающие input_audio (по OpenRouter сейчас: gemini-2.5-flash)
 export const MODELS_SUPPORTING_AUDIO = new Set<string>([
     'google/gemini-2.5-flash',
+    'google/gemini-2.5-pro'
 ]);
 
 // Модели, поддерживающие изображение (photos)

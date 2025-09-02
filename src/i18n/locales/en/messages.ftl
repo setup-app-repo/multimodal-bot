@@ -117,6 +117,23 @@ model_close_button = Close
 model_selected =  ✅ Selected model: {$model}
 invalid_model = Invalid model
 
+# Model capabilities
+model_capabilities_title = ✨ <b>Model capabilities:</b>
+capability_text = Text
+capability_photos = Photos
+capability_files = Files
+capability_voice = Voice messages
+
+# Model selection confirmation block
+model_connected_title = 🚀 You connected the model: <b>{$model}</b>!
+model_price_line_with_premium = 🔹 <b>Price: {$price_without} SP → {$price_with} SP / request with Premium ⭐</b>
+model_price_line_without_premium = 🔹 <b>Price: {$price_without} SP / request</b>
+model_price_line_free = 🔹 <b>Price: Free</b>
+price_free_short = free
+attachments_double_cost_note = 📎 Attachments (photos/audio/files) double the cost of the request.
+model_change_hint = <i>You can change the model at any time via Menu → Model.</i>
+chat_start_hint = 💬 <b>Send a message or ask a question — I’ll get to work.</b>
+
 # Errors
 error_processing_message =  ❌ An error occurred while processing your message.
 error_processing_file =  ❌ An error occurred while processing the file.
