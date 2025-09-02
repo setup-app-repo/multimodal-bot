@@ -4,7 +4,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
 import { Filter } from 'grammy';
 import { TelegramFileService } from './telegram-file.service';
-import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, DEFAULT_MODEL } from '../constants';
+import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, DEFAULT_MODEL, ModelTier, MODEL_TO_TIER } from '../constants';
 
 @Injectable()
 export class DocumentHandlerService {
@@ -28,6 +28,13 @@ export class DocumentHandlerService {
 
             const userId = String(ctx.from?.id);
             const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
+
+            // Бесплатная модель: не поддерживаем фото/файлы/голос
+            const isFreeModel = (MODEL_TO_TIER[model] ?? ModelTier.MID) === ModelTier.BASE;
+            if (isFreeModel) {
+                await ctx.reply(this.t(ctx, 'warning_free_model_no_media'));
+                return;
+            }
 
             this.logger.log(`Document received from user ${userId}: ${doc.file_name} (${doc.mime_type}, ${doc.file_size} bytes)`);
 

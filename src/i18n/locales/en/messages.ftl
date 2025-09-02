@@ -172,6 +172,9 @@ warning_model_no_file_support =  🚫 Current model does not support file proces
 warning_model_no_voice_support =  🚫 This model does not support voice messages. Please try another model.
 warning_model_no_photo_support =  🚫 This model does not support photo processing. Please try another model.
 
+# Free model limitations
+warning_free_model_no_media =  ⚠️ In the free model, photos/files/voice messages are not supported.
+
 # Files
 file_accepted =  📎 File accepted! Now send your question, and I will analyze the file content.
 file_name =  📄 File name: {$name}

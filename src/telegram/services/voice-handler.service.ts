@@ -40,6 +40,13 @@ export class VoiceHandlerService {
             const userId = String(ctx.from?.id);
             const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
+            // Бесплатная модель: не поддерживаем фото/файлы/голос
+            const isFreeModel = (MODEL_TO_TIER[model] ?? ModelTier.MID) === ModelTier.BASE;
+            if (isFreeModel) {
+                await ctx.reply(this.t(ctx, 'warning_free_model_no_media'));
+                return;
+            }
+
             if (!MODELS_SUPPORTING_AUDIO.has(model)) {
                 await ctx.reply(this.t(ctx, 'warning_model_no_voice_support'));
                 return;

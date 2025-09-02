@@ -60,10 +60,6 @@ export class SetupAppService {
     return this.setupApp.getTelegramMiniappUrl();
   }
 
-  async getTravelsMiniappUrl() {
-    return this.setupApp.getTravelsMiniappUrl();
-  }
-
   async getReferralUrl(telegramId: number) {
     return this.setupApp.getReferralUrl(telegramId);
   }

@@ -96,7 +96,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const langLine = t(ctx, 'current_language', { lang: getLanguageNameWithoutFlag(ctx, currentLang) }).replace(/^([^:]+:)/, '<b>$1</b>');
 
             const text =
-                `👤 ${t(ctx, 'profile_title')}
+                `👤 ${t(ctx, 'profile_title')}\n
 ` +
                 `💰 ${balanceLine}
 ` +
@@ -109,6 +109,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             const keyboard = new InlineKeyboard()
                 .text(t(ctx, 'profile_language_button'), 'profile_language')
                 .text(t(ctx, 'profile_premium_button'), 'profile:premium')
+                .row()
+                .text(t(ctx, 'topup_sp_button'), 'wallet:topup')
                 .row()
                 .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 
@@ -314,6 +316,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const keyboard = new InlineKeyboard()
             .text(t(ctx, 'profile_language_button'), 'profile_language')
             .text(t(ctx, 'profile_premium_button'), 'profile:premium')
+            .row()
+            .text(t(ctx, 'topup_sp_button'), 'wallet:topup')
             .row()
             .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 
@@ -523,7 +527,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
         const text =
-            `👤 ${t(ctx, 'profile_title')}
+            `👤 ${t(ctx, 'profile_title')}\n
 ` +
             `💰 ${t(ctx, 'profile_balance', { balance: spBalance })}
 ` +
@@ -536,6 +540,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         const keyboard = new InlineKeyboard()
             .text(t(ctx, 'profile_language_button'), 'profile_language')
             .text(t(ctx, 'profile_premium_button'), 'profile:premium')
+            .row()
+            .text(t(ctx, 'topup_sp_button'), 'wallet:topup')
             .row()
             .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 

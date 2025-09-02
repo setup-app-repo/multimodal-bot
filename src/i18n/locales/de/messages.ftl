@@ -172,6 +172,9 @@ warning_model_no_file_support =  🚫 Das aktuelle Modell unterstützt keine Dat
 warning_model_no_voice_support =  🚫 Dieses Modell unterstützt keine Sprachnachrichten. Bitte versuche ein anderes Modell.
 warning_model_no_photo_support =  🚫 Dieses Modell unterstützt keine Fotoverarbeitung. Bitte versuche ein anderes Modell.
 
+# Einschränkungen des kostenlosen Modells
+warning_free_model_no_media =  ⚠️ Im kostenlosen Modell werden Fotos/Dateien/Sprachnachrichten nicht unterstützt.
+
 # Dateien
 file_accepted =  📎 Datei akzeptiert! Sende jetzt deine Frage und ich analysiere den Inhalt der Datei.
 file_name =  📄 Dateiname: {$name}

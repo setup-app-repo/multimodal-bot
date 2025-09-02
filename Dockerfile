@@ -59,7 +59,7 @@ RUN adduser --system --uid 1001 nestjs
 WORKDIR /app
 
 # Устанавливаем зависимости системы
-RUN apk add --no-cache curl ffmpeg
+RUN apk add --no-cache curl ffmpeg postgresql-client
 
 # Копируем production зависимости
 COPY --from=dependencies --chown=nestjs:nodejs /app/node_modules ./node_modules
@@ -75,6 +75,15 @@ COPY --chown=nestjs:nodejs package.json ./
 
 # Создаем директорию для логов с правильными правами
 RUN mkdir -p /app/logs && chown nestjs:nodejs /app/logs
+
+# Копируем entrypoint скрипт
+COPY --chown=root:root docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+# Фикс прав и возможных CRLF переносов строк
+RUN chmod 0755 /usr/local/bin/docker-entrypoint.sh \
+  && sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh
+
+# Используем entrypoint для запуска миграций
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Переключаемся на непривилегированного пользователя
 USER nestjs

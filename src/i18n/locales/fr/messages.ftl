@@ -177,6 +177,9 @@ warning_model_no_file_support =  🚫 Le modèle actuel ne supporte pas le trava
 warning_model_no_voice_support =  🚫 Ce modèle ne supporte pas les messages vocaux. Veuillez essayer un autre modèle.
 warning_model_no_photo_support =  🚫 Ce modèle ne supporte pas le traitement des photos. Veuillez essayer un autre modèle.
 
+# Limitations du modèle gratuit
+warning_free_model_no_media =  ⚠️ Dans le modèle gratuit, les photos/fichiers/messages vocaux ne sont pas pris en charge.
+
 # Fichiers
 file_accepted =  📎 Fichier accepté ! Maintenant envoyez votre question et j'analyserai le contenu du fichier.
 file_name =  📁 Nom du fichier : {$name}

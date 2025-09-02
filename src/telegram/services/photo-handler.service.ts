@@ -42,6 +42,13 @@ export class PhotoHandlerService {
             const userId = String(ctx.from?.id);
             const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
+            // Бесплатная модель: не поддерживаем фото/файлы/голос
+            const isFreeModel = (MODEL_TO_TIER[model] ?? ModelTier.MID) === ModelTier.BASE;
+            if (isFreeModel) {
+                await ctx.reply(this.t(ctx, 'warning_free_model_no_media'));
+                return;
+            }
+
             this.logger.log(`Photo received from user ${userId}: file_id=${largest.file_id}, size=${largest.file_size || 0}`);
 
             const size = largest.file_size ?? 0;
