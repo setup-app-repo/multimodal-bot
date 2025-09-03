@@ -236,6 +236,9 @@ processing_request = ⏳ Traitement de votre demande...
 
 # Notifications
 notification_inactive_recall = {$first_name}, ça fait longtemps 👋\nEnvoyez n’importe quelle demande — je vous aide !
+autorenew_failed_insufficient_sp = <b>⚠️ Échec du renouvellement du Premium</b>\n\n🔹 Requis : <b>{$required} SP</b>\n🔹 Solde actuel : <b>{$balance} SP</b>
+autorenew_success = <b>✅ Renouvellement automatique réussi</b>\n\n🔹 Nouvelle échéance : <b>jusqu’au {$premium_expires_at}</b>\n🔹 Solde actuel : <b>{$balance} SP</b>
+billing_topup_balance_button = 💳 Recharger le solde
 subscription_expiring_3_days = Premium ⭐ expire dans 3 jours — {$premium_expires_at}. Renouvelez pour conserver les réductions et la priorité.
 subscription_expiring_1_day = Premium ⏳ expire demain — {$premium_expires_at}. Renouvelez pour 30 jours pour 10 SP.
 premium_renew_button = 🔁 Renouveler

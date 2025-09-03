@@ -239,4 +239,7 @@ processing_request = ⏳ Procesando tu solicitud...
 notification_inactive_recall = {$first_name}, ¡cuánto tiempo! 👋\nEnvía cualquier consulta — ¡te ayudaré!
 subscription_expiring_3_days = Premium ⭐ expira en 3 días — {$premium_expires_at}. Renueva para mantener los descuentos y la prioridad.
 subscription_expiring_1_day = Premium ⏳ expira mañana — {$premium_expires_at}. Renueva por 30 días por 10 SP.
+autorenew_failed_insufficient_sp = <b>⚠️ No se pudo renovar Premium</b>\n\n🔹 Requerido: <b>{$required} SP</b>\n🔹 Saldo actual: <b>{$balance} SP</b>
+autorenew_success = <b>✅ Renovación automática exitosa</b>\n\n🔹 Nuevo vencimiento: <b>hasta {$premium_expires_at}</b>\n🔹 Saldo actual: <b>{$balance} SP</b>
+billing_topup_balance_button = 💳 Recargar saldo
 premium_renew_button = 🔁 Renovar

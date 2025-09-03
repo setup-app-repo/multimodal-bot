@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
 
 import { User } from 'src/user/user.entity';
@@ -21,8 +21,8 @@ export class NotificationService {
    * Крон ежедневно в 15:00 UTC.
    * Выбираем всех пользователей, у кого наступил кратный 7 дням период неактивности, и шлём напоминание.
    */
+  @Cron('0 12 * * *')
   @CreateRequestContext()
-  @Cron(CronExpression.EVERY_DAY_AT_3PM)
   async sendInactiveReminders(): Promise<void> {
     const now = new Date();
     const nowUtcMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
@@ -34,6 +34,7 @@ export class NotificationService {
       lastMessageAt: { $lte: sevenDaysAgo },
     });
 
+
     if (!users.length) {
       this.logger.debug('Нет кандидатов для напоминаний об неактивности');
       return;
@@ -44,10 +45,11 @@ export class NotificationService {
       .map(async (user) => {
         try {
           const locale = user.languageCode || this.i18n.getDefaultLocale();
-          const text = this.i18n.t('notification_inactive_recall', locale, {
+          const raw = this.i18n.t('notification_inactive_recall', locale, {
             first_name: user.firstName || user.username || '',
           });
 
+          const text = raw.replace(/\\n/g, '\n');
           await this.bot.sendPlainText(Number(user.telegramId), text);
         } catch (error) {
           this.logger.warn(`Не удалось отправить напоминание пользователю ${user.telegramId}: ${String(error)}`);
@@ -61,8 +63,8 @@ export class NotificationService {
    * Крон: ежедневно отправляем напоминания за 3 и за 1 день до окончания подписки (autorenew=false).
    * Запуск один раз в день, без дедупликации.
    */
-  @CreateRequestContext()
   @Cron('0 12 * * *')
+  @CreateRequestContext()
   async sendSubscriptionExpiryReminders(): Promise<void> {
     const now = new Date();
     const inThreeDays = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
@@ -125,6 +127,7 @@ export class NotificationService {
     const msDiff = todayUtcMidnight.getTime() - lastUtcMidnight.getTime();
     if (msDiff < 7 * 24 * 60 * 60 * 1000) return false;
     const days = Math.floor(msDiff / (24 * 60 * 60 * 1000));
+    
     return days % 7 === 0;
   }
 }

@@ -234,6 +234,9 @@ onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assiste
 
 # Benachrichtigungen
 notification_inactive_recall = {$first_name}, lange nicht gesehen 👋\nSende eine Anfrage — ich helfe!
+autorenew_failed_insufficient_sp = <b>⚠️ Premium konnte nicht verlängert werden</b>\n\n🔹 Erforderlich: <b>{$required} SP</b>\n🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
+autorenew_success = <b>✅ Automatische Verlängerung erfolgreich</b>\n\n🔹 Neues Ablaufdatum: <b>bis {$premium_expires_at}</b>\n🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
+billing_topup_balance_button = 💳 Guthaben aufladen
 subscription_expiring_3_days = Premium ⭐ läuft in 3 Tagen ab — {$premium_expires_at}. Verlängern Sie, um Rabatte und Priorität zu behalten.
 subscription_expiring_1_day = Premium ⏳ läuft morgen ab — {$premium_expires_at}. Verlängern Sie um 30 Tage für 10 SP.
 premium_renew_button = 🔁 Verlängern
