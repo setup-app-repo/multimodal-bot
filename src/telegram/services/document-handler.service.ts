@@ -1,10 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Filter } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { Filter } from 'grammy';
 import { TelegramFileService } from './telegram-file.service';
-import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, DEFAULT_MODEL, ModelTier, MODEL_TO_TIER } from '../constants';
+import { AccessControlService } from './access-control.service';
+import { MAX_FILE_SIZE_BYTES, ALLOWED_MIME_TYPES, MODELS_SUPPORTING_FILES, DEFAULT_MODEL } from '../constants';
 
 @Injectable()
 export class DocumentHandlerService {
@@ -14,6 +15,7 @@ export class DocumentHandlerService {
         private readonly i18n: I18nService,
         private readonly redisService: RedisService,
         private readonly telegramFileService: TelegramFileService,
+        private readonly accessControlService: AccessControlService,
     ) {}
 
     private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -29,10 +31,9 @@ export class DocumentHandlerService {
             const userId = String(ctx.from?.id);
             const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
-            // Бесплатная модель: не поддерживаем фото/файлы/голос
-            const isFreeModel = (MODEL_TO_TIER[model] ?? ModelTier.MID) === ModelTier.BASE;
-            if (isFreeModel) {
-                await ctx.reply(this.t(ctx, 'warning_free_model_no_media'));
+            // Проверка поддержки медиа бесплатной моделью
+            if (!this.accessControlService.isMediaSupportedByModel(model)) {
+                await this.accessControlService.sendFreeModelNoMediaMessage(ctx);
                 return;
             }
 

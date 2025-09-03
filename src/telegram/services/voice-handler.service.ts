@@ -2,15 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { Filter, InlineKeyboard } from 'grammy';
+import { Filter } from 'grammy';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
-import { SubscriptionService } from 'src/subscription/subscription.service';
-import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { ConfigService } from '@nestjs/config';
-import { DEFAULT_MODEL, getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT, MODELS_SUPPORTING_AUDIO } from '../constants';
-import { getModelDisplayName } from '../utils/model-display';
-import { escapeMarkdown, sendLongMessage } from '../utils/message';
-import { AudioConversionService } from './audio-conversion.service';
+import { DEFAULT_MODEL, MODELS_SUPPORTING_AUDIO } from '../constants';
+import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
+import { AccessControlService, AudioConversionService } from './';
 
 @Injectable()
 export class VoiceHandlerService {
@@ -20,10 +17,9 @@ export class VoiceHandlerService {
         private readonly i18n: I18nService,
         private readonly redisService: RedisService,
         private readonly openRouterService: OpenRouterService,
-        private readonly subscriptionService: SubscriptionService,
-        private readonly setupAppService: SetupAppService,
         private readonly configService: ConfigService,
         private readonly audioConversionService: AudioConversionService,
+        private readonly accessControlService: AccessControlService,
     ) {}
 
     private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -33,17 +29,15 @@ export class VoiceHandlerService {
 
     async handleVoice(ctx: Filter<BotContext, 'message:voice'>) {
         try {
-            this.logger.log('STAAAAAART >>>>>', ctx.message);
             const voice = ctx.message.voice;
             if (!voice) return;
 
             const userId = String(ctx.from?.id);
             const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
-            // Бесплатная модель: не поддерживаем фото/файлы/голос
-            const isFreeModel = (MODEL_TO_TIER[model] ?? ModelTier.MID) === ModelTier.BASE;
-            if (isFreeModel) {
-                await ctx.reply(this.t(ctx, 'warning_free_model_no_media'));
+            // Проверка поддержки медиа бесплатной моделью
+            if (!this.accessControlService.isMediaSupportedByModel(model)) {
+                await this.accessControlService.sendFreeModelNoMediaMessage(ctx);
                 return;
             }
 
@@ -84,28 +78,13 @@ export class VoiceHandlerService {
 
             const base64Audio = convertedBuffer.toString('base64');
 
-            const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
-            const basePrice = getPriceSP(model, hasActiveSubscription);
-            const price = basePrice * 2; // Удваиваем стоимость для голосовых сообщений
-            const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
-            const isBaseNoSub = !hasActiveSubscription && tier === ModelTier.BASE;
-
-            const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
-            if (!hasEnoughSP && !isBaseNoSub) {
-                const keyboard = new InlineKeyboard().text(this.t(ctx, 'topup_sp_button'), 'wallet:topup');
-                await ctx.reply(this.t(ctx, 'insufficient_funds'), { reply_markup: keyboard });
+            // Проверка доступа и лимитов через AccessControlService (удваиваем стоимость для голосовых сообщений)
+            const accessResult = await this.accessControlService.checkAccess(ctx, userId, model, 2);
+            if (!accessResult.canProceed) {
                 return;
             }
 
-            if (isBaseNoSub) {
-                try {
-                    const usedToday = await this.redisService.incrementDailyBaseCount(userId);
-                    if (usedToday > DAILY_BASE_FREE_LIMIT) {
-                        await ctx.reply(this.t(ctx, 'daily_limit_reached'));
-                        return;
-                    }
-                } catch {}
-            }
+            const price = accessResult.price;
 
             await ctx.api.sendChatAction(ctx.chat.id, 'typing');
             const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
@@ -115,10 +94,8 @@ export class VoiceHandlerService {
 
             try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch {}
 
-            if (tier !== ModelTier.BASE) {
-                const description = `Query to ${model} (audio)`;
-                await this.setupAppService.deduct(Number(userId), price, description);
-            }
+            // Списание SP через AccessControlService
+            await this.accessControlService.deductSPIfNeeded(userId, model, price, `Query to ${model} (audio)`);
 
             await this.redisService.saveMessage(userId, 'user', '[голосовое сообщение]');
             await this.redisService.saveMessage(userId, 'assistant', answer);

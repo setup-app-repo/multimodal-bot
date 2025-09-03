@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
+
 import { TelegramService } from './telegram.service';
-import { BotService } from './services/bot.service';
 import { TelegramController } from './telegram.controller';
 import { RedisModule } from 'src/redis/redis.module';
 import { ConfigModule as AppConfigModule } from 'src/config/config.module';
@@ -9,13 +10,16 @@ import { OpenRouterModule } from 'src/openrouter/openrouter.module';
 import { SetupAppModule } from 'src/setup-app/setup-app.module';
 import { UserModule } from 'src/user/user.module';
 import { SubscriptionModule } from 'src/subscription/subscription.module';
-import { TelegramFileService } from './services/telegram-file.service';
-import { MessageHandlerService } from './services/message-handler.service';
-import { DocumentHandlerService } from './services/document-handler.service';
-import { PhotoHandlerService } from './services/photo-handler.service';
-import { VoiceHandlerService } from './services/voice-handler.service';
-import { AudioConversionService } from './services/audio-conversion.service';
-import { BullModule } from '@nestjs/bullmq';
+import {
+  BotService,
+  MessageHandlerService,
+  DocumentHandlerService,
+  PhotoHandlerService,
+  VoiceHandlerService,
+  AudioConversionService,
+  TelegramFileService,
+  AccessControlService,
+} from './services';
 import { SubscriptionRenewalProcessor } from './processors/subscription-renewal.processor';
 
 @Module({
@@ -30,7 +34,18 @@ import { SubscriptionRenewalProcessor } from './processors/subscription-renewal.
     BullModule.registerQueue({ name: 'subscription-renewal' }),
   ],
   controllers: [TelegramController],
-  providers: [TelegramService, BotService, TelegramFileService, MessageHandlerService, DocumentHandlerService, PhotoHandlerService, VoiceHandlerService, AudioConversionService, SubscriptionRenewalProcessor],
+  providers: [
+    TelegramService,
+    BotService,
+    TelegramFileService,
+    MessageHandlerService,
+    DocumentHandlerService,
+    PhotoHandlerService,
+    VoiceHandlerService,
+    AudioConversionService,
+    AccessControlService,
+    SubscriptionRenewalProcessor,
+  ],
   exports: [BotService]
 })
 export class TelegramModule {}

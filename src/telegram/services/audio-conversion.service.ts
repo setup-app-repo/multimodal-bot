@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { tmpdir } from 'os';
 import { randomUUID } from 'crypto';
 import { join } from 'path';
@@ -8,7 +8,6 @@ import ffmpegPath from 'ffmpeg-static';
 
 @Injectable()
 export class AudioConversionService {
-    private readonly logger = new Logger(AudioConversionService.name);
 
     async oggOpusToMp3(buffer: Buffer): Promise<Buffer> {
         const inputPath = join(tmpdir(), `${randomUUID()}.ogg`);

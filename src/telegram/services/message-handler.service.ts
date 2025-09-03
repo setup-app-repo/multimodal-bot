@@ -1,15 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Filter } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
-import { SetupAppService } from 'src/setup-app/setup-app.service';
-import { SubscriptionService } from 'src/subscription/subscription.service';
 import { BotContext } from '../interfaces';
-import { Filter, InlineKeyboard } from 'grammy';
-import { getModelDisplayName } from '../utils/model-display';
-import { escapeMarkdown, sendLongMessage } from '../utils/message';
+import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
 import { TelegramFileService } from './telegram-file.service';
-import { getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT, DEFAULT_MODEL } from '../constants';
+import { AccessControlService } from './access-control.service';
+import { DEFAULT_MODEL } from '../constants';
 
 @Injectable()
 export class MessageHandlerService {
@@ -19,9 +17,8 @@ export class MessageHandlerService {
         private readonly i18n: I18nService,
         private readonly redisService: RedisService,
         private readonly openRouterService: OpenRouterService,
-        private readonly setupAppService: SetupAppService,
-        private readonly subscriptionService: SubscriptionService,
         private readonly telegramFileService: TelegramFileService,
+        private readonly accessControlService: AccessControlService,
     ) {}
 
     private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -65,33 +62,17 @@ export class MessageHandlerService {
 
             this.logger.log(`Sending request to OpenRouter for user ${userId}, model: ${model}, history length: ${history.length}, has file: ${!!fileContent}`);
 
-            const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
-            const basePrice = getPriceSP(model, hasActiveSubscription);
             const isFilePresent = !!fileContent && fileContent.length > 0;
-            const price = isFilePresent ? basePrice * 2 : basePrice; // Удваиваем стоимость, если есть файл
-            this.logger.log(`Will deduct ${price} SP for user ${userId} for model ${model}. hasActiveSubscription: ${hasActiveSubscription}, isFilePresent: ${isFilePresent}`);
-
-            const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
-            const isBaseNoSub = !hasActiveSubscription && tier === ModelTier.BASE;
-
-            const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
-            if (!hasEnoughSP && !isBaseNoSub) {
-                const keyboard = new InlineKeyboard().text(this.t(ctx, 'topup_sp_button'), 'wallet:topup');
-                await ctx.reply(this.t(ctx, 'insufficient_funds'), { reply_markup: keyboard });
+            const priceMultiplier = isFilePresent ? 2 : 1; // Удваиваем стоимость, если есть файл
+            
+            // Проверка доступа и лимитов через AccessControlService
+            const accessResult = await this.accessControlService.checkAccess(ctx, userId, model, priceMultiplier);
+            if (!accessResult.canProceed) {
                 return;
             }
 
-            if (isBaseNoSub) {
-                try {
-                    const usedToday = await this.redisService.incrementDailyBaseCount(userId);
-                    if (usedToday > DAILY_BASE_FREE_LIMIT) {
-                        await ctx.reply(this.t(ctx, 'daily_limit_reached'));
-                        return;
-                    }
-                } catch (limitError) {
-                    this.logger.error(`Daily limit check failed for user ${userId}:`, limitError as any);
-                }
-            }
+            const price = accessResult.price;
+            this.logger.log(`Will deduct ${price} SP for user ${userId} for model ${model}. isFilePresent: ${isFilePresent}`);
 
             // Отправляем индикатор обработки перед запросом к модели
             const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
@@ -121,10 +102,9 @@ export class MessageHandlerService {
                 try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch {}
             }
 
-            if (tier !== ModelTier.BASE) {
-                const description = isFilePresent ? `Query to ${model} (file)` : `Query to ${model}`;
-                await this.setupAppService.deduct(Number(userId), price, description);
-            }
+            // Списание SP через AccessControlService
+            const description = isFilePresent ? `Query to ${model} (file)` : `Query to ${model}`;
+            await this.accessControlService.deductSPIfNeeded(userId, model, price, description);
 
             this.logger.log(`Received response from OpenRouter for user ${userId}, response length: ${answer.length}`);
 
