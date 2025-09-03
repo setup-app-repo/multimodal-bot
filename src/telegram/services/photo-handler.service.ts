@@ -5,11 +5,7 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 
-import {
-  MAX_FILE_SIZE_BYTES,
-  MODELS_SUPPORTING_PHOTOS,
-  DEFAULT_MODEL,
-} from '../constants';
+import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL } from '../constants';
 import { BotContext } from '../interfaces';
 import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
 
@@ -41,9 +37,7 @@ export class PhotoHandlerService {
       const largest = photos[photos.length - 1];
 
       const userId = String(ctx.from?.id);
-      const model =
-        (await this.redisService.get<string>(`chat:${userId}:model`)) ||
-        DEFAULT_MODEL;
+      const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
       // Проверка поддержки медиа бесплатной моделью
       if (!this.accessControlService.isMediaSupportedByModel(model)) {
@@ -65,9 +59,7 @@ export class PhotoHandlerService {
       }
 
       if (!MODELS_SUPPORTING_PHOTOS.has(model)) {
-        this.logger.warn(
-          `User ${userId} tried to upload photo with unsupported model: ${model}`,
-        );
+        this.logger.warn(`User ${userId} tried to upload photo with unsupported model: ${model}`);
         await ctx.reply(this.t(ctx, 'warning_model_no_photo_support'));
         return;
       }
@@ -86,12 +78,7 @@ export class PhotoHandlerService {
       const caption = ctx.message.caption?.trim();
 
       // Проверка доступа и лимитов через AccessControlService (удваиваем стоимость для фото)
-      const accessResult = await this.accessControlService.checkAccess(
-        ctx,
-        userId,
-        model,
-        2,
-      );
+      const accessResult = await this.accessControlService.checkAccess(ctx, userId, model, 2);
       if (!accessResult.canProceed) {
         return;
       }
@@ -99,9 +86,7 @@ export class PhotoHandlerService {
       const price = accessResult.price;
 
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
-      const processingMessage = await ctx.reply(
-        this.t(ctx, 'processing_request'),
-      );
+      const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
 
       const history = await this.redisService.getHistory(userId);
 
@@ -124,11 +109,7 @@ export class PhotoHandlerService {
         `Query to ${model} (image)`,
       );
 
-      await this.redisService.saveMessage(
-        userId,
-        'user',
-        caption || '[изображение]',
-      );
+      await this.redisService.saveMessage(userId, 'user', caption || '[изображение]');
       await this.redisService.saveMessage(userId, 'assistant', answer);
 
       const modelDisplayName = getModelDisplayName(model);
@@ -141,10 +122,7 @@ export class PhotoHandlerService {
         { parse_mode: 'Markdown' },
       );
     } catch (error) {
-      this.logger.error(
-        `Error processing photo from user ${String(ctx.from?.id)}:`,
-        error,
-      );
+      this.logger.error(`Error processing photo from user ${String(ctx.from?.id)}:`, error);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
       } catch {}

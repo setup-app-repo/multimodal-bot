@@ -12,10 +12,7 @@ export const safeAnswerCallbackQuery = async (
       error?.description?.includes('query is too old') ||
       error?.description?.includes('query ID is invalid')
     ) {
-      console.warn(
-        'Callback query timeout or invalid ID, ignoring:',
-        error.description,
-      );
+      console.warn('Callback query timeout or invalid ID, ignoring:', error.description);
       return;
     }
     console.error('Error answering callback query:', error);

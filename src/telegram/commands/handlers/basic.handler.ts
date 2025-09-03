@@ -4,28 +4,15 @@ import { Bot, InlineKeyboard } from 'grammy';
 import { BotContext } from '../../interfaces';
 import { RegisterCommandsDeps, KeyboardBuilder, buildHelpText } from '../utils';
 
-export function registerBasicHandlers(
-  bot: Bot<BotContext>,
-  deps: RegisterCommandsDeps,
-) {
-  const {
-    t,
-    i18n,
-    setupAppService,
-    userService,
-    redisService,
-    subscriptionService,
-  } = deps;
+export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
+  const { t, i18n, setupAppService, userService, redisService, subscriptionService } = deps;
 
   bot.command('help', async (ctx) => {
     const userId = String(ctx.from?.id);
     const hasActive = await subscriptionService.hasActiveSubscription(userId);
     const keyboard = new InlineKeyboard();
     if (hasActive) {
-      keyboard.url(
-        t(ctx, 'help_contact_support_button'),
-        'https://t.me/setupmultisupport_bot',
-      );
+      keyboard.url(t(ctx, 'help_contact_support_button'), 'https://t.me/setupmultisupport_bot');
     } else {
       keyboard.text(t(ctx, 'help_contact_support_button'), 'help:support');
     }
@@ -69,9 +56,7 @@ export function registerBasicHandlers(
     if (!savedLang) {
       const profileLangCode = ctx.from?.language_code;
       const initialLang =
-        profileLangCode && i18n.isLocaleSupported(profileLangCode)
-          ? profileLangCode
-          : 'ru';
+        profileLangCode && i18n.isLocaleSupported(profileLangCode) ? profileLangCode : 'ru';
       ctx.session.lang = initialLang;
       await ctx.reply(t(ctx, 'start_language_welcome'), {
         reply_markup: KeyboardBuilder.buildLanguageInlineKeyboard(ctx, t),
@@ -83,12 +68,9 @@ export function registerBasicHandlers(
     const promoTextStart = t(ctx, 'onboarding_promo', {
       first_name: ctx.from?.first_name || ctx.from?.username || '',
     });
-    const promoTextStartMd = promoTextStart
-      .replace(/\*\*(.+?)\*\*/g, '*$1*')
-      .replace(/\\n/g, '\n');
+    const promoTextStartMd = promoTextStart.replace(/\*\*(.+?)\*\*/g, '*$1*').replace(/\\n/g, '\n');
     const telegramId = ctx.from?.id as number;
-    const referralCode =
-      ctx?.match && typeof ctx.match === 'string' ? ctx.match : undefined;
+    const referralCode = ctx?.match && typeof ctx.match === 'string' ? ctx.match : undefined;
 
     try {
       if (setupAppService.isInitialized()) {

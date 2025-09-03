@@ -19,10 +19,8 @@ export class OpenRouterService {
       Number(this.configService.get<string>('OPENROUTER_TIMEOUT_MS')) || 60000;
     this.maxAttemptsDefault =
       Number(this.configService.get<string>('OPENROUTER_MAX_ATTEMPTS')) || 3;
-    this.retryBaseMs =
-      Number(this.configService.get<string>('OPENROUTER_RETRY_BASE_MS')) || 500;
-    this.retryMaxMs =
-      Number(this.configService.get<string>('OPENROUTER_RETRY_MAX_MS')) || 5000;
+    this.retryBaseMs = Number(this.configService.get<string>('OPENROUTER_RETRY_BASE_MS')) || 500;
+    this.retryMaxMs = Number(this.configService.get<string>('OPENROUTER_RETRY_MAX_MS')) || 5000;
 
     this.client = new OpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
@@ -98,18 +96,12 @@ export class OpenRouterService {
       } catch (error: any) {
         lastError = error;
         const status =
-          (error && error.status) ||
-          (error && error.response && error.response.status);
+          (error && error.status) || (error && error.response && error.response.status);
         const code = error?.code;
         const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(
-          code,
-          status,
-          messageText,
-          name,
-        );
+        const retriable = this.isRetriableError(code, status, messageText, name);
         if (!retriable || attempt >= maxAttempts) {
           this.logger.error(
             `Error calling OpenRouter API (audio), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
@@ -182,18 +174,12 @@ export class OpenRouterService {
       } catch (error: any) {
         lastError = error;
         const status =
-          (error && error.status) ||
-          (error && error.response && error.response.status);
+          (error && error.status) || (error && error.response && error.response.status);
         const code = error?.code;
         const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(
-          code,
-          status,
-          messageText,
-          name,
-        );
+        const retriable = this.isRetriableError(code, status, messageText, name);
         if (!retriable || attempt >= maxAttempts) {
           this.logger.error(
             `Error calling OpenRouter API (multimodal), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
@@ -213,11 +199,7 @@ export class OpenRouterService {
     throw lastError;
   }
 
-  async ask(
-    message: any,
-    model: string,
-    fileContent?: string,
-  ): Promise<string> {
+  async ask(message: any, model: string, fileContent?: string): Promise<string> {
     this.logger.log(
       `Sending request to OpenRouter API, model: ${model}, messages: ${message.length}, has file: ${!!fileContent}`,
     );
@@ -267,18 +249,12 @@ export class OpenRouterService {
       } catch (error: any) {
         lastError = error;
         const status =
-          (error && error.status) ||
-          (error && error.response && error.response.status);
+          (error && error.status) || (error && error.response && error.response.status);
         const code = error?.code;
         const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(
-          code,
-          status,
-          messageText,
-          name,
-        );
+        const retriable = this.isRetriableError(code, status, messageText, name);
         if (!retriable || attempt >= maxAttempts) {
           this.logger.error(
             `Error calling OpenRouter API, model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
@@ -337,10 +313,7 @@ export class OpenRouterService {
       );
       return result;
     } catch (error) {
-      this.logger.error(
-        `Error processing file, mime type: ${mimeType}:`,
-        error,
-      );
+      this.logger.error(`Error processing file, mime type: ${mimeType}:`, error);
       throw new Error(`Ошибка при обработке файла: ${error.message}`);
     }
   }
@@ -434,8 +407,7 @@ export class OpenRouterService {
     name?: string,
   ): boolean {
     // HTTP статусы: 429, 500-599 — ретраим
-    if (typeof status === 'number' && (status === 429 || status >= 500))
-      return true;
+    if (typeof status === 'number' && (status === 429 || status >= 500)) return true;
     // Сетевые ошибки undici / node
     const lower = (message || '').toLowerCase();
     const nameLower = (name || '').toLowerCase();

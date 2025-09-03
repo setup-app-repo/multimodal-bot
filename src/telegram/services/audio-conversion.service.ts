@@ -45,16 +45,7 @@ export class AudioConversionService {
     await fs.writeFile(inputPath, buffer);
 
     try {
-      await this.runFfmpeg([
-        '-y',
-        '-i',
-        inputPath,
-        '-ar',
-        '16000',
-        '-ac',
-        '1',
-        outputPath,
-      ]);
+      await this.runFfmpeg(['-y', '-i', inputPath, '-ar', '16000', '-ac', '1', outputPath]);
       const wav = await fs.readFile(outputPath);
       return wav;
     } finally {

@@ -5,12 +5,7 @@ import { RedisService } from 'src/redis/redis.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { SubscriptionService } from 'src/subscription/subscription.service';
 
-import {
-  getPriceSP,
-  MODEL_TO_TIER,
-  ModelTier,
-  DAILY_BASE_FREE_LIMIT,
-} from '../constants';
+import { getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from '../constants';
 import { BotContext } from '../interfaces';
 
 export interface AccessCheckResult {
@@ -39,8 +34,7 @@ export class AccessControlService {
     model: string,
     priceMultiplier: number = 1,
   ): Promise<AccessCheckResult> {
-    const hasActiveSubscription =
-      await this.subscriptionService.hasActiveSubscription(userId);
+    const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
     const basePrice = getPriceSP(model, hasActiveSubscription);
     const price = basePrice * priceMultiplier;
     const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
@@ -52,10 +46,7 @@ export class AccessControlService {
 
     // Проверка SP для платных моделей
     if (!isBaseNoSub) {
-      const hasEnoughSP = await this.setupAppService.have(
-        Number(userId),
-        price,
-      );
+      const hasEnoughSP = await this.setupAppService.have(Number(userId), price);
       if (!hasEnoughSP) {
         await this.sendInsufficientFundsMessage(ctx);
         return { canProceed: false, price, reason: 'insufficient_funds' };
@@ -65,8 +56,7 @@ export class AccessControlService {
     // Проверка суточных лимитов для BASE модели без подписки
     if (isBaseNoSub) {
       try {
-        const usedToday =
-          await this.redisService.incrementDailyBaseCount(userId);
+        const usedToday = await this.redisService.incrementDailyBaseCount(userId);
         if (usedToday > DAILY_BASE_FREE_LIMIT) {
           await this.sendDailyLimitMessage(ctx);
           return { canProceed: false, price, reason: 'daily_limit_reached' };
@@ -75,10 +65,7 @@ export class AccessControlService {
           `User ${userId} used ${usedToday}/${DAILY_BASE_FREE_LIMIT} free requests today`,
         );
       } catch (limitError) {
-        this.logger.error(
-          `Daily limit check failed for user ${userId}:`,
-          limitError,
-        );
+        this.logger.error(`Daily limit check failed for user ${userId}:`, limitError);
         // В случае ошибки проверки лимита, разрешаем доступ
       }
     }
@@ -98,9 +85,7 @@ export class AccessControlService {
     const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
     if (tier !== ModelTier.BASE && price > 0) {
       await this.setupAppService.deduct(Number(userId), price, description);
-      this.logger.log(
-        `Deducted ${price} SP from user ${userId} for: ${description}`,
-      );
+      this.logger.log(`Deducted ${price} SP from user ${userId} for: ${description}`);
     }
   }
 

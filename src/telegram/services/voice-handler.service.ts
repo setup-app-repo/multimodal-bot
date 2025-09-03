@@ -35,9 +35,7 @@ export class VoiceHandlerService {
       if (!voice) return;
 
       const userId = String(ctx.from?.id);
-      const model =
-        (await this.redisService.get<string>(`chat:${userId}:model`)) ||
-        DEFAULT_MODEL;
+      const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
       // Проверка поддержки медиа бесплатной моделью
       if (!this.accessControlService.isMediaSupportedByModel(model)) {
@@ -67,8 +65,7 @@ export class VoiceHandlerService {
       let format: 'mp3' | 'wav' = 'mp3';
       if (file.file_path.endsWith('.ogg') || file.file_path.endsWith('.oga')) {
         this.logger.log(`Converting OGG/OGA (Opus) to mp3 for user ${userId}`);
-        convertedBuffer =
-          await this.audioConversionService.oggOpusToMp3(inputBuffer);
+        convertedBuffer = await this.audioConversionService.oggOpusToMp3(inputBuffer);
         format = 'mp3';
       } else if (file.file_path.endsWith('.wav')) {
         convertedBuffer = inputBuffer;
@@ -81,20 +78,14 @@ export class VoiceHandlerService {
         this.logger.log(
           `Unknown extension for voice ${file.file_path}, attempting ogg->mp3 conversion`,
         );
-        convertedBuffer =
-          await this.audioConversionService.oggOpusToMp3(inputBuffer);
+        convertedBuffer = await this.audioConversionService.oggOpusToMp3(inputBuffer);
         format = 'mp3';
       }
 
       const base64Audio = convertedBuffer.toString('base64');
 
       // Проверка доступа и лимитов через AccessControlService (удваиваем стоимость для голосовых сообщений)
-      const accessResult = await this.accessControlService.checkAccess(
-        ctx,
-        userId,
-        model,
-        2,
-      );
+      const accessResult = await this.accessControlService.checkAccess(ctx, userId, model, 2);
       if (!accessResult.canProceed) {
         return;
       }
@@ -102,9 +93,7 @@ export class VoiceHandlerService {
       const price = accessResult.price;
 
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
-      const processingMessage = await ctx.reply(
-        this.t(ctx, 'processing_request'),
-      );
+      const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
 
       const history = await this.redisService.getHistory(userId);
       const answer = await this.openRouterService.askWithAudio(
@@ -127,11 +116,7 @@ export class VoiceHandlerService {
         `Query to ${model} (audio)`,
       );
 
-      await this.redisService.saveMessage(
-        userId,
-        'user',
-        '[голосовое сообщение]',
-      );
+      await this.redisService.saveMessage(userId, 'user', '[голосовое сообщение]');
       await this.redisService.saveMessage(userId, 'assistant', answer);
 
       const modelDisplayName = getModelDisplayName(model);
@@ -144,10 +129,7 @@ export class VoiceHandlerService {
         { parse_mode: 'Markdown' },
       );
     } catch (error) {
-      this.logger.error(
-        `Error processing voice from user ${String(ctx.from?.id)}:`,
-        error,
-      );
+      this.logger.error(`Error processing voice from user ${String(ctx.from?.id)}:`, error);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
       } catch {}

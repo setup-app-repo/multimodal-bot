@@ -27,9 +27,7 @@ export class SubscriptionRenewalProcessor extends WorkerHost {
    * Доклады job.data: { telegramId: number, subscriptionId: string }
    */
   @CreateRequestContext()
-  async process(
-    job: Job<{ telegramId: number; subscriptionId: string }>,
-  ): Promise<void> {
+  async process(job: Job<{ telegramId: number; subscriptionId: string }>): Promise<void> {
     const { telegramId, subscriptionId } = job.data;
     try {
       const sub = await this.em.findOne(
@@ -52,9 +50,7 @@ export class SubscriptionRenewalProcessor extends WorkerHost {
 
       const hasEnough = await this.setupAppService.have(telegramId, amount);
       const locale = sub.user?.languageCode || this.i18n.getDefaultLocale();
-      const balance = await this.setupAppService
-        .getBalance(telegramId)
-        .catch(() => 0);
+      const balance = await this.setupAppService.getBalance(telegramId).catch(() => 0);
 
       if (!hasEnough) {
         sub.status = 'expired';

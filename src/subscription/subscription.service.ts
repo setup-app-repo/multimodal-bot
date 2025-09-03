@@ -99,9 +99,7 @@ export class SubscriptionService {
   /**
    * Возвращает активную подписку пользователя или null, если её нет
    */
-  async getActiveSubscription(
-    telegramId: string,
-  ): Promise<Subscription | null> {
+  async getActiveSubscription(telegramId: string): Promise<Subscription | null> {
     const now = new Date();
     const user = await this.em.findOne(User, { telegramId: telegramId });
     if (!user) return null;
@@ -120,10 +118,7 @@ export class SubscriptionService {
   /**
    * Устанавливает флаг автопродления для активной подписки пользователя
    */
-  async setAutoRenew(
-    telegramId: string,
-    value: boolean,
-  ): Promise<Subscription | null> {
+  async setAutoRenew(telegramId: string, value: boolean): Promise<Subscription | null> {
     const now = new Date();
     const user = await this.em.findOne(User, { telegramId });
     if (!user) return null;

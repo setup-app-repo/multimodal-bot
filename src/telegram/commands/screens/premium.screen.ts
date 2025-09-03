@@ -10,8 +10,7 @@ export class PremiumScreen {
   async build(ctx: BotContext): Promise<ScreenData> {
     const { subscriptionService, t } = this.deps;
     const telegramId = String(ctx.from?.id);
-    const hasActive =
-      await subscriptionService.hasActiveSubscription(telegramId);
+    const hasActive = await subscriptionService.hasActiveSubscription(telegramId);
     if (hasActive) {
       return this.buildActive(ctx);
     }
@@ -34,9 +33,7 @@ export class PremiumScreen {
 
   async buildActive(ctx: BotContext): Promise<ScreenData> {
     const { t, setupAppService, subscriptionService } = this.deps;
-    const activeSub = await subscriptionService.getActiveSubscription(
-      String(ctx.from?.id),
-    );
+    const activeSub = await subscriptionService.getActiveSubscription(String(ctx.from?.id));
     let expiresAtDate: Date | null = null;
     let autorenew = false;
     if (activeSub) {
@@ -55,9 +52,7 @@ export class PremiumScreen {
           })
           .replace(/[\u2068\u2069]/g, '')
       : '';
-    const autorenewLabelPlain = autorenew
-      ? t(ctx, 'switch_on')
-      : t(ctx, 'switch_off');
+    const autorenewLabelPlain = autorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
     const autorenewLabel = `<b>${autorenewLabelPlain}</b>`;
 
     const header = t(ctx, 'premium_active_title');

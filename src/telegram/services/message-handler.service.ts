@@ -36,21 +36,12 @@ export class MessageHandlerService {
       const helpButtonText = this.t(ctx, 'help_button');
       const profileButtonText = this.t(ctx, 'profile_button');
       const modelSelectionButtonText = this.t(ctx, 'model_selection_button');
-      if (
-        [helpButtonText, profileButtonText, modelSelectionButtonText].includes(
-          text,
-        )
-      )
-        return;
+      if ([helpButtonText, profileButtonText, modelSelectionButtonText].includes(text)) return;
 
       const userId = String(ctx.from?.id);
-      const model =
-        (await this.redisService.get<string>(`chat:${userId}:model`)) ||
-        DEFAULT_MODEL;
+      const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
-      this.logger.log(
-        `Processing text message from user ${userId}, model: ${model}`,
-      );
+      this.logger.log(`Processing text message from user ${userId}, model: ${model}`);
 
       // Модель по умолчанию всегда установлена через DEFAULT_MODEL
 
@@ -61,11 +52,7 @@ export class MessageHandlerService {
 
       let fileContent: string | undefined;
       try {
-        fileContent =
-          await this.telegramFileService.consumeLatestFileAndProcess(
-            userId,
-            ctx,
-          );
+        fileContent = await this.telegramFileService.consumeLatestFileAndProcess(userId, ctx);
         if (fileContent) {
           this.logger.log(
             `File processed successfully for user ${userId}, content length: ${fileContent.length} characters`,
@@ -73,10 +60,7 @@ export class MessageHandlerService {
           await ctx.reply(this.t(ctx, 'file_analyzing'));
         }
       } catch (fileError) {
-        this.logger.error(
-          `Error processing file for user ${userId}:`,
-          fileError,
-        );
+        this.logger.error(`Error processing file for user ${userId}:`, fileError);
         await ctx.reply(this.t(ctx, 'error_processing_file_retry'));
       }
 
@@ -104,15 +88,12 @@ export class MessageHandlerService {
       );
 
       // Отправляем индикатор обработки перед запросом к модели
-      const processingMessage = await ctx.reply(
-        this.t(ctx, 'processing_request'),
-      );
+      const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
       let answer: string;
       try {
         answer = await this.openRouterService.ask(history, model, fileContent);
       } catch (err: any) {
-        const status =
-          (err && err.status) || (err && err.response && err.response.status);
+        const status = (err && err.status) || (err && err.response && err.response.status);
         const code = err?.code;
         const name = err?.name;
         const messageText = String(err?.message || err || '');
@@ -140,23 +121,13 @@ export class MessageHandlerService {
       } finally {
         // Удаляем индикатор независимо от результата
         try {
-          await ctx.api.deleteMessage(
-            ctx.chat.id,
-            processingMessage.message_id,
-          );
+          await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id);
         } catch {}
       }
 
       // Списание SP через AccessControlService
-      const description = isFilePresent
-        ? `Query to ${model} (file)`
-        : `Query to ${model}`;
-      await this.accessControlService.deductSPIfNeeded(
-        userId,
-        model,
-        price,
-        description,
-      );
+      const description = isFilePresent ? `Query to ${model} (file)` : `Query to ${model}`;
+      await this.accessControlService.deductSPIfNeeded(userId, model, price, description);
 
       this.logger.log(
         `Received response from OpenRouter for user ${userId}, response length: ${answer.length}`,
@@ -174,10 +145,7 @@ export class MessageHandlerService {
         { parse_mode: 'Markdown' },
       );
     } catch (error) {
-      this.logger.error(
-        `Error processing message from user ${String(ctx.from?.id)}:`,
-        error,
-      );
+      this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_message'));
       } catch {}

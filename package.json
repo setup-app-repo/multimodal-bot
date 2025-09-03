@@ -22,7 +22,10 @@
     "migration:create": "mikro-orm migration:create",
     "migration:up": "mikro-orm migration:up",
     "migration:down": "mikro-orm migration:down",
-    "migration:fresh": "mikro-orm migration:fresh"
+    "migration:fresh": "mikro-orm migration:fresh",
+    "format:check": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "clean": "npm run format && npm run lint:fix"
   },
   "dependencies": {
     "@grammyjs/i18n": "^1.1.2",

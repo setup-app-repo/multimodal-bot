@@ -67,10 +67,7 @@ export const MODEL_TO_TIER: Record<string, ModelTier> = {
 };
 
 // Стоимость (SP) за запрос по тарифным уровням
-export const TIER_PRICES_SP: Record<
-  ModelTier,
-  { withSub: number; withoutSub: number }
-> = {
+export const TIER_PRICES_SP: Record<ModelTier, { withSub: number; withoutSub: number }> = {
   [ModelTier.BASE]: { withSub: 0, withoutSub: 0 },
   [ModelTier.MID]: { withSub: 0.01, withoutSub: 0.013 },
   [ModelTier.TOP]: { withSub: 0.02, withoutSub: 0.03 },

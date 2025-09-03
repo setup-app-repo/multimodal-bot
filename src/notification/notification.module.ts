@@ -8,11 +8,7 @@ import { User } from 'src/user/user.entity';
 import { NotificationService } from './notification.service';
 
 @Module({
-  imports: [
-    MikroOrmModule.forFeature([User, Subscription]),
-    I18nModule,
-    TelegramModule,
-  ],
+  imports: [MikroOrmModule.forFeature([User, Subscription]), I18nModule, TelegramModule],
   providers: [NotificationService],
 })
 export class NotificationModule {}

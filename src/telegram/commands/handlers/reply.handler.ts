@@ -5,10 +5,7 @@ import { ModelScreen } from '../screens/model.screen';
 import { NavigationService } from '../services/navigation.service';
 import { RegisterCommandsDeps, buildHelpText } from '../utils';
 
-export function registerReplyHandlers(
-  bot: Bot<BotContext>,
-  deps: RegisterCommandsDeps,
-) {
+export function registerReplyHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const { t, i18n } = deps;
   const navigation = new NavigationService(deps);
   const modelScreen = new ModelScreen(deps);
@@ -17,13 +14,10 @@ export function registerReplyHandlers(
     return deps.i18n.getSupportedLocales().map((loc) => deps.i18n.t(key, loc));
   };
 
-  const detectReplyAction = (
-    text: string,
-  ): 'help' | 'profile' | 'model' | null => {
+  const detectReplyAction = (text: string): 'help' | 'profile' | 'model' | null => {
     if (getAllLocaleLabels('help_button').includes(text)) return 'help';
     if (getAllLocaleLabels('profile_button').includes(text)) return 'profile';
-    if (getAllLocaleLabels('model_selection_button').includes(text))
-      return 'model';
+    if (getAllLocaleLabels('model_selection_button').includes(text)) return 'model';
     return null;
   };
 

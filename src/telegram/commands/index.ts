@@ -12,10 +12,7 @@ import {
 } from './handlers';
 import { RegisterCommandsDeps } from './utils';
 
-export function registerCommands(
-  bot: Bot<BotContext>,
-  deps: RegisterCommandsDeps,
-) {
+export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const { userService } = deps;
 
   bot.use(async (ctx, next) => {

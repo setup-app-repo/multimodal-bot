@@ -28,8 +28,7 @@ export class RedisService implements OnModuleDestroy {
   private async cleanupOldHistory() {
     try {
       console.log('Starting daily history cleanup...');
-      const cutoffTime =
-        Date.now() - this.HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+      const cutoffTime = Date.now() - this.HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000;
       const pattern = 'chat:*:history';
       const keys = await this.client.keys(pattern);
 
@@ -60,19 +59,13 @@ export class RedisService implements OnModuleDestroy {
           cleanedCount++;
         }
       }
-      console.log(
-        `History cleanup completed. Cleaned ${cleanedCount} chat histories.`,
-      );
+      console.log(`History cleanup completed. Cleaned ${cleanedCount} chat histories.`);
     } catch (error) {
       console.error('Error during history cleanup:', error);
     }
   }
 
-  async saveMessage(
-    userId: string,
-    role: 'user' | 'assistant',
-    content: string,
-  ) {
+  async saveMessage(userId: string, role: 'user' | 'assistant', content: string) {
     const key = this.getKey(userId);
     const limitedContent =
       typeof content === 'string' && content.length > this.MAX_HISTORY_CHARS
@@ -109,8 +102,7 @@ export class RedisService implements OnModuleDestroy {
         while (remainingChars > this.MAX_HISTORY_CHARS && idx < parsed.length) {
           // Удаляем старыe записи слева; стараемся удалять парами (user+assistant)
           const first = parsed[idx];
-          const firstLen =
-            typeof first?.content === 'string' ? first.content.length : 0;
+          const firstLen = typeof first?.content === 'string' ? first.content.length : 0;
           remainingChars -= firstLen;
           toRemove += 1;
           idx += 1;
@@ -123,9 +115,7 @@ export class RedisService implements OnModuleDestroy {
             const maybeAnswer = parsed[idx];
             if (maybeAnswer?.role === 'assistant') {
               const secondLen =
-                typeof maybeAnswer?.content === 'string'
-                  ? maybeAnswer.content.length
-                  : 0;
+                typeof maybeAnswer?.content === 'string' ? maybeAnswer.content.length : 0;
               remainingChars -= secondLen;
               toRemove += 1;
               idx += 1;

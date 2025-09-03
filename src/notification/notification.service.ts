@@ -29,9 +29,7 @@ export class NotificationService {
     );
 
     // Выбираем пользователей с последней активностью >= 7 дней назад
-    const sevenDaysAgo = new Date(
-      nowUtcMidnight.getTime() - 7 * 24 * 60 * 60 * 1000,
-    );
+    const sevenDaysAgo = new Date(nowUtcMidnight.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const users = await this.em.find(User, {
       lastMessageAt: { $lte: sevenDaysAgo },
@@ -43,9 +41,7 @@ export class NotificationService {
     }
 
     const tasks = users
-      .filter((user) =>
-        this.isMultipleOfSevenDays(user.lastMessageAt, nowUtcMidnight),
-      )
+      .filter((user) => this.isMultipleOfSevenDays(user.lastMessageAt, nowUtcMidnight))
       .map(async (user) => {
         try {
           const locale = user.languageCode || this.i18n.getDefaultLocale();
@@ -95,17 +91,11 @@ export class NotificationService {
 
       const premium_expires_at = this.formatDateByLocale(sub.periodEnd, locale);
       const i18nKey =
-        daysLeft === 3
-          ? 'subscription_expiring_3_days'
-          : 'subscription_expiring_1_day';
+        daysLeft === 3 ? 'subscription_expiring_3_days' : 'subscription_expiring_1_day';
       const text = this.i18n.t(i18nKey, locale, { premium_expires_at });
 
       try {
-        await this.bot.sendTextWithTopupButton(
-          Number(user.telegramId),
-          text,
-          locale,
-        );
+        await this.bot.sendTextWithTopupButton(Number(user.telegramId), text, locale);
       } catch (error) {
         this.logger.warn(
           `Не удалось отправить уведомление о подписке ${sub.id} пользователю ${user.telegramId}: ${String(error)}`,
@@ -118,16 +108,8 @@ export class NotificationService {
 
   /** Возвращает количество полных дней до полуночи UTC по дате окончания */
   private daysUntilUtcMidnight(target: Date, now: Date): number {
-    const targetUTC = Date.UTC(
-      target.getUTCFullYear(),
-      target.getUTCMonth(),
-      target.getUTCDate(),
-    );
-    const nowUTC = Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate(),
-    );
+    const targetUTC = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
     return Math.floor((targetUTC - nowUTC) / (24 * 60 * 60 * 1000));
   }
 
@@ -151,10 +133,7 @@ export class NotificationService {
   /**
    * Проверяет, что now - lastMessageAt кратно 7 дням (с точностью до суток, UTC).
    */
-  private isMultipleOfSevenDays(
-    lastMessageAt: Date | undefined,
-    todayUtcMidnight: Date,
-  ): boolean {
+  private isMultipleOfSevenDays(lastMessageAt: Date | undefined, todayUtcMidnight: Date): boolean {
     if (!lastMessageAt) return false;
     const lastUtcMidnight = new Date(
       Date.UTC(

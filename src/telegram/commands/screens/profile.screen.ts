@@ -34,24 +34,18 @@ export class ProfileScreen {
   }
 
   async build(ctx: BotContext): Promise<ScreenData> {
-    const { t, i18n, redisService, setupAppService, subscriptionService } =
-      this.deps;
+    const { t, i18n, redisService, setupAppService, subscriptionService } = this.deps;
     const userId = String(ctx.from?.id);
-    const model =
-      (await redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
+    const model = (await redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
     const currentLang = ctx.session.lang || i18n.getDefaultLocale();
-    const modelDisplay = model
-      ? getModelDisplayName(model)
-      : t(ctx, 'model_not_selected');
+    const modelDisplay = model ? getModelDisplayName(model) : t(ctx, 'model_not_selected');
 
     let spBalance = 0;
     try {
       spBalance = await setupAppService.getBalance(ctx.from?.id as number);
     } catch {}
-    const isPremium = await subscriptionService.hasActiveSubscription(
-      String(ctx.from?.id),
-    );
+    const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
     const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
     const balanceLine = t(ctx, 'profile_balance', {

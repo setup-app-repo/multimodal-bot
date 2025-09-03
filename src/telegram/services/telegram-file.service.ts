@@ -37,14 +37,9 @@ export class TelegramFileService {
     this.logger.log(`Saved file meta for user ${userId}, key: ${key}`);
   }
 
-  async consumeLatestFileAndProcess(
-    userId: string,
-    ctx: BotContext,
-  ): Promise<string | undefined> {
+  async consumeLatestFileAndProcess(userId: string, ctx: BotContext): Promise<string | undefined> {
     try {
-      const latestKey = await this.redisService.get<string>(
-        `file:${userId}:latest`,
-      );
+      const latestKey = await this.redisService.get<string>(`file:${userId}:latest`);
       if (!latestKey) return undefined;
 
       const fileInfoStr = await this.redisService.get<string>(latestKey);
@@ -69,10 +64,7 @@ export class TelegramFileService {
       const response = await fetch(fileUrl);
       const fileBuffer = Buffer.from(await response.arrayBuffer());
 
-      const content = await this.openRouterService.processFile(
-        fileBuffer,
-        fileInfo.mimeType,
-      );
+      const content = await this.openRouterService.processFile(fileBuffer, fileInfo.mimeType);
 
       // Удаляем указатель и данные файла
       await this.redisService.del(latestKey);
@@ -80,10 +72,7 @@ export class TelegramFileService {
 
       return content;
     } catch (error) {
-      this.logger.error(
-        `Error processing latest file for user ${userId}:`,
-        error,
-      );
+      this.logger.error(`Error processing latest file for user ${userId}:`, error);
       return undefined;
     }
   }

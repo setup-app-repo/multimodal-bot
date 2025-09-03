@@ -6,10 +6,7 @@ import { ModelScreen } from '../screens/model.screen';
 import { NavigationService } from '../services/navigation.service';
 import { RegisterCommandsDeps, safeAnswerCallbackQuery } from '../utils';
 
-export function registerModelHandlers(
-  bot: Bot<BotContext>,
-  deps: RegisterCommandsDeps,
-) {
+export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const modelScreen = new ModelScreen(deps);
   const navigation = new NavigationService(deps);
   const { t, redisService } = deps;
@@ -30,11 +27,7 @@ export function registerModelHandlers(
         });
         return;
       }
-      await redisService.set(
-        `chat:${String(ctx.from?.id)}:model`,
-        selectedModel,
-        60 * 60,
-      );
+      await redisService.set(`chat:${String(ctx.from?.id)}:model`, selectedModel, 60 * 60);
       await safeAnswerCallbackQuery(ctx);
       await navigation.navigateTo(ctx, 'model_connected', {
         model: selectedModel,

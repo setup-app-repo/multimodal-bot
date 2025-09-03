@@ -42,18 +42,14 @@ export class NavigationService {
         .text(t(ctx, 'clear_yes_button'), 'clear:confirm')
         .row()
         .text(t(ctx, 'back_button'), 'ui:back');
-      const confirmText = t(ctx, 'clear_confirm').replace(
-        /\*\*(.+?)\*\*/g,
-        '*$1*',
-      );
+      const confirmText = t(ctx, 'clear_confirm').replace(/\*\*(.+?)\*\*/g, '*$1*');
       return { text: confirmText, keyboard, parse_mode: 'Markdown' };
     }
     if (route === 'premium') {
       const telegramId = ctx.from?.id as number;
-      const hasActive =
-        await this.deps.subscriptionService.hasActiveSubscription(
-          String(telegramId),
-        );
+      const hasActive = await this.deps.subscriptionService.hasActiveSubscription(
+        String(telegramId),
+      );
       if (hasActive) {
         return this.premiumScreen.buildActive(ctx);
       }
@@ -81,14 +77,10 @@ export class NavigationService {
     if (!previous) {
       if (ctx.session.currentRoute?.route === 'premium') {
         const userId = String(ctx.from?.id);
-        let model = await this.deps.redisService.get<string>(
-          `chat:${userId}:model`,
-        );
+        let model = await this.deps.redisService.get<string>(`chat:${userId}:model`);
         if (!model)
           model = this.deps.redisService
-            ? (await this.deps.redisService.get<string>(
-                `chat:${userId}:model`,
-              )) || ''
+            ? (await this.deps.redisService.get<string>(`chat:${userId}:model`)) || ''
             : '';
         ctx.session.currentRoute = {
           route: 'model_connected',
@@ -107,11 +99,7 @@ export class NavigationService {
       return;
     }
     ctx.session.currentRoute = previous;
-    const screen = await this.buildRouteScreen(
-      ctx,
-      previous.route as RouteId,
-      previous.params,
-    );
+    const screen = await this.buildRouteScreen(ctx, previous.route as RouteId, previous.params);
     await renderScreen(ctx, screen);
   }
 }

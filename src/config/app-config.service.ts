@@ -12,9 +12,7 @@ export class AppConfigService {
 
   private validateInput(): void {
     const schema = Joi.object({
-      NODE_ENV: Joi.string()
-        .valid('development', 'production', 'test')
-        .default('development'),
+      NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
       PORT: Joi.number().default(3000),
       BOT_TOKEN: Joi.string().required(),
 
@@ -69,9 +67,6 @@ export class AppConfigService {
     return new URL(this.get<string>('DATABASE_URL')).password;
   }
   get dbName(): string {
-    return new URL(this.get<string>('DATABASE_URL')).pathname.replace(
-      /^\//,
-      '',
-    );
+    return new URL(this.get<string>('DATABASE_URL')).pathname.replace(/^\//, '');
   }
 }

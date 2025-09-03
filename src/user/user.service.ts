@@ -1,8 +1,4 @@
-import {
-  EntityManager,
-  EntityRepository,
-  CreateRequestContext,
-} from '@mikro-orm/core';
+import { EntityManager, EntityRepository, CreateRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable, Logger } from '@nestjs/common';
 
@@ -23,10 +19,7 @@ export class UserService {
    * Создает нового пользователя или возвращает существующего
    */
   @CreateRequestContext()
-  async findOrCreateUser(
-    telegramId: string,
-    userData: Partial<CreateUserDTO>,
-  ): Promise<User> {
+  async findOrCreateUser(telegramId: string, userData: Partial<CreateUserDTO>): Promise<User> {
     let user = await this.userRepository.findOne({ telegramId });
 
     if (user) {
@@ -66,10 +59,6 @@ export class UserService {
    */
   @CreateRequestContext()
   async updateUser(telegramId: string): Promise<void> {
-    await this.em.nativeUpdate(
-      User,
-      { telegramId },
-      { lastMessageAt: new Date() },
-    );
+    await this.em.nativeUpdate(User, { telegramId }, { lastMessageAt: new Date() });
   }
 }

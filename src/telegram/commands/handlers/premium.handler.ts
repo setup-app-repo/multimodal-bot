@@ -12,10 +12,7 @@ import {
   ensurePremiumDefaults,
 } from '../utils';
 
-export function registerPremiumHandlers(
-  bot: Bot<BotContext>,
-  deps: RegisterCommandsDeps,
-) {
+export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const premiumScreen = new PremiumScreen(deps);
   const navigation = new NavigationService(deps);
   const { t, setupAppService, subscriptionService } = deps;
@@ -45,9 +42,7 @@ export function registerPremiumHandlers(
         return;
       }
       try {
-        const alreadyActive = await subscriptionService.hasActiveSubscription(
-          String(telegramId),
-        );
+        const alreadyActive = await subscriptionService.hasActiveSubscription(String(telegramId));
         if (alreadyActive) {
           const { text, keyboard } = await premiumScreen.buildActive(ctx);
           await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
@@ -87,28 +82,20 @@ export function registerPremiumHandlers(
       await safeAnswerCallbackQuery(ctx);
       const telegramId = ctx.from?.id;
       try {
-        const alreadyActive = await subscriptionService.hasActiveSubscription(
-          String(telegramId),
-        );
+        const alreadyActive = await subscriptionService.hasActiveSubscription(String(telegramId));
         if (alreadyActive) {
           const { text, keyboard } = await premiumScreen.buildActive(ctx);
           await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
           return;
         }
-        const hasEnough = await setupAppService.have(
-          telegramId,
-          PREMIUM_SUBSCRIPTION_COST_SP,
-        );
+        const hasEnough = await setupAppService.have(telegramId, PREMIUM_SUBSCRIPTION_COST_SP);
         if (!hasEnough) {
           const currentBalance = await setupAppService.getBalance(telegramId);
-          const keyboard = new InlineKeyboard().text(
-            t(ctx, 'topup_sp_button'),
-            'billing:topup',
-          );
-          await ctx.reply(
-            t(ctx, 'premium_insufficient_sp', { balance: currentBalance }),
-            { reply_markup: keyboard, parse_mode: 'HTML' },
-          );
+          const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+          await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
+            reply_markup: keyboard,
+            parse_mode: 'HTML',
+          });
           return;
         }
         await subscriptionService.chargeAndCreateSubscription(
@@ -118,10 +105,7 @@ export function registerPremiumHandlers(
           { periodDays: 30, autoRenew: false },
         );
         const keyboard = new InlineKeyboard()
-          .text(
-            t(ctx, 'premium_enable_autorenew_button'),
-            'premium:enable_autorenew',
-          )
+          .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
           .row()
           .text(t(ctx, 'premium_later_button'), 'profile:back');
         await ctx.reply(t(ctx, 'premium_activated_success'), {
@@ -131,14 +115,11 @@ export function registerPremiumHandlers(
         const message = String(error?.message || '');
         if (message.includes('INSUFFICIENT_FUNDS')) {
           const currentBalance = await setupAppService.getBalance(telegramId);
-          const keyboard = new InlineKeyboard().text(
-            t(ctx, 'topup_sp_button'),
-            'billing:topup',
-          );
-          await ctx.reply(
-            t(ctx, 'premium_insufficient_sp', { balance: currentBalance }),
-            { reply_markup: keyboard, parse_mode: 'HTML' },
-          );
+          const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+          await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
+            reply_markup: keyboard,
+            parse_mode: 'HTML',
+          });
         } else if (message.includes('ALREADY_HAS_ACTIVE_SUBSCRIPTION')) {
           const { text, keyboard } = await premiumScreen.buildActive(ctx);
           await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
@@ -188,8 +169,7 @@ export function registerPremiumHandlers(
     if (data === 'premium:toggle_autorenew') {
       await safeAnswerCallbackQuery(ctx);
       const telegramId = String(ctx.from?.id);
-      const activeSub =
-        await subscriptionService.getActiveSubscription(telegramId);
+      const activeSub = await subscriptionService.getActiveSubscription(telegramId);
       const current = Boolean(activeSub?.autoRenew);
       const targetEnable = !current;
       const locale = getLocaleCode(ctx);
@@ -212,15 +192,10 @@ export function registerPremiumHandlers(
       const kb = new InlineKeyboard()
         .text(
           t(ctx, 'premium_autorenew_confirm_yes'),
-          targetEnable
-            ? 'premium:autorenew:set_on'
-            : 'premium:autorenew:set_off',
+          targetEnable ? 'premium:autorenew:set_on' : 'premium:autorenew:set_off',
         )
         .row()
-        .text(
-          t(ctx, 'premium_autorenew_confirm_no'),
-          'premium:autorenew:cancel',
-        );
+        .text(t(ctx, 'premium_autorenew_confirm_no'), 'premium:autorenew:cancel');
       await renderScreen(ctx, {
         text: confirmText,
         keyboard: kb,
@@ -287,20 +262,14 @@ export function registerPremiumHandlers(
     if (data === 'premium:extend') {
       await safeAnswerCallbackQuery(ctx);
       const telegramId = ctx.from?.id;
-      const hasEnough = await setupAppService.have(
-        telegramId,
-        PREMIUM_SUBSCRIPTION_COST_SP,
-      );
+      const hasEnough = await setupAppService.have(telegramId, PREMIUM_SUBSCRIPTION_COST_SP);
       if (!hasEnough) {
         const currentBalance = await setupAppService.getBalance(telegramId);
-        const keyboard = new InlineKeyboard().text(
-          t(ctx, 'topup_sp_button'),
-          'wallet:topup',
-        );
-        await ctx.reply(
-          t(ctx, 'premium_insufficient_sp', { balance: currentBalance }),
-          { reply_markup: keyboard, parse_mode: 'HTML' },
-        );
+        const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
+        await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
+          reply_markup: keyboard,
+          parse_mode: 'HTML',
+        });
         return;
       }
       ensurePremiumDefaults(ctx);

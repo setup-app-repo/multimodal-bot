@@ -1,10 +1,4 @@
-import {
-  Entity,
-  PrimaryKey,
-  Property,
-  OneToMany,
-  Cascade,
-} from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, OneToMany, Cascade } from '@mikro-orm/core';
 
 import { Subscription } from '../subscription/subscription.entity';
 

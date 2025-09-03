@@ -88,9 +88,7 @@ export class BotService implements OnModuleInit {
     });
 
     this.bot.on('message:text', (ctx) => this.messageHandler.handleText(ctx));
-    this.bot.on('message:document', (ctx) =>
-      this.documentHandler.handleDocument(ctx),
-    );
+    this.bot.on('message:document', (ctx) => this.documentHandler.handleDocument(ctx));
     this.bot.on('message:photo', (ctx) => this.photoHandler.handlePhoto(ctx));
     this.bot.on('message:voice', (ctx) => this.voiceHandler.handleVoice(ctx));
     this.bot.catch((err) => this.messageHandler.handleError(err));
@@ -153,9 +151,7 @@ export class BotService implements OnModuleInit {
       }
     } catch (error) {
       this.logger.error('❌ Ошибка при установке вебхука:', error);
-      this.logger.warn(
-        'Попробуйте установить вебхук вручную через Telegram Bot API',
-      );
+      this.logger.warn('Попробуйте установить вебхук вручную через Telegram Bot API');
     }
   }
 
@@ -178,11 +174,7 @@ export class BotService implements OnModuleInit {
   /**
    * Внешняя отправка сообщения с inline-кнопкой «Продлить» (wallet:topup)
    */
-  async sendTextWithTopupButton(
-    telegramId: number,
-    text: string,
-    locale?: string,
-  ) {
+  async sendTextWithTopupButton(telegramId: number, text: string, locale?: string) {
     if (!this.bot) throw new Error('Bot is not initialized');
     const label = this.i18n.t('premium_renew_button', locale);
     const keyboard = new InlineKeyboard().text(label, 'wallet:topup');

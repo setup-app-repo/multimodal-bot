@@ -7,11 +7,7 @@ import { UserService } from 'src/user/user.service';
 
 import { BotContext } from '../../interfaces';
 
-export type TranslateFn = (
-  ctx: BotContext,
-  key: string,
-  args?: Record<string, any>,
-) => string;
+export type TranslateFn = (ctx: BotContext, key: string, args?: Record<string, any>) => string;
 
 export interface RegisterCommandsDeps {
   t: TranslateFn;

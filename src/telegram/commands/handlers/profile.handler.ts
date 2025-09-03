@@ -3,16 +3,9 @@ import { Bot, InlineKeyboard } from 'grammy';
 import { BotContext } from '../../interfaces';
 import { ProfileScreen } from '../screens/profile.screen';
 import { NavigationService } from '../services/navigation.service';
-import {
-  RegisterCommandsDeps,
-  KeyboardBuilder,
-  safeAnswerCallbackQuery,
-} from '../utils';
+import { RegisterCommandsDeps, KeyboardBuilder, safeAnswerCallbackQuery } from '../utils';
 
-export function registerProfileHandlers(
-  bot: Bot<BotContext>,
-  deps: RegisterCommandsDeps,
-) {
+export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const profileScreen = new ProfileScreen(deps);
   const navigation = new NavigationService(deps);
   const { t } = deps;

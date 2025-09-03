@@ -2,11 +2,7 @@ import { BotContext } from '../../interfaces';
 
 import { TranslateFn } from './types';
 
-export const getLanguageLabel = (
-  ctx: BotContext,
-  t: TranslateFn,
-  code: string,
-): string => {
+export const getLanguageLabel = (ctx: BotContext, t: TranslateFn, code: string): string => {
   const key =
     code === 'en'
       ? 'language_english'

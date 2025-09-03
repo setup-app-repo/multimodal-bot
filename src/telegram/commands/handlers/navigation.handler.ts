@@ -2,16 +2,9 @@ import { Bot, InlineKeyboard } from 'grammy';
 
 import { BotContext } from '../../interfaces';
 import { NavigationService } from '../services/navigation.service';
-import {
-  RegisterCommandsDeps,
-  buildHelpText,
-  safeAnswerCallbackQuery,
-} from '../utils';
+import { RegisterCommandsDeps, buildHelpText, safeAnswerCallbackQuery } from '../utils';
 
-export function registerNavigationHandlers(
-  bot: Bot<BotContext>,
-  deps: RegisterCommandsDeps,
-) {
+export function registerNavigationHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const navigation = new NavigationService(deps);
   const { t, subscriptionService } = deps;
 
@@ -28,10 +21,7 @@ export function registerNavigationHandlers(
       const hasActive = await subscriptionService.hasActiveSubscription(userId);
       const keyboard = new InlineKeyboard();
       if (hasActive) {
-        keyboard.url(
-          t(ctx, 'help_contact_support_button'),
-          'https://t.me/setupmultisupport_bot',
-        );
+        keyboard.url(t(ctx, 'help_contact_support_button'), 'https://t.me/setupmultisupport_bot');
       } else {
         keyboard.text(t(ctx, 'help_contact_support_button'), 'help:support');
       }
@@ -43,10 +33,7 @@ export function registerNavigationHandlers(
       const userId = String(ctx.from?.id);
       const hasActive = await subscriptionService.hasActiveSubscription(userId);
       if (!hasActive) {
-        const kb = new InlineKeyboard().text(
-          t(ctx, 'model_buy_premium_button'),
-          'profile:premium',
-        );
+        const kb = new InlineKeyboard().text(t(ctx, 'model_buy_premium_button'), 'profile:premium');
         await ctx.reply(t(ctx, 'support_premium_required'), {
           reply_markup: kb,
         });
