@@ -231,3 +231,6 @@ message_part = Parte {$current} de {$total}
 
 # Indicador de processamento
 processing_request = ⏳ Processando sua solicitação...
+
+# Notificações
+notification_inactive_recall = {$first_name}, há quanto tempo 👋\nEnvie qualquer pedido — eu ajudo!

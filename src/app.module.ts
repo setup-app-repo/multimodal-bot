@@ -15,6 +15,7 @@ import { SetupAppModule } from './setup-app/setup-app.module';
 import { UserModule } from './user/user.module';
 import { createMikroOrmConfig } from '../mikro-orm.config';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -23,12 +24,15 @@ import { SubscriptionModule } from './subscription/subscription.module';
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
+        
         const redisUrl = config.get<string>('REDIS_URL');
         if (!redisUrl) {
           throw new Error('REDIS_URL is required for BullMQ connection');
         }
         return {
-          connection: new Redis(redisUrl),
+          connection: new Redis(redisUrl, {
+            maxRetriesPerRequest: null
+          })
         };
       },
     }),
@@ -43,6 +47,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     SetupAppModule,
     UserModule,
     SubscriptionModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

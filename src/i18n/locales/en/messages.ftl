@@ -228,3 +228,6 @@ message_part = Part {$current} of {$total}
 
 # Processing indicator
 processing_request = ⏳ Processing your request...
+
+# Notifications
+notification_inactive_recall = {$first_name}, long time no see 👋\nSend any request — I’ll help!
