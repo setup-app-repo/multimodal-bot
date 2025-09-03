@@ -1,7 +1,7 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { Redis } from 'ioredis';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { Redis } from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
@@ -28,15 +28,16 @@ export class RedisService implements OnModuleDestroy {
   private async cleanupOldHistory() {
     try {
       console.log('Starting daily history cleanup...');
-      const cutoffTime = Date.now() - (this.HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+      const cutoffTime =
+        Date.now() - this.HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000;
       const pattern = 'chat:*:history';
       const keys = await this.client.keys(pattern);
-      
+
       let cleanedCount = 0;
       for (const key of keys) {
         const history = await this.client.lrange(key, 0, -1);
         const filteredHistory: string[] = [];
-        
+
         for (const msg of history) {
           try {
             const parsed = JSON.parse(msg);
@@ -48,7 +49,7 @@ export class RedisService implements OnModuleDestroy {
             continue;
           }
         }
-        
+
         // Если есть изменения, обновляем историю
         if (filteredHistory.length !== history.length) {
           await this.client.del(key);
@@ -59,17 +60,24 @@ export class RedisService implements OnModuleDestroy {
           cleanedCount++;
         }
       }
-      console.log(`History cleanup completed. Cleaned ${cleanedCount} chat histories.`);
+      console.log(
+        `History cleanup completed. Cleaned ${cleanedCount} chat histories.`,
+      );
     } catch (error) {
       console.error('Error during history cleanup:', error);
     }
   }
 
-  async saveMessage(userId: string, role: 'user' | 'assistant', content: string) {
+  async saveMessage(
+    userId: string,
+    role: 'user' | 'assistant',
+    content: string,
+  ) {
     const key = this.getKey(userId);
-    const limitedContent = typeof content === 'string' && content.length > this.MAX_HISTORY_CHARS
-      ? content.slice(0, this.MAX_HISTORY_CHARS)
-      : content;
+    const limitedContent =
+      typeof content === 'string' && content.length > this.MAX_HISTORY_CHARS
+        ? content.slice(0, this.MAX_HISTORY_CHARS)
+        : content;
     const data = JSON.stringify({ role, content: limitedContent });
 
     await this.client.rpush(key, data);
@@ -78,7 +86,7 @@ export class RedisService implements OnModuleDestroy {
     // Применяем жёсткий лимит по суммарной длине контента (30k символов)
     try {
       const entries = await this.client.lrange(key, 0, -1);
-      
+
       let totalChars = 0;
       const parsed = entries.map((raw) => {
         try {
@@ -87,10 +95,12 @@ export class RedisService implements OnModuleDestroy {
           totalChars += len;
           return obj as { role?: 'user' | 'assistant'; content?: string };
         } catch {
-          return { role: undefined, content: '' } as { role?: 'user' | 'assistant'; content?: string };
+          return { role: undefined, content: '' } as {
+            role?: 'user' | 'assistant';
+            content?: string;
+          };
         }
       });
-
 
       if (totalChars > this.MAX_HISTORY_CHARS) {
         let toRemove = 0;
@@ -99,15 +109,23 @@ export class RedisService implements OnModuleDestroy {
         while (remainingChars > this.MAX_HISTORY_CHARS && idx < parsed.length) {
           // Удаляем старыe записи слева; стараемся удалять парами (user+assistant)
           const first = parsed[idx];
-          const firstLen = typeof first?.content === 'string' ? first.content.length : 0;
+          const firstLen =
+            typeof first?.content === 'string' ? first.content.length : 0;
           remainingChars -= firstLen;
           toRemove += 1;
           idx += 1;
 
-          if (remainingChars > this.MAX_HISTORY_CHARS && first?.role === 'user' && idx < parsed.length) {
+          if (
+            remainingChars > this.MAX_HISTORY_CHARS &&
+            first?.role === 'user' &&
+            idx < parsed.length
+          ) {
             const maybeAnswer = parsed[idx];
             if (maybeAnswer?.role === 'assistant') {
-              const secondLen = typeof maybeAnswer?.content === 'string' ? maybeAnswer.content.length : 0;
+              const secondLen =
+                typeof maybeAnswer?.content === 'string'
+                  ? maybeAnswer.content.length
+                  : 0;
               remainingChars -= secondLen;
               toRemove += 1;
               idx += 1;
@@ -127,7 +145,7 @@ export class RedisService implements OnModuleDestroy {
           }
         }
       }
-    } catch {}
+    } catch { }
 
     await this.client.expire(key, this.CHAT_TTL);
   }
@@ -142,10 +160,9 @@ export class RedisService implements OnModuleDestroy {
     await this.client.del(this.getKey(userId));
   }
 
-
   async set(key: string, value: any, ttlSeconds?: number) {
     const data = JSON.stringify(value);
-    
+
     if (ttlSeconds) {
       await this.client.set(key, data, 'EX', ttlSeconds);
     } else {

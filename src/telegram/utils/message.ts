@@ -8,108 +8,106 @@ import { BotContext } from '../interfaces';
  * чтобы избежать ошибок парсинга сущностей.
  */
 export function escapeMarkdown(text: string): string {
-    return text.replace(/([_*\[\]()`])/g, '\\$1');
+  return text.replace(/([_*\[\]()`])/g, '\\$1');
 }
 
 /**
  * Разбивает длинное сообщение на части, чтобы не превысить лимит Telegram (4096 символов)
  */
 export function splitLong(text: string, maxLength: number = 4096): string[] {
-    if (text.length <= maxLength) {
-        return [text];
+  if (text.length <= maxLength) {
+    return [text];
+  }
+
+  const parts: string[] = [];
+  let currentPart = '';
+
+  const splitByLength = (str: string, len: number): string[] => {
+    const chunks: string[] = [];
+    for (let i = 0; i < str.length; i += len) {
+      chunks.push(str.slice(i, i + len));
     }
+    return chunks;
+  };
 
-    const parts: string[] = [];
-    let currentPart = '';
-
-    const splitByLength = (str: string, len: number): string[] => {
-        const chunks: string[] = [];
-        for (let i = 0; i < str.length; i += len) {
-            chunks.push(str.slice(i, i + len));
-        }
-        return chunks;
-    };
-
-    // Разбиваем по абзацам (двойные переносы строк)
-    const paragraphs = text.split('\n\n');
-    for (const paragraph of paragraphs) {
-        if ((currentPart + '\n\n' + paragraph).length <= maxLength) {
-            if (currentPart) {
-                currentPart += '\n\n' + paragraph;
-            } else {
-                currentPart = paragraph;
-            }
-        } else {
-            if (currentPart) {
-                parts.push(currentPart);
-            }
-
-            if (paragraph.length > maxLength) {
-                const sentences = paragraph.split(/(?<=[.!?])\s+/);
-                let sentencePart = '';
-                for (const sentence of sentences) {
-                    if ((sentencePart + ' ' + sentence).length <= maxLength) {
-                        if (sentencePart) {
-                            sentencePart += ' ' + sentence;
-                        } else {
-                            sentencePart = sentence;
-                        }
-                    } else {
-                        if (sentencePart) {
-                            parts.push(sentencePart);
-                        }
-                        if (sentence.length > maxLength) {
-                            const chunks = splitByLength(sentence, maxLength);
-                            parts.push(...chunks.slice(0, -1));
-                            sentencePart = chunks[chunks.length - 1];
-                        } else {
-                            sentencePart = sentence;
-                        }
-                    }
-                }
-                currentPart = sentencePart || '';
-            } else {
-                currentPart = paragraph;
-            }
-        }
-    }
-
-    if (currentPart) {
+  // Разбиваем по абзацам (двойные переносы строк)
+  const paragraphs = text.split('\n\n');
+  for (const paragraph of paragraphs) {
+    if ((currentPart + '\n\n' + paragraph).length <= maxLength) {
+      if (currentPart) {
+        currentPart += '\n\n' + paragraph;
+      } else {
+        currentPart = paragraph;
+      }
+    } else {
+      if (currentPart) {
         parts.push(currentPart);
-    }
+      }
 
-    return parts;
+      if (paragraph.length > maxLength) {
+        const sentences = paragraph.split(/(?<=[.!?])\s+/);
+        let sentencePart = '';
+        for (const sentence of sentences) {
+          if ((sentencePart + ' ' + sentence).length <= maxLength) {
+            if (sentencePart) {
+              sentencePart += ' ' + sentence;
+            } else {
+              sentencePart = sentence;
+            }
+          } else {
+            if (sentencePart) {
+              parts.push(sentencePart);
+            }
+            if (sentence.length > maxLength) {
+              const chunks = splitByLength(sentence, maxLength);
+              parts.push(...chunks.slice(0, -1));
+              sentencePart = chunks[chunks.length - 1];
+            } else {
+              sentencePart = sentence;
+            }
+          }
+        }
+        currentPart = sentencePart || '';
+      } else {
+        currentPart = paragraph;
+      }
+    }
+  }
+
+  if (currentPart) {
+    parts.push(currentPart);
+  }
+
+  return parts;
 }
 
 /**
  * Отправляет сообщение, разбивая его на части при необходимости
  */
 export async function sendLongMessage(
-    ctx: BotContext,
-    t: (key: string, args?: Record<string, any>) => string,
-    message: string,
-    options?: any,
+  ctx: BotContext,
+  t: (key: string, args?: Record<string, any>) => string,
+  message: string,
+  options?: any,
 ): Promise<void> {
-    const parts = splitLong(message);
-    for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
-        const partOptions = { ...options };
+  const parts = splitLong(message);
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    const partOptions = { ...options };
 
-        if (parts.length > 1) {
-            const partIndicator = `\n\n📄 ${t('message_part', { current: i + 1, total: parts.length })}`;
-            if (part.length + partIndicator.length <= 4096) {
-                await ctx.reply(part + partIndicator, partOptions);
-            } else {
-                await ctx.reply(part, partOptions);
-            }
-        } else {
-            await ctx.reply(part, partOptions);
-        }
-
-        if (i < parts.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, 500));
-        }
+    if (parts.length > 1) {
+      const partIndicator = `\n\n📄 ${t('message_part', { current: i + 1, total: parts.length })}`;
+      if (part.length + partIndicator.length <= 4096) {
+        await ctx.reply(part + partIndicator, partOptions);
+      } else {
+        await ctx.reply(part, partOptions);
+      }
+    } else {
+      await ctx.reply(part, partOptions);
     }
+
+    if (i < parts.length - 1) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
 }
-
-

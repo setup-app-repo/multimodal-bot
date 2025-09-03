@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { SetupAppService } from './setup-app.service';
+
 import { SetupAppConfigService } from './setup-app-config.service';
+import { SetupAppService } from './setup-app.service';
 
 @Module({
   providers: [SetupAppService, SetupAppConfigService],

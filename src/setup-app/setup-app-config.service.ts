@@ -10,17 +10,24 @@ export class SetupAppConfigService {
     const serviceKey = this.configService.get<string>('SETUP_APP_SERVICE_KEY');
 
     if (!baseUrl) {
-      throw new Error('SETUP_APP_BASE_URL is required in environment variables');
+      throw new Error(
+        'SETUP_APP_BASE_URL is required in environment variables',
+      );
     }
 
     if (!serviceKey) {
-      throw new Error('SETUP_APP_SERVICE_KEY is required in environment variables');
+      throw new Error(
+        'SETUP_APP_SERVICE_KEY is required in environment variables',
+      );
     }
 
     return {
       baseUrl,
       serviceKey,
-      enableLogging: this.configService.get<boolean>('SETUP_APP_ENABLE_LOGGING', true),
+      enableLogging: this.configService.get<boolean>(
+        'SETUP_APP_ENABLE_LOGGING',
+        true,
+      ),
     };
   }
 
@@ -39,4 +46,4 @@ export class SetupAppConfigService {
   validateConfig(): void {
     this.getConfig(); // Will throw if invalid
   }
-} 
+}

@@ -1,4 +1,11 @@
-import { Entity, PrimaryKey, Property, OneToMany, Cascade } from '@mikro-orm/core';
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  OneToMany,
+  Cascade,
+} from '@mikro-orm/core';
+
 import { Subscription } from '../subscription/subscription.entity';
 
 @Entity()
@@ -27,7 +34,9 @@ export class User {
   @Property({ type: 'timestamptz', nullable: true })
   lastMessageAt?: Date;
 
-  @OneToMany(() => Subscription, (subscription) => subscription.user, { cascade: [Cascade.REMOVE] })
+  @OneToMany(() => Subscription, (subscription) => subscription.user, {
+    cascade: [Cascade.REMOVE],
+  })
   subscriptions?: Subscription[];
 
   @Property({ type: 'timestamptz' })

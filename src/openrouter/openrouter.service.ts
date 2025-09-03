@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
-import OpenAI from 'openai';
 import { ConfigService } from '@nestjs/config';
-import pdfParse from 'pdf-parse';
-import mammoth from 'mammoth';
 import csvParse from 'csv-parse';
+import mammoth from 'mammoth';
+import OpenAI from 'openai';
+import pdfParse from 'pdf-parse';
 
 @Injectable()
 export class OpenRouterService {
@@ -15,11 +15,15 @@ export class OpenRouterService {
   private readonly retryMaxMs: number;
 
   constructor(private readonly configService: ConfigService) {
-    this.requestTimeoutMs = Number(this.configService.get<string>('OPENROUTER_TIMEOUT_MS')) || 60000;
-    this.maxAttemptsDefault = Number(this.configService.get<string>('OPENROUTER_MAX_ATTEMPTS')) || 3;
-    this.retryBaseMs = Number(this.configService.get<string>('OPENROUTER_RETRY_BASE_MS')) || 500;
-    this.retryMaxMs = Number(this.configService.get<string>('OPENROUTER_RETRY_MAX_MS')) || 5000;
-    
+    this.requestTimeoutMs =
+      Number(this.configService.get<string>('OPENROUTER_TIMEOUT_MS')) || 60000;
+    this.maxAttemptsDefault =
+      Number(this.configService.get<string>('OPENROUTER_MAX_ATTEMPTS')) || 3;
+    this.retryBaseMs =
+      Number(this.configService.get<string>('OPENROUTER_RETRY_BASE_MS')) || 500;
+    this.retryMaxMs =
+      Number(this.configService.get<string>('OPENROUTER_RETRY_MAX_MS')) || 5000;
+
     this.client = new OpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: this.configService.get<string>('OPENROUTER_API_KEY'),
@@ -33,21 +37,31 @@ export class OpenRouterService {
     });
   }
 
-  async askWithAudio(history: any[], model: string, base64Audio: string, format: 'wav' | 'mp3', prompt?: string): Promise<string> {
-    this.logger.log(`Sending audio request to OpenRouter API, model: ${model}, history: ${history.length}, hasPrompt: ${!!prompt}, format: ${format}`);
+  async askWithAudio(
+    history: any[],
+    model: string,
+    base64Audio: string,
+    format: 'wav' | 'mp3',
+    prompt?: string,
+  ): Promise<string> {
+    this.logger.log(
+      `Sending audio request to OpenRouter API, model: ${model}, history: ${history.length}, hasPrompt: ${!!prompt}, format: ${format}`,
+    );
 
     const systemMessage = {
-      role: "system",
-      content: "You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages."
+      role: 'system',
+      content:
+        'You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages.',
     };
 
     const messagesForModel: any[] = [systemMessage, ...history];
 
     const contentParts: any[] = [];
     // Gemini (через OpenRouter) требует хотя бы один text part в parts
-    const textPrompt = (prompt && prompt.trim().length > 0)
-      ? prompt
-      : 'Please listen to this voice message and reply naturally, considering the chat history and user intent.';
+    const textPrompt =
+      prompt && prompt.trim().length > 0
+        ? prompt
+        : 'Please listen to this voice message and reply naturally, considering the chat history and user intent.';
     contentParts.push({ type: 'text', text: textPrompt });
     contentParts.push({
       type: 'input_audio',
@@ -77,23 +91,37 @@ export class OpenRouterService {
         );
 
         const response = completion.choices[0].message?.content || '';
-        this.logger.log(`Received response from OpenRouter API (audio), model: ${model}, response length: ${response.length}`);
+        this.logger.log(
+          `Received response from OpenRouter API (audio), model: ${model}, response length: ${response.length}`,
+        );
         return response;
       } catch (error: any) {
         lastError = error;
-        const status = (error && error.status) || (error && error.response && error.response.status);
+        const status =
+          (error && error.status) ||
+          (error && error.response && error.response.status);
         const code = error?.code;
         const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(code, status, messageText, name);
+        const retriable = this.isRetriableError(
+          code,
+          status,
+          messageText,
+          name,
+        );
         if (!retriable || attempt >= maxAttempts) {
-          this.logger.error(`Error calling OpenRouter API (audio), model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
+          this.logger.error(
+            `Error calling OpenRouter API (audio), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
+            error,
+          );
           break;
         }
 
         const backoffMs = this.getBackoffWithJitter(attempt);
-        this.logger.warn(`OpenRouter audio call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`);
+        this.logger.warn(
+          `OpenRouter audio call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+        );
         await this.sleep(backoffMs);
       }
     }
@@ -101,12 +129,20 @@ export class OpenRouterService {
     throw lastError;
   }
 
-  async askWithImages(history: any[], model: string, images: { mimeType: string; dataUrl: string }[], prompt?: string): Promise<string> {
-    this.logger.log(`Sending multimodal request to OpenRouter API, model: ${model}, history: ${history.length}, images: ${images.length}, hasPrompt: ${!!prompt}`);
+  async askWithImages(
+    history: any[],
+    model: string,
+    images: { mimeType: string; dataUrl: string }[],
+    prompt?: string,
+  ): Promise<string> {
+    this.logger.log(
+      `Sending multimodal request to OpenRouter API, model: ${model}, history: ${history.length}, images: ${images.length}, hasPrompt: ${!!prompt}`,
+    );
 
     const systemMessage = {
-      role: "system",
-      content: "You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages."
+      role: 'system',
+      content:
+        'You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages.',
     };
 
     const messagesForModel: any[] = [systemMessage, ...history];
@@ -139,23 +175,37 @@ export class OpenRouterService {
         );
 
         const response = completion.choices[0].message?.content || '';
-        this.logger.log(`Received response from OpenRouter API (multimodal), model: ${model}, response length: ${response.length}`);
+        this.logger.log(
+          `Received response from OpenRouter API (multimodal), model: ${model}, response length: ${response.length}`,
+        );
         return response;
       } catch (error: any) {
         lastError = error;
-        const status = (error && error.status) || (error && error.response && error.response.status);
+        const status =
+          (error && error.status) ||
+          (error && error.response && error.response.status);
         const code = error?.code;
         const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(code, status, messageText, name);
+        const retriable = this.isRetriableError(
+          code,
+          status,
+          messageText,
+          name,
+        );
         if (!retriable || attempt >= maxAttempts) {
-          this.logger.error(`Error calling OpenRouter API (multimodal), model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
+          this.logger.error(
+            `Error calling OpenRouter API (multimodal), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
+            error,
+          );
           break;
         }
 
         const backoffMs = this.getBackoffWithJitter(attempt);
-        this.logger.warn(`OpenRouter multimodal call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`);
+        this.logger.warn(
+          `OpenRouter multimodal call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+        );
         await this.sleep(backoffMs);
       }
     }
@@ -163,26 +213,35 @@ export class OpenRouterService {
     throw lastError;
   }
 
-  async ask(message: any, model: string, fileContent?: string): Promise<string> {
-    this.logger.log(`Sending request to OpenRouter API, model: ${model}, messages: ${message.length}, has file: ${!!fileContent}`);
-    
+  async ask(
+    message: any,
+    model: string,
+    fileContent?: string,
+  ): Promise<string> {
+    this.logger.log(
+      `Sending request to OpenRouter API, model: ${model}, messages: ${message.length}, has file: ${!!fileContent}`,
+    );
+
     const systemMessage = {
-      role: "system",
-      content: "You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages."
+      role: 'system',
+      content:
+        'You are a chat assistant. I am sending you the last 20 messages from the user. Please respond to the latest message, taking into account the context of the previous messages.',
     };
 
-    let messagesForModel = [systemMessage, ...message];
-    
+    const messagesForModel = [systemMessage, ...message];
+
     // Если есть содержимое файла, добавляем его в контекст
     if (fileContent) {
-      this.logger.log(`Adding file content to request, content length: ${fileContent.length} characters`);
+      this.logger.log(
+        `Adding file content to request, content length: ${fileContent.length} characters`,
+      );
       const fileMessage = {
-        role: "user",
-        content: `Содержимое загруженного файла:\n\n${fileContent}\n\nПожалуйста, проанализируй этот файл и ответь на вопрос пользователя.`
+        role: 'user',
+        content: `Содержимое загруженного файла:\n\n${fileContent}\n\nПожалуйста, проанализируй этот файл и ответь на вопрос пользователя.`,
       };
       messagesForModel.push(fileMessage);
     }
-    
+
     const maxAttempts = this.maxAttemptsDefault;
     let attempt = 0;
     let lastError: any;
@@ -201,23 +260,37 @@ export class OpenRouterService {
         );
 
         const response = completion.choices[0].message?.content || '';
-        this.logger.log(`Received response from OpenRouter API, model: ${model}, response length: ${response.length}`);
+        this.logger.log(
+          `Received response from OpenRouter API, model: ${model}, response length: ${response.length}`,
+        );
         return response;
       } catch (error: any) {
         lastError = error;
-        const status = (error && error.status) || (error && error.response && error.response.status);
+        const status =
+          (error && error.status) ||
+          (error && error.response && error.response.status);
         const code = error?.code;
         const name = error?.name;
         const messageText = String(error?.message || error);
 
-        const retriable = this.isRetriableError(code, status, messageText, name);
+        const retriable = this.isRetriableError(
+          code,
+          status,
+          messageText,
+          name,
+        );
         if (!retriable || attempt >= maxAttempts) {
-          this.logger.error(`Error calling OpenRouter API, model: ${model}, attempt: ${attempt}/${maxAttempts}:`, error);
+          this.logger.error(
+            `Error calling OpenRouter API, model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
+            error,
+          );
           break;
         }
 
         const backoffMs = this.getBackoffWithJitter(attempt);
-        this.logger.warn(`OpenRouter call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`);
+        this.logger.warn(
+          `OpenRouter call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+        );
         await this.sleep(backoffMs);
       }
     }
@@ -226,11 +299,13 @@ export class OpenRouterService {
   }
 
   async processFile(fileBuffer: Buffer, mimeType: string): Promise<string> {
-    this.logger.log(`Processing file with mime type: ${mimeType}, buffer size: ${fileBuffer.length} bytes`);
-    
+    this.logger.log(
+      `Processing file with mime type: ${mimeType}, buffer size: ${fileBuffer.length} bytes`,
+    );
+
     try {
       let result: string;
-      
+
       switch (mimeType) {
         case 'application/pdf':
           result = await this.extractPdfText(fileBuffer);
@@ -250,15 +325,22 @@ export class OpenRouterService {
         case 'image/jpeg':
         case 'image/png':
         case 'image/webp':
-          throw new Error('Обработка изображений через OCR отключена. Отправьте фото напрямую в чат, без загрузки как документ.');
+          throw new Error(
+            'Обработка изображений через OCR отключена. Отправьте фото напрямую в чат, без загрузки как документ.',
+          );
         default:
           throw new Error(`Неподдерживаемый тип файла: ${mimeType}`);
       }
-      
-      this.logger.log(`File processed successfully, mime type: ${mimeType}, extracted text length: ${result.length} characters`);
+
+      this.logger.log(
+        `File processed successfully, mime type: ${mimeType}, extracted text length: ${result.length} characters`,
+      );
       return result;
     } catch (error) {
-      this.logger.error(`Error processing file, mime type: ${mimeType}:`, error);
+      this.logger.error(
+        `Error processing file, mime type: ${mimeType}:`,
+        error,
+      );
       throw new Error(`Ошибка при обработке файла: ${error.message}`);
     }
   }
@@ -297,30 +379,36 @@ export class OpenRouterService {
     try {
       return new Promise((resolve, reject) => {
         const text = buffer.toString('utf-8');
-        csvParse.parse(text, {
-          columns: true,
-          skip_empty_lines: true
-        }, (err, records) => {
-          if (err) {
-            reject(new Error(`Ошибка при парсинге CSV: ${err.message}`));
-            return;
-          }
-          
-          if (!records || records.length === 0) {
-            resolve('CSV файл пуст или не содержит данных');
-            return;
-          }
+        csvParse.parse(
+          text,
+          {
+            columns: true,
+            skip_empty_lines: true,
+          },
+          (err, records) => {
+            if (err) {
+              reject(new Error(`Ошибка при парсинге CSV: ${err.message}`));
+              return;
+            }
 
-          // Форматируем CSV в читаемый вид
-          const formattedText = records.map((record: any, index: number) => {
-            const rowText = Object.entries(record)
-              .map(([key, value]) => `${key}: ${value}`)
-              .join(', ');
-            return `Строка ${index + 1}: ${rowText}`;
-          }).join('\n');
+            if (!records || records.length === 0) {
+              resolve('CSV файл пуст или не содержит данных');
+              return;
+            }
 
-          resolve(formattedText);
-        });
+            // Форматируем CSV в читаемый вид
+            const formattedText = records
+              .map((record: any, index: number) => {
+                const rowText = Object.entries(record)
+                  .map(([key, value]) => `${key}: ${value}`)
+                  .join(', ');
+                return `Строка ${index + 1}: ${rowText}`;
+              })
+              .join('\n');
+
+            resolve(formattedText);
+          },
+        );
       });
     } catch (error) {
       throw new Error(`Ошибка при извлечении текста из CSV: ${error.message}`);
@@ -339,9 +427,15 @@ export class OpenRouterService {
     return expo + jitter;
   }
 
-  private isRetriableError(code?: string, status?: number, message?: string, name?: string): boolean {
+  private isRetriableError(
+    code?: string,
+    status?: number,
+    message?: string,
+    name?: string,
+  ): boolean {
     // HTTP статусы: 429, 500-599 — ретраим
-    if (typeof status === 'number' && (status === 429 || status >= 500)) return true;
+    if (typeof status === 'number' && (status === 429 || status >= 500))
+      return true;
     // Сетевые ошибки undici / node
     const lower = (message || '').toLowerCase();
     const nameLower = (name || '').toLowerCase();
@@ -356,7 +450,8 @@ export class OpenRouterService {
       code === 'ETIMEDOUT' ||
       code === 'ENOTFOUND' ||
       code === 'EAI_AGAIN'
-    ) return true;
+    )
+      return true;
     if (
       nameLower.includes('timeout') ||
       lower.includes('timeout') ||
@@ -367,7 +462,8 @@ export class OpenRouterService {
       lower.includes('other side closed') ||
       lower.includes('fetch failed') ||
       lower.includes('network error')
-    ) return true;
+    )
+      return true;
     return false;
   }
 }

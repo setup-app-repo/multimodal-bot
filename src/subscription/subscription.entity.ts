@@ -1,4 +1,5 @@
 import { Entity, PrimaryKey, Property, ManyToOne } from '@mikro-orm/core';
+
 import { User } from '../user/user.entity';
 
 export type SubscriptionStatus = 'active' | 'expired' | 'canceled';

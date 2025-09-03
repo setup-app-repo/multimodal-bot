@@ -12,7 +12,9 @@ export class AppConfigService {
 
   private validateInput(): void {
     const schema = Joi.object({
-      NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
+      NODE_ENV: Joi.string()
+        .valid('development', 'production', 'test')
+        .default('development'),
       PORT: Joi.number().default(3000),
       BOT_TOKEN: Joi.string().required(),
 
@@ -54,11 +56,22 @@ export class AppConfigService {
     return this.get<string>('BOT_TOKEN');
   }
 
-  get dbHost(): string { return new URL(this.get<string>('DATABASE_URL')).hostname; }
-  get dbPort(): number { return Number(new URL(this.get<string>('DATABASE_URL')).port || 5432); }
-  get dbUser(): string { return new URL(this.get<string>('DATABASE_URL')).username; }
-  get dbPassword(): string { return new URL(this.get<string>('DATABASE_URL')).password; }
-  get dbName(): string { return new URL(this.get<string>('DATABASE_URL')).pathname.replace(/^\//, ''); }
+  get dbHost(): string {
+    return new URL(this.get<string>('DATABASE_URL')).hostname;
+  }
+  get dbPort(): number {
+    return Number(new URL(this.get<string>('DATABASE_URL')).port || 5432);
+  }
+  get dbUser(): string {
+    return new URL(this.get<string>('DATABASE_URL')).username;
+  }
+  get dbPassword(): string {
+    return new URL(this.get<string>('DATABASE_URL')).password;
+  }
+  get dbName(): string {
+    return new URL(this.get<string>('DATABASE_URL')).pathname.replace(
+      /^\//,
+      '',
+    );
+  }
 }
-
-

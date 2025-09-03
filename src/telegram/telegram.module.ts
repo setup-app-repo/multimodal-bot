@@ -1,15 +1,14 @@
-import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
-
-import { TelegramService } from './telegram.service';
-import { TelegramController } from './telegram.controller';
-import { RedisModule } from 'src/redis/redis.module';
+import { Module } from '@nestjs/common';
 import { ConfigModule as AppConfigModule } from 'src/config/config.module';
 import { I18nModule } from 'src/i18n/i18n.module';
 import { OpenRouterModule } from 'src/openrouter/openrouter.module';
+import { RedisModule } from 'src/redis/redis.module';
 import { SetupAppModule } from 'src/setup-app/setup-app.module';
-import { UserModule } from 'src/user/user.module';
 import { SubscriptionModule } from 'src/subscription/subscription.module';
+import { UserModule } from 'src/user/user.module';
+
+import { SubscriptionRenewalProcessor } from './processors/subscription-renewal.processor';
 import {
   BotService,
   MessageHandlerService,
@@ -20,7 +19,8 @@ import {
   TelegramFileService,
   AccessControlService,
 } from './services';
-import { SubscriptionRenewalProcessor } from './processors/subscription-renewal.processor';
+import { TelegramController } from './telegram.controller';
+import { TelegramService } from './telegram.service';
 
 @Module({
   imports: [
@@ -46,6 +46,6 @@ import { SubscriptionRenewalProcessor } from './processors/subscription-renewal.
     AccessControlService,
     SubscriptionRenewalProcessor,
   ],
-  exports: [BotService]
+  exports: [BotService],
 })
 export class TelegramModule {}

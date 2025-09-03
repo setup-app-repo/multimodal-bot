@@ -1,22 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SetupAppConfigService } from './setup-app-config.service';
 import { GrammyContext, SetupApp } from '@setup-app-repo/setup.app-sdk';
+
+import { SetupAppConfigService } from './setup-app-config.service';
 
 @Injectable()
 export class SetupAppService {
   private readonly logger = new Logger(SetupAppService.name);
-    private setupApp: SetupApp;
+  private setupApp: SetupApp;
 
-    constructor(private readonly setupAppConfigService: SetupAppConfigService) {
-    }
+  constructor(private readonly setupAppConfigService: SetupAppConfigService) {}
 
   async onModuleInit(): Promise<void> {
     try {
-      
       // Валидируем конфигурацию перед инициализацией
       this.setupAppConfigService.validateConfig();
       const config = this.setupAppConfigService.getConfig();
-      
+
       // Инициализируем SDK (быстро, без сетевых вызовов)
       this.setupApp = new SetupApp({
         baseUrl: config.baseUrl,

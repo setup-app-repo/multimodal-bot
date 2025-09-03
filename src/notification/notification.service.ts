@@ -1,11 +1,10 @@
+import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
-
-import { User } from 'src/user/user.entity';
 import { I18nService } from 'src/i18n/i18n.service';
-import { BotService } from 'src/telegram/services/bot.service';
 import { Subscription } from 'src/subscription/subscription.entity';
+import { BotService } from 'src/telegram/services/bot.service';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class NotificationService {
@@ -25,15 +24,18 @@ export class NotificationService {
   @CreateRequestContext()
   async sendInactiveReminders(): Promise<void> {
     const now = new Date();
-    const nowUtcMidnight = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const nowUtcMidnight = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+    );
 
     // Выбираем пользователей с последней активностью >= 7 дней назад
-    const sevenDaysAgo = new Date(nowUtcMidnight.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(
+      nowUtcMidnight.getTime() - 7 * 24 * 60 * 60 * 1000,
+    );
 
     const users = await this.em.find(User, {
       lastMessageAt: { $lte: sevenDaysAgo },
     });
-
 
     if (!users.length) {
       this.logger.debug('Нет кандидатов для напоминаний об неактивности');
@@ -41,7 +43,9 @@ export class NotificationService {
     }
 
     const tasks = users
-      .filter((user) => this.isMultipleOfSevenDays(user.lastMessageAt, nowUtcMidnight))
+      .filter((user) =>
+        this.isMultipleOfSevenDays(user.lastMessageAt, nowUtcMidnight),
+      )
       .map(async (user) => {
         try {
           const locale = user.languageCode || this.i18n.getDefaultLocale();
@@ -52,7 +56,9 @@ export class NotificationService {
           const text = raw.replace(/\\n/g, '\n');
           await this.bot.sendPlainText(Number(user.telegramId), text);
         } catch (error) {
-          this.logger.warn(`Не удалось отправить напоминание пользователю ${user.telegramId}: ${String(error)}`);
+          this.logger.warn(
+            `Не удалось отправить напоминание пользователю ${user.telegramId}: ${String(error)}`,
+          );
         }
       });
 
@@ -69,11 +75,15 @@ export class NotificationService {
     const now = new Date();
     const inThreeDays = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
 
-    const subs = await this.em.find(Subscription, {
-      status: 'active',
-      autoRenew: false,
-      periodEnd: { $gte: now, $lte: inThreeDays },
-    }, { populate: ['user'] });
+    const subs = await this.em.find(
+      Subscription,
+      {
+        status: 'active',
+        autoRenew: false,
+        periodEnd: { $gte: now, $lte: inThreeDays },
+      },
+      { populate: ['user'] },
+    );
 
     if (!subs.length) return;
 
@@ -84,13 +94,22 @@ export class NotificationService {
       if (daysLeft !== 3 && daysLeft !== 1) return;
 
       const premium_expires_at = this.formatDateByLocale(sub.periodEnd, locale);
-      const i18nKey = daysLeft === 3 ? 'subscription_expiring_3_days' : 'subscription_expiring_1_day';
+      const i18nKey =
+        daysLeft === 3
+          ? 'subscription_expiring_3_days'
+          : 'subscription_expiring_1_day';
       const text = this.i18n.t(i18nKey, locale, { premium_expires_at });
 
       try {
-        await this.bot.sendTextWithTopupButton(Number(user.telegramId), text, locale);
+        await this.bot.sendTextWithTopupButton(
+          Number(user.telegramId),
+          text,
+          locale,
+        );
       } catch (error) {
-        this.logger.warn(`Не удалось отправить уведомление о подписке ${sub.id} пользователю ${user.telegramId}: ${String(error)}`);
+        this.logger.warn(
+          `Не удалось отправить уведомление о подписке ${sub.id} пользователю ${user.telegramId}: ${String(error)}`,
+        );
       }
     });
 
@@ -99,37 +118,55 @@ export class NotificationService {
 
   /** Возвращает количество полных дней до полуночи UTC по дате окончания */
   private daysUntilUtcMidnight(target: Date, now: Date): number {
-    const targetUTC = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
-    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    const targetUTC = Date.UTC(
+      target.getUTCFullYear(),
+      target.getUTCMonth(),
+      target.getUTCDate(),
+    );
+    const nowUTC = Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+    );
     return Math.floor((targetUTC - nowUTC) / (24 * 60 * 60 * 1000));
   }
 
   /** Форматирует дату согласно локали пользователя */
   private formatDateByLocale(date: Date, locale: string): string {
     try {
-      return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+      return new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }).format(date);
     } catch {
-      return new Intl.DateTimeFormat('ru', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+      return new Intl.DateTimeFormat('ru', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }).format(date);
     }
   }
-
 
   /**
    * Проверяет, что now - lastMessageAt кратно 7 дням (с точностью до суток, UTC).
    */
-  private isMultipleOfSevenDays(lastMessageAt: Date | undefined, todayUtcMidnight: Date): boolean {
+  private isMultipleOfSevenDays(
+    lastMessageAt: Date | undefined,
+    todayUtcMidnight: Date,
+  ): boolean {
     if (!lastMessageAt) return false;
-    const lastUtcMidnight = new Date(Date.UTC(
-      lastMessageAt.getUTCFullYear(),
-      lastMessageAt.getUTCMonth(),
-      lastMessageAt.getUTCDate(),
-    ));
+    const lastUtcMidnight = new Date(
+      Date.UTC(
+        lastMessageAt.getUTCFullYear(),
+        lastMessageAt.getUTCMonth(),
+        lastMessageAt.getUTCDate(),
+      ),
+    );
     const msDiff = todayUtcMidnight.getTime() - lastUtcMidnight.getTime();
     if (msDiff < 7 * 24 * 60 * 60 * 1000) return false;
     const days = Math.floor(msDiff / (24 * 60 * 60 * 1000));
-    
+
     return days % 7 === 0;
   }
 }
-
-

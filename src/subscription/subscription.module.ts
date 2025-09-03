@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
-import { SetupAppModule } from 'src/setup-app/setup-app.module';
 import { BullModule } from '@nestjs/bullmq';
-import { SubscriptionService } from './subscription.service';
+import { Module } from '@nestjs/common';
+import { SetupAppModule } from 'src/setup-app/setup-app.module';
+
 import { Subscription } from './subscription.entity';
+import { SubscriptionService } from './subscription.service';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { Subscription } from './subscription.entity';
     }),
   ],
   providers: [SubscriptionService],
-  exports: [SubscriptionService]
+  exports: [SubscriptionService],
 })
 export class SubscriptionModule {}

@@ -1,12 +1,12 @@
-import { Injectable } from '@nestjs/common';
 import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectQueue } from '@nestjs/bullmq';
+import { Injectable } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { Queue } from 'bullmq';
-
 import { SetupAppService } from 'src/setup-app/setup-app.service';
-import { Subscription } from './subscription.entity';
 import { User } from 'src/user/user.entity';
+
+import { Subscription } from './subscription.entity';
 
 @Injectable()
 export class SubscriptionService {
@@ -23,13 +23,14 @@ export class SubscriptionService {
     telegramId: number,
     amount: number,
     description: string,
-    options?: { periodDays?: number; autoRenew?: boolean }
+    options?: { periodDays?: number; autoRenew?: boolean },
   ): Promise<Subscription> {
     const periodDays = options?.periodDays ?? 30;
     const autoRenew = options?.autoRenew ?? false;
 
-
-    const user = await this.em.findOne(User, { telegramId: String(telegramId) });
+    const user = await this.em.findOne(User, {
+      telegramId: String(telegramId),
+    });
 
     if (!user) {
       throw new Error('USER_NOT_FOUND');
@@ -52,7 +53,6 @@ export class SubscriptionService {
     if (!hasEnoughSP) {
       throw new Error('INSUFFICIENT_FUNDS');
     }
-
 
     await this.setupAppService.deduct(telegramId, amount, description);
 
@@ -99,7 +99,9 @@ export class SubscriptionService {
   /**
    * Возвращает активную подписку пользователя или null, если её нет
    */
-  async getActiveSubscription(telegramId: string): Promise<Subscription | null> {
+  async getActiveSubscription(
+    telegramId: string,
+  ): Promise<Subscription | null> {
     const now = new Date();
     const user = await this.em.findOne(User, { telegramId: telegramId });
     if (!user) return null;
@@ -118,7 +120,10 @@ export class SubscriptionService {
   /**
    * Устанавливает флаг автопродления для активной подписки пользователя
    */
-  async setAutoRenew(telegramId: string, value: boolean): Promise<Subscription | null> {
+  async setAutoRenew(
+    telegramId: string,
+    value: boolean,
+  ): Promise<Subscription | null> {
     const now = new Date();
     const user = await this.em.findOne(User, { telegramId });
     if (!user) return null;
@@ -145,25 +150,33 @@ export class SubscriptionService {
   @CreateRequestContext()
   async enqueueExpiredAutoRenewals(): Promise<void> {
     const now = new Date();
-    const subs = await this.em.find(Subscription, {
-      status: 'active',
-      periodEnd: { $lte: now },
-      autoRenew: true,
-    }, { populate: ['user'] });
+    const subs = await this.em.find(
+      Subscription,
+      {
+        status: 'active',
+        periodEnd: { $lte: now },
+        autoRenew: true,
+      },
+      { populate: ['user'] },
+    );
 
     if (!subs.length) return;
 
     for (const sub of subs) {
       const telegramId = Number(sub.user.telegramId);
-      await this.renewalQueue.add('renew', {
-        telegramId,
-        subscriptionId: sub.id,
-      }, {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 10_000 },
-        removeOnComplete: 1000,
-        removeOnFail: 1000,
-      });
+      await this.renewalQueue.add(
+        'renew',
+        {
+          telegramId,
+          subscriptionId: sub.id,
+        },
+        {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 10_000 },
+          removeOnComplete: 1000,
+          removeOnFail: 1000,
+        },
+      );
     }
   }
 }
