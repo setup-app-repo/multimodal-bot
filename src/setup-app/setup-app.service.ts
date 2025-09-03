@@ -64,10 +64,6 @@ export class SetupAppService {
     return this.setupApp.getReferralUrl(telegramId);
   }
 
-  async setReferral(telegramId: number, referralId: number) {
-    return this.setupApp.setReferral(telegramId, referralId, {firstName: 'test', lastName: 'test', username: 'test'});
-  }
-
   async auth(telegramId: number, userData) {
     return this.setupApp.auth(telegramId, userData);
   }
