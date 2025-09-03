@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { Bot, session } from 'grammy';
+import { InlineKeyboard } from 'grammy';
 import { ConfigService } from '@nestjs/config';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 
@@ -164,5 +165,15 @@ export class BotService implements OnModuleInit {
     async sendPlainText(telegramId: number, text: string) {
         if (!this.bot) throw new Error('Bot is not initialized');
         await this.bot.api.sendMessage(telegramId, text, { parse_mode: 'HTML' });
+    }
+
+    /**
+     * Внешняя отправка сообщения с inline-кнопкой «Продлить» (wallet:topup)
+     */
+    async sendTextWithTopupButton(telegramId: number, text: string, locale?: string) {
+        if (!this.bot) throw new Error('Bot is not initialized');
+        const label = this.i18n.t('premium_renew_button', locale);
+        const keyboard = new InlineKeyboard().text(label, 'wallet:topup');
+        await this.bot.api.sendMessage(telegramId, text, { reply_markup: keyboard, parse_mode: 'HTML' });
     }
 }

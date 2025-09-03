@@ -237,3 +237,6 @@ processing_request = ⏳ Procesando tu solicitud...
 
 # Notificaciones
 notification_inactive_recall = {$first_name}, ¡cuánto tiempo! 👋\nEnvía cualquier consulta — ¡te ayudaré!
+subscription_expiring_3_days = Premium ⭐ expira en 3 días — {$premium_expires_at}. Renueva para mantener los descuentos y la prioridad.
+subscription_expiring_1_day = Premium ⏳ expira mañana — {$premium_expires_at}. Renueva por 30 días por 10 SP.
+premium_renew_button = 🔁 Renovar

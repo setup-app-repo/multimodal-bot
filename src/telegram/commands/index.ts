@@ -37,6 +37,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
     // Безопасный ответ на callback query с обработкой ошибок
     const safeAnswerCallbackQuery = async (ctx: BotContext, options?: { text?: string; show_alert?: boolean; url?: string }) => {
         try {
+            // Если обновление не из callback_query, отвечать нечему — выходим
+            if (!ctx.callbackQuery) return;
             await ctx.answerCallbackQuery(options);
         } catch (error: any) {
             // Игнорируем ошибки timeout и invalid query ID, так как они не критичны
@@ -62,12 +64,16 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         try {
             await ctx.editMessageText(text, { reply_markup: keyboard, parse_mode });
         } catch {
-            try { await ctx.deleteMessage(); } catch {}
+            // Удаляем исходное сообщение только если это был callback-контекст.
+            // Для обычных текстовых сообщений ничего не удаляем, просто отвечаем новым.
+            if (ctx.callbackQuery) {
+                try { await ctx.deleteMessage(); } catch {}
+            }
             await ctx.reply(text, { reply_markup: keyboard, parse_mode });
         }
     };
 
-    type RouteId = 'profile' | 'profile_language' | 'profile_clear' | 'premium';
+    type RouteId = 'profile' | 'profile_language' | 'profile_clear' | 'premium' | 'model_connected';
     type RouteParams = Record<string, any> | undefined;
 
     const buildRouteScreen = async (
@@ -139,6 +145,62 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             return { text: confirmText, keyboard, parse_mode: 'Markdown' };
         }
 
+        if (route === 'model_connected') {
+            const userId = String(ctx.from?.id);
+            const selectedModel = (params?.model as string) || (await redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
+            const modelDisplayName = getModelDisplayName(selectedModel);
+            const isPremium = await subscriptionService.hasActiveSubscription(userId);
+            const priceWithoutSub = getPriceSP(selectedModel, false);
+            const priceWithSub = getPriceSP(selectedModel, true);
+
+            const header = t(ctx, 'model_connected_title', { model: modelDisplayName });
+            const capabilitiesTitle = t(ctx, 'model_capabilities_title') || `✨ <b>Возможности модели:</b>`;
+
+            const capabilityLines: string[] = [];
+            capabilityLines.push(`📝 <code>${t(ctx, 'capability_text') || 'Текст'}</code>`);
+            if (MODELS_SUPPORTING_PHOTOS.has(selectedModel)) {
+                capabilityLines.push(`📷 <code>${t(ctx, 'capability_photos') || 'Фотографии'}</code>`);
+            }
+            if (MODELS_SUPPORTING_FILES.has(selectedModel)) {
+                capabilityLines.push(`📎 <code>${t(ctx, 'capability_files') || 'Файлы'}</code>`);
+            }
+            if (MODELS_SUPPORTING_AUDIO.has(selectedModel)) {
+                capabilityLines.push(`🎙 <code>${t(ctx, 'capability_voice') || 'Голосовые сообщения'}</code>`);
+            }
+
+            const isFree = priceWithoutSub === 0 && priceWithSub === 0;
+            const priceLine = isFree
+                ? t(ctx, 'model_price_line_free')
+                : (isPremium
+                    ? t(ctx, 'model_price_line_with_premium', { price_without: priceWithoutSub.toFixed(3), price_with: priceWithSub.toFixed(3) })
+                    : t(ctx, 'model_price_line_without_premium', { price_without: priceWithoutSub.toFixed(3), price_with: priceWithSub.toFixed(3) })
+                  );
+
+            const attachmentsNote = t(ctx, 'attachments_double_cost_note');
+            const footer = t(ctx, 'chat_start_hint');
+
+            const text = [
+                header,
+                '',
+                capabilitiesTitle,
+                capabilityLines.join('\n'),
+                '',
+                priceLine,
+                '',
+                attachmentsNote,
+                '',
+                footer,
+            ].join('\n');
+
+            const keyboard = new InlineKeyboard();
+            if (!isPremium) {
+                keyboard.text(t(ctx, 'model_buy_premium_button'), 'profile:premium').row();
+            }
+            keyboard.text(t(ctx, 'model_close_button'), 'model:close');
+
+            return { text, keyboard, parse_mode: 'HTML' };
+        }
+
         if (route === 'premium') {
             const telegramId = ctx.from?.id as number;
             const hasActive = await subscriptionService.hasActiveSubscription(String(telegramId));
@@ -182,6 +244,16 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         ctx.session.uiStack = ctx.session.uiStack || [];
         const previous = ctx.session.uiStack.pop();
         if (!previous) {
+            // Если текущий экран — премиум, а стека нет, восстановим экран "модель подключена"
+            if (ctx.session.currentRoute?.route === 'premium') {
+                const userId = String(ctx.from?.id);
+                let model = await redisService.get<string>(`chat:${userId}:model`);
+                if (!model) model = DEFAULT_MODEL;
+                ctx.session.currentRoute = { route: 'model_connected', params: { model } };
+                const screen = await buildRouteScreen(ctx, 'model_connected', { model });
+                await renderScreen(ctx, screen);
+                return;
+            }
             await safeAnswerCallbackQuery(ctx);
             try { await ctx.deleteMessage(); } catch {}
             return;
@@ -630,12 +702,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                 footer,
             ].join('\n');
 
-            const confirmKeyboard = new InlineKeyboard();
-            if (!isPremium) {
-                confirmKeyboard.text(t(ctx, 'model_buy_premium_button'), 'profile:premium').row();
-            }
-            confirmKeyboard.text(t(ctx, 'model_close_button'), 'model:close');
-            await renderScreen(ctx, { text: messageHtml, keyboard: confirmKeyboard, parse_mode: 'HTML' });
+            // Навигация на экран "модель подключена", чтобы Back работал из премиума
+            await navigateTo(ctx, 'model_connected', { model: selectedModel });
             return;
         }
 
@@ -646,7 +714,13 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
 
         if (data === 'menu_help') {
+            // Открываем помощь новым сообщением и фиксируем маршрут для корректного Back
             await safeAnswerCallbackQuery(ctx);
+            ctx.session.uiStack = ctx.session.uiStack || [];
+            if (ctx.session.currentRoute) {
+                ctx.session.uiStack.push(ctx.session.currentRoute);
+            }
+            ctx.session.currentRoute = { route: 'help' as any };
             await replyHelp(ctx);
             return;
         }
@@ -666,7 +740,15 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
             return;
         }
         if (data === 'menu_profile') {
-            await navigateTo(ctx, 'profile');
+            // Отвечаем новым сообщением, не редактируя/удаляя исходное меню
+            ctx.session.uiStack = ctx.session.uiStack || [];
+            if (ctx.session.currentRoute) {
+                ctx.session.uiStack.push(ctx.session.currentRoute);
+            }
+            ctx.session.currentRoute = { route: 'profile' };
+            const screen = await buildRouteScreen(ctx, 'profile');
+            await safeAnswerCallbackQuery(ctx);
+            await ctx.reply(screen.text, { reply_markup: screen.keyboard, parse_mode: screen.parse_mode });
             return;
         }
         if (data === 'menu_model') {
@@ -676,6 +758,15 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
 
         if (data === 'profile:premium') {
+            // Если текущий маршрут не установлен (например, пришли из сообщения без навигации), 
+            // восстановим контекст как "model_connected", чтобы Back вернул к нему.
+            ctx.session.uiStack = ctx.session.uiStack || [];
+            if (!ctx.session.currentRoute) {
+                const userId = String(ctx.from?.id);
+                let model = await redisService.get<string>(`chat:${userId}:model`);
+                if (!model) model = DEFAULT_MODEL;
+                ctx.session.currentRoute = { route: 'model_connected', params: { model } };
+            }
             await navigateTo(ctx, 'premium');
             return;
         }
@@ -771,6 +862,12 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                     return;
                 }
 
+                // Добавляем текущий экран в стек перед переходом к подтверждению
+                ctx.session.uiStack = ctx.session.uiStack || [];
+                if (ctx.session.currentRoute) {
+                    ctx.session.uiStack.push(ctx.session.currentRoute);
+                }
+
                 const keyboard = new InlineKeyboard()
                     .text(t(ctx, 'premium_confirm_yes'), 'premium:confirm_buy')
                     .row()
@@ -793,8 +890,10 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
 
         if (data === 'premium:cancel_buy') {
-            await safeAnswerCallbackQuery(ctx);
-            try { await ctx.deleteMessage(); } catch {}
+            // Возвращаемся к экрану премиума
+            ctx.session.currentRoute = { route: 'premium' };
+            const screen = await buildRouteScreen(ctx, 'premium');
+            await renderScreen(ctx, screen);
             return;
         }
 

@@ -234,3 +234,6 @@ onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assiste
 
 # Benachrichtigungen
 notification_inactive_recall = {$first_name}, lange nicht gesehen 👋\nSende eine Anfrage — ich helfe!
+subscription_expiring_3_days = Premium ⭐ läuft in 3 Tagen ab — {$premium_expires_at}. Verlängern Sie, um Rabatte und Priorität zu behalten.
+subscription_expiring_1_day = Premium ⏳ läuft morgen ab — {$premium_expires_at}. Verlängern Sie um 30 Tage für 10 SP.
+premium_renew_button = 🔁 Verlängern

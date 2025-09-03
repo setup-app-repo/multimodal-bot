@@ -5,6 +5,7 @@ import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
 import { User } from 'src/user/user.entity';
 import { I18nService } from 'src/i18n/i18n.service';
 import { BotService } from 'src/telegram/services/bot.service';
+import { Subscription } from 'src/subscription/subscription.entity';
 
 @Injectable()
 export class NotificationService {
@@ -55,6 +56,61 @@ export class NotificationService {
 
     await Promise.all(tasks);
   }
+
+  /**
+   * Крон: ежедневно отправляем напоминания за 3 и за 1 день до окончания подписки (autorenew=false).
+   * Запуск один раз в день, без дедупликации.
+   */
+  @CreateRequestContext()
+  @Cron('0 12 * * *')
+  async sendSubscriptionExpiryReminders(): Promise<void> {
+    const now = new Date();
+    const inThreeDays = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+    const subs = await this.em.find(Subscription, {
+      status: 'active',
+      autoRenew: false,
+      periodEnd: { $gte: now, $lte: inThreeDays },
+    }, { populate: ['user'] });
+
+    if (!subs.length) return;
+
+    const tasks = subs.map(async (sub) => {
+      const user = sub.user;
+      const locale = user.languageCode || this.i18n.getDefaultLocale();
+      const daysLeft = this.daysUntilUtcMidnight(sub.periodEnd, now);
+      if (daysLeft !== 3 && daysLeft !== 1) return;
+
+      const premium_expires_at = this.formatDateByLocale(sub.periodEnd, locale);
+      const i18nKey = daysLeft === 3 ? 'subscription_expiring_3_days' : 'subscription_expiring_1_day';
+      const text = this.i18n.t(i18nKey, locale, { premium_expires_at });
+
+      try {
+        await this.bot.sendTextWithTopupButton(Number(user.telegramId), text, locale);
+      } catch (error) {
+        this.logger.warn(`Не удалось отправить уведомление о подписке ${sub.id} пользователю ${user.telegramId}: ${String(error)}`);
+      }
+    });
+
+    await Promise.all(tasks);
+  }
+
+  /** Возвращает количество полных дней до полуночи UTC по дате окончания */
+  private daysUntilUtcMidnight(target: Date, now: Date): number {
+    const targetUTC = Date.UTC(target.getUTCFullYear(), target.getUTCMonth(), target.getUTCDate());
+    const nowUTC = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+    return Math.floor((targetUTC - nowUTC) / (24 * 60 * 60 * 1000));
+  }
+
+  /** Форматирует дату согласно локали пользователя */
+  private formatDateByLocale(date: Date, locale: string): string {
+    try {
+      return new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+    } catch {
+      return new Intl.DateTimeFormat('ru', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
+    }
+  }
+
 
   /**
    * Проверяет, что now - lastMessageAt кратно 7 дням (с точностью до суток, UTC).
