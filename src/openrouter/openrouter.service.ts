@@ -19,6 +19,7 @@ export class OpenRouterService {
     this.maxAttemptsDefault = Number(this.configService.get<string>('OPENROUTER_MAX_ATTEMPTS')) || 3;
     this.retryBaseMs = Number(this.configService.get<string>('OPENROUTER_RETRY_BASE_MS')) || 500;
     this.retryMaxMs = Number(this.configService.get<string>('OPENROUTER_RETRY_MAX_MS')) || 5000;
+    
     this.client = new OpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: this.configService.get<string>('OPENROUTER_API_KEY'),
