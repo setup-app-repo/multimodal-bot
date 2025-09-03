@@ -852,8 +852,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
         }
 
         if (data === 'premium:enable_autorenew') {
-            console.log('>>>>>>>');
-            
             await safeAnswerCallbackQuery(ctx);
             const telegramId = String(ctx.from?.id);
             const updated = await subscriptionService.setAutoRenew(telegramId, true);
