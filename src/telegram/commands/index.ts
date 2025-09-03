@@ -3,7 +3,7 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { RedisService } from 'src/redis/redis.service';
 import { BotContext } from '../interfaces';
-import { models, MODEL_INFO, DEFAULT_MODEL, getPriceSP, MODELS_SUPPORTING_FILES, MODELS_SUPPORTING_PHOTOS, MODELS_SUPPORTING_AUDIO } from '../constants';
+import { models, MODEL_INFO, DEFAULT_MODEL, getPriceSP, MODELS_SUPPORTING_FILES, MODELS_SUPPORTING_PHOTOS, MODELS_SUPPORTING_AUDIO, PREMIUM_SUBSCRIPTION_COST_SP } from '../constants';
 import { AppType } from '@setup-app-repo/setup.app-sdk';
 import { UserService } from 'src/user/user.service';
 import { getModelDisplayName } from '../utils/model-display';
@@ -800,7 +800,6 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         if (data === 'premium:confirm_buy') {
             await safeAnswerCallbackQuery(ctx);
-            const cost = 10;
             const telegramId = ctx.from?.id as number;
             try {
                 const alreadyActive = await subscriptionService.hasActiveSubscription(String(telegramId));
@@ -810,7 +809,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
                     return;
                 }
 
-                const hasEnough = await setupAppService.have(telegramId, cost);
+                const hasEnough = await setupAppService.have(telegramId, PREMIUM_SUBSCRIPTION_COST_SP);
                 if (!hasEnough) {
                     const currentBalance = await setupAppService.getBalance(telegramId);
                     const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
@@ -820,7 +819,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
                 await subscriptionService.chargeAndCreateSubscription(
                     telegramId,
-                    cost,
+                    PREMIUM_SUBSCRIPTION_COST_SP,
                     'Подписка "Premium" 10 SP на Multimodal bot',
                     { periodDays: 30, autoRenew: false }
                 );
@@ -922,9 +921,8 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
 
         if (data === 'premium:extend') {
             await safeAnswerCallbackQuery(ctx);
-            const cost = 10;
             const telegramId = ctx.from?.id as number;
-            const hasEnough = await setupAppService.have(telegramId, cost);
+            const hasEnough = await setupAppService.have(telegramId, PREMIUM_SUBSCRIPTION_COST_SP);
             if (!hasEnough) {
                 const currentBalance = await setupAppService.getBalance(telegramId);
                 const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');

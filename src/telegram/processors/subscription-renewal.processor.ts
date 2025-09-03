@@ -6,6 +6,7 @@ import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { Subscription } from 'src/subscription/subscription.entity';
 import { BotService } from '../services/bot.service';
+import { PREMIUM_SUBSCRIPTION_COST_SP } from '../constants';
 
 @Processor('subscription-renewal')
 @Injectable()
@@ -37,8 +38,8 @@ export class SubscriptionRenewalProcessor extends WorkerHost {
         return;
       }
 
-      const amount = 10; // TODO: вынести в конфиг при необходимости
-      const description = 'Автопродление подписки "Premium" 10 SP';
+      const amount = PREMIUM_SUBSCRIPTION_COST_SP;
+      const description = `Автопродление подписки "Premium" ${PREMIUM_SUBSCRIPTION_COST_SP} SP`;
 
       const hasEnough = await this.setupAppService.have(telegramId, amount);
       if (!hasEnough) {
