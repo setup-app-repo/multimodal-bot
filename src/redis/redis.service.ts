@@ -9,6 +9,7 @@ export class RedisService implements OnModuleDestroy {
   private readonly CHAT_TTL = 60 * 60;
   private readonly MAX_HISTORY = 20;
   private readonly HISTORY_RETENTION_DAYS = 50;
+  private readonly MAX_HISTORY_CHARS = 30000;
 
   constructor(private readonly configService: ConfigService) {
     const redisUrl = this.configService.get<string>('REDIS_URL');
@@ -39,7 +40,6 @@ export class RedisService implements OnModuleDestroy {
         for (const msg of history) {
           try {
             const parsed = JSON.parse(msg);
-            console.log(parsed);
             if (parsed.timestamp && parsed.timestamp > cutoffTime) {
               filteredHistory.push(msg);
             }
@@ -67,10 +67,68 @@ export class RedisService implements OnModuleDestroy {
 
   async saveMessage(userId: string, role: 'user' | 'assistant', content: string) {
     const key = this.getKey(userId);
-    const data = JSON.stringify({ role, content });
+    const limitedContent = typeof content === 'string' && content.length > this.MAX_HISTORY_CHARS
+      ? content.slice(0, this.MAX_HISTORY_CHARS)
+      : content;
+    const data = JSON.stringify({ role, content: limitedContent });
 
     await this.client.rpush(key, data);
     await this.client.ltrim(key, -this.MAX_HISTORY, -1);
+
+    // Применяем жёсткий лимит по суммарной длине контента (30k символов)
+    try {
+      const entries = await this.client.lrange(key, 0, -1);
+      
+      let totalChars = 0;
+      const parsed = entries.map((raw) => {
+        try {
+          const obj = JSON.parse(raw);
+          const len = typeof obj?.content === 'string' ? obj.content.length : 0;
+          totalChars += len;
+          return obj as { role?: 'user' | 'assistant'; content?: string };
+        } catch {
+          return { role: undefined, content: '' } as { role?: 'user' | 'assistant'; content?: string };
+        }
+      });
+
+
+      if (totalChars > this.MAX_HISTORY_CHARS) {
+        let toRemove = 0;
+        let remainingChars = totalChars;
+        let idx = 0;
+        while (remainingChars > this.MAX_HISTORY_CHARS && idx < parsed.length) {
+          // Удаляем старыe записи слева; стараемся удалять парами (user+assistant)
+          const first = parsed[idx];
+          const firstLen = typeof first?.content === 'string' ? first.content.length : 0;
+          remainingChars -= firstLen;
+          toRemove += 1;
+          idx += 1;
+
+          if (remainingChars > this.MAX_HISTORY_CHARS && first?.role === 'user' && idx < parsed.length) {
+            const maybeAnswer = parsed[idx];
+            if (maybeAnswer?.role === 'assistant') {
+              const secondLen = typeof maybeAnswer?.content === 'string' ? maybeAnswer.content.length : 0;
+              remainingChars -= secondLen;
+              toRemove += 1;
+              idx += 1;
+            }
+          }
+        }
+
+        if (toRemove > 0) {
+          try {
+            // Redis 6.2+ поддерживает LPOP с количеством
+            // @ts-ignore
+            await this.client.lpop(key, toRemove as any);
+          } catch {
+            for (let i = 0; i < toRemove; i++) {
+              await this.client.lpop(key);
+            }
+          }
+        }
+      }
+    } catch {}
+
     await this.client.expire(key, this.CHAT_TTL);
   }
 
