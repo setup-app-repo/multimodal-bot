@@ -18,8 +18,14 @@ services:
       PORT: ${PORT}
       BOT_TOKEN: ${BOT_TOKEN}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
-      REDIS_URL: ${REDIS_URL:-redis://:@redis:6379/0}
-      DATABASE_URL: ${DATABASE_URL:-postgresql://user:user@localhost:5432/multimodal_bot}
+      SETUP_APP_BASE_URL: ${SETUP_APP_BASE_URL}
+      SETUP_APP_SERVICE_KEY: ${SETUP_APP_SERVICE_KEY}
+      LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY}
+      LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY}
+      TELEGRAM_WEBHOOK_URL: ${TELEGRAM_WEBHOOK_URL}
+      TELEGRAM_SECRET_KEY: ${TELEGRAM_SECRET_KEY}
+      REDIS_URL: ${REDIS_URL}
+      DATABASE_URL: ${DATABASE_URL}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

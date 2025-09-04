@@ -27,6 +27,11 @@ export function createMikroOrmConfig(config: ConfigService): Options<PostgreSqlD
   return {
     ...connection,
     driver: PostgreSqlDriver,
+    driverOptions: {
+      connection: {
+        ssl: false,
+      },
+    },
     debug: true,
     entities: ['dist/**/*.entity.js'],
     entitiesTs: ['src/**/*.entity.ts'],
@@ -56,6 +61,11 @@ if (!process.env.DATABASE_URL) {
 
 const defaultConfig = defineConfig({
   ...parseConnectionFromUrl(process.env.DATABASE_URL),
+  driverOptions: {
+    connection: {
+      ssl: false,
+    },
+  },
   debug: true,
   entities: ['dist/**/*.entity.js'],
   entitiesTs: ['src/**/*.entity.ts'],
