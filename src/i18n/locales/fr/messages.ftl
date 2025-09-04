@@ -23,7 +23,7 @@ premium_benefits_title = Ce que vous obtenez :
 premium_benefit_1 = • Réduction sur les requêtes payantes
 premium_benefit_2 = • Priorité dans la file d'attente (réponses plus rapides)
 premium_benefit_3 = • Limites augmentées et accès aux modèles puissants
-premium_activate_button = Activer pour 10 SP
+premium_activate_button = ✨ Activer pour 10 SP
 premium_back_button = ◀️ Retour
 premium_activation_coming_soon = L'activation premium sera disponible prochainement
 

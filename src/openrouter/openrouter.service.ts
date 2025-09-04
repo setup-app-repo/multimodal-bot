@@ -1,18 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import csvParse from 'csv-parse';
 import mammoth from 'mammoth';
 import OpenAI from 'openai';
 import pdfParse from 'pdf-parse';
+import { Langfuse } from 'langfuse';
 
 @Injectable()
-export class OpenRouterService {
+export class OpenRouterService implements OnModuleDestroy {
   private readonly logger = new Logger(OpenRouterService.name);
   private client: OpenAI;
   private readonly requestTimeoutMs: number;
   private readonly maxAttemptsDefault: number;
   private readonly retryBaseMs: number;
   private readonly retryMaxMs: number;
+  private langfuse?: Langfuse;
 
   constructor(private readonly configService: ConfigService) {
     this.requestTimeoutMs =
@@ -33,6 +35,38 @@ export class OpenRouterService {
         'X-Title': this.configService.get<string>('SITE_NAME') || '',
       },
     });
+
+    // Langfuse init (необязательно; включится, если заданы ключи)
+    const lfPublicKey = this.configService.get<string>('LANGFUSE_PUBLIC_KEY');
+    const lfSecretKey = this.configService.get<string>('LANGFUSE_SECRET_KEY');
+    const lfBaseUrl = this.configService.get<string>('LANGFUSE_BASE_URL');
+    if (lfPublicKey && lfSecretKey) {
+      try {
+        this.langfuse = new Langfuse({
+          publicKey: lfPublicKey,
+          secretKey: lfSecretKey,
+          baseUrl: lfBaseUrl || undefined,
+        });
+        this.logger.log('Langfuse initialized');
+      } catch (e) {
+        this.logger.warn(`Langfuse initialization failed: ${String((e as Error)?.message || e)}`);
+      }
+    } else {
+      this.logger.log('Langfuse is not configured (no keys), skipping telemetry');
+    }
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    try {
+      // Завершаем фоновые задачи SDK, если он инициализирован
+      // Метод называется shutdownAsync в последних версиях SDK
+      const anyLf: any = this.langfuse as any;
+      if (anyLf && typeof anyLf.shutdownAsync === 'function') {
+        await anyLf.shutdownAsync();
+      }
+    } catch (e) {
+      this.logger.warn(`Langfuse shutdown failed: ${String((e as Error)?.message || e)}`);
+    }
   }
 
   async askWithAudio(
@@ -75,9 +109,24 @@ export class OpenRouterService {
     let attempt = 0;
     let lastError: any;
 
+    const trace = this.langfuse?.trace({
+      name: 'openrouter.askWithAudio',
+      input: { historyLength: history.length, prompt: !!prompt, format },
+      metadata: { provider: 'openrouter', modality: 'audio' },
+    });
+
     while (attempt < maxAttempts) {
       attempt += 1;
       try {
+        const startTime = new Date();
+        const generation = trace?.generation({
+          name: 'chat.completions.create',
+          model,
+          input: messagesForModel,
+          startTime,
+          metadata: { provider: 'openrouter' },
+        });
+
         const completion = await this.client.chat.completions.create(
           {
             model,
@@ -92,6 +141,20 @@ export class OpenRouterService {
         this.logger.log(
           `Received response from OpenRouter API (audio), model: ${model}, response length: ${response.length}`,
         );
+        try {
+          generation?.update({
+            output: response,
+            endTime: new Date(),
+            usage: completion.usage
+              ? {
+                promptTokens: completion.usage.prompt_tokens,
+                completionTokens: completion.usage.completion_tokens,
+                totalTokens: completion.usage.total_tokens,
+              }
+              : undefined,
+          });
+          trace?.update({ output: response });
+        } catch { }
         return response;
       } catch (error: any) {
         lastError = error;
@@ -107,6 +170,12 @@ export class OpenRouterService {
             `Error calling OpenRouter API (audio), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
           );
+          try {
+            trace?.update({
+              output: String(error?.message || error),
+              metadata: { error: true },
+            });
+          } catch { }
           break;
         }
 
@@ -153,9 +222,24 @@ export class OpenRouterService {
     let attempt = 0;
     let lastError: any;
 
+    const trace = this.langfuse?.trace({
+      name: 'openrouter.askWithImages',
+      input: { historyLength: history.length, images: images.length, hasPrompt: !!prompt },
+      metadata: { provider: 'openrouter', modality: 'multimodal' },
+    });
+
     while (attempt < maxAttempts) {
       attempt += 1;
       try {
+        const startTime = new Date();
+        const generation = trace?.generation({
+          name: 'chat.completions.create',
+          model,
+          input: messagesForModel,
+          startTime,
+          metadata: { provider: 'openrouter' },
+        });
+
         const completion = await this.client.chat.completions.create(
           {
             model,
@@ -170,6 +254,20 @@ export class OpenRouterService {
         this.logger.log(
           `Received response from OpenRouter API (multimodal), model: ${model}, response length: ${response.length}`,
         );
+        try {
+          generation?.update({
+            output: response,
+            endTime: new Date(),
+            usage: completion.usage
+              ? {
+                promptTokens: completion.usage.prompt_tokens,
+                completionTokens: completion.usage.completion_tokens,
+                totalTokens: completion.usage.total_tokens,
+              }
+              : undefined,
+          });
+          trace?.update({ output: response });
+        } catch { }
         return response;
       } catch (error: any) {
         lastError = error;
@@ -185,6 +283,12 @@ export class OpenRouterService {
             `Error calling OpenRouter API (multimodal), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
           );
+          try {
+            trace?.update({
+              output: String(error?.message || error),
+              metadata: { error: true },
+            });
+          } catch { }
           break;
         }
 
@@ -228,9 +332,24 @@ export class OpenRouterService {
     let attempt = 0;
     let lastError: any;
 
+    const trace = this.langfuse?.trace({
+      name: 'openrouter.ask',
+      input: { hasFile: !!fileContent, messages: message?.length ?? 0 },
+      metadata: { provider: 'openrouter', modality: 'text' },
+    });
+
     while (attempt < maxAttempts) {
       attempt += 1;
       try {
+        const startTime = new Date();
+        const generation = trace?.generation({
+          name: 'chat.completions.create',
+          model,
+          input: messagesForModel,
+          startTime,
+          metadata: { provider: 'openrouter' },
+        });
+
         const completion = await this.client.chat.completions.create(
           {
             model,
@@ -245,6 +364,20 @@ export class OpenRouterService {
         this.logger.log(
           `Received response from OpenRouter API, model: ${model}, response length: ${response.length}`,
         );
+        try {
+          generation?.update({
+            output: response,
+            endTime: new Date(),
+            usage: completion.usage
+              ? {
+                promptTokens: completion.usage.prompt_tokens,
+                completionTokens: completion.usage.completion_tokens,
+                totalTokens: completion.usage.total_tokens,
+              }
+              : undefined,
+          });
+          trace?.update({ output: response });
+        } catch { }
         return response;
       } catch (error: any) {
         lastError = error;
@@ -260,6 +393,12 @@ export class OpenRouterService {
             `Error calling OpenRouter API, model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
           );
+          try {
+            trace?.update({
+              output: String(error?.message || error),
+              metadata: { error: true },
+            });
+          } catch { }
           break;
         }
 

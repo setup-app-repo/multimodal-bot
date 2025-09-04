@@ -19,7 +19,7 @@ services:
       BOT_TOKEN: ${BOT_TOKEN}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       REDIS_URL: ${REDIS_URL:-redis://:@redis:6379/0}
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://user:user@localhost:5432/multimodal_bot}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

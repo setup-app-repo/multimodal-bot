@@ -23,7 +23,7 @@ premium_benefits_title = O que você ganha:
 premium_benefit_1 = • Desconto em solicitações pagas
 premium_benefit_2 = • Prioridade na fila (respostas mais rápidas)
 premium_benefit_3 = • Limites aumentados e acesso a modelos poderosos
-premium_activate_button = Ativar por 10 SP
+premium_activate_button = ✨ Ativar por 10 SP
 premium_back_button = ◀️ Voltar
 premium_activation_coming_soon = A ativação premium estará disponível em breve
 

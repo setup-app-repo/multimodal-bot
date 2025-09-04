@@ -29,6 +29,11 @@ export class AppConfigService {
       OPENROUTER_MAX_ATTEMPTS: Joi.number().default(3),
       OPENROUTER_RETRY_BASE_MS: Joi.number().default(500),
       OPENROUTER_RETRY_MAX_MS: Joi.number().default(5000),
+
+      // Langfuse (опционально)
+      LANGFUSE_PUBLIC_KEY: Joi.string().optional(),
+      LANGFUSE_SECRET_KEY: Joi.string().optional(),
+      LANGFUSE_BASE_URL: Joi.string().uri().optional(),
     });
 
     const { error } = schema.validate(process.env, { allowUnknown: true });
