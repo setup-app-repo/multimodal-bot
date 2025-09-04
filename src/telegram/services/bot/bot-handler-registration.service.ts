@@ -1,0 +1,32 @@
+import { Injectable } from '@nestjs/common';
+import { Bot } from 'grammy';
+
+import { registerCommands } from 'src/telegram/commands';
+import { BotContext } from 'src/telegram/interfaces';
+import { DocumentHandlerService } from 'src/telegram/services/document-handler.service';
+import { MessageHandlerService } from 'src/telegram/services/message-handler.service';
+import { PhotoHandlerService } from 'src/telegram/services/photo-handler.service';
+import { VoiceHandlerService } from 'src/telegram/services/voice-handler.service';
+import { RegisterCommandsDeps } from 'src/telegram/commands/utils';
+
+@Injectable()
+export class BotHandlerRegistrationService {
+    constructor(
+        private readonly messageHandler: MessageHandlerService,
+        private readonly documentHandler: DocumentHandlerService,
+        private readonly photoHandler: PhotoHandlerService,
+        private readonly voiceHandler: VoiceHandlerService,
+    ) { }
+
+    registerAll(bot: Bot<BotContext>, deps: RegisterCommandsDeps): void {
+        registerCommands(bot, deps);
+
+        bot.on('message:text', (ctx) => this.messageHandler.handleText(ctx));
+        bot.on('message:document', (ctx) => this.documentHandler.handleDocument(ctx));
+        bot.on('message:photo', (ctx) => this.photoHandler.handlePhoto(ctx));
+        bot.on('message:voice', (ctx) => this.voiceHandler.handleVoice(ctx));
+        bot.catch((err) => this.messageHandler.handleError(err));
+    }
+}
+
+

@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { I18nService } from 'src/i18n/i18n.service';
 import { Subscription } from 'src/subscription/subscription.entity';
-import { BotService } from 'src/telegram/services/bot.service';
+import { BotMessagingService } from 'src/telegram/services';
 import { User } from 'src/user/user.entity';
 
 @Injectable()
@@ -13,8 +13,8 @@ export class NotificationService {
   constructor(
     private readonly em: EntityManager,
     private readonly i18n: I18nService,
-    private readonly bot: BotService,
-  ) {}
+    private readonly bot: BotMessagingService,
+  ) { }
 
   /**
    * Крон ежедневно в 12:00 UTC.

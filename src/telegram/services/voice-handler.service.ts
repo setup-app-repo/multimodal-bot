@@ -9,7 +9,8 @@ import { DEFAULT_MODEL, MODELS_SUPPORTING_AUDIO } from '../constants';
 import { BotContext } from '../interfaces';
 import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
 
-import { AccessControlService, AudioConversionService } from './';
+import { AccessControlService } from './access-control.service';
+import { AudioConversionService } from './audio-conversion.service';
 
 @Injectable()
 export class VoiceHandlerService {
@@ -22,7 +23,7 @@ export class VoiceHandlerService {
     private readonly configService: ConfigService,
     private readonly audioConversionService: AudioConversionService,
     private readonly accessControlService: AccessControlService,
-  ) {}
+  ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
     const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
@@ -106,7 +107,7 @@ export class VoiceHandlerService {
 
       try {
         await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id);
-      } catch {}
+      } catch { }
 
       // Списание SP через AccessControlService
       await this.accessControlService.deductSPIfNeeded(
@@ -132,7 +133,7 @@ export class VoiceHandlerService {
       this.logger.error(`Error processing voice from user ${String(ctx.from?.id)}:`, error);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
-      } catch {}
+      } catch { }
     }
   }
 }

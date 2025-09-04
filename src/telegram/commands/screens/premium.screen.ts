@@ -5,7 +5,7 @@ import { getLocaleCode } from '../utils/locale.utils';
 import { RegisterCommandsDeps, ScreenData } from '../utils/types';
 
 export class PremiumScreen {
-  constructor(private deps: RegisterCommandsDeps) {}
+  constructor(private deps: RegisterCommandsDeps) { }
 
   async build(ctx: BotContext): Promise<ScreenData> {
     const { subscriptionService, t } = this.deps;
@@ -45,21 +45,20 @@ export class PremiumScreen {
     const locale = getLocaleCode(ctx);
     const expiresAt = expiresAtDate
       ? expiresAtDate
-          .toLocaleDateString(locale, {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })
-          .replace(/[\u2068\u2069]/g, '')
+        .toLocaleDateString(locale, {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })
+        .replace(/[\u2068\u2069]/g, '')
       : '';
-    const autorenewLabelPlain = autorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
-    const autorenewLabel = `<b>${autorenewLabelPlain}</b>`;
+    const autorenewLabel = autorenew ? t(ctx, 'switch_on') : t(ctx, 'switch_off');
 
     const header = t(ctx, 'premium_active_title');
     let balance = 0;
     try {
       balance = await setupAppService.getBalance(ctx.from?.id as number);
-    } catch {}
+    } catch { }
     const body = t(ctx, 'premium_active_text', {
       expires_at: expiresAt,
       days_left: String(daysLeft),
@@ -73,11 +72,11 @@ export class PremiumScreen {
       .text(
         autorenew
           ? t(ctx, 'premium_autorenew_toggle_button_on', {
-              on: t(ctx, 'switch_on'),
-            })
+            on: t(ctx, 'switch_on'),
+          })
           : t(ctx, 'premium_autorenew_toggle_button_off', {
-              off: t(ctx, 'switch_off'),
-            }),
+            off: t(ctx, 'switch_off'),
+          }),
         'premium:toggle_autorenew',
       )
       .row()
@@ -86,6 +85,6 @@ export class PremiumScreen {
       .text(t(ctx, 'premium_back_button'), 'ui:back');
 
     const text = `${header}\n${body}`;
-    return { text, keyboard };
+    return { text, keyboard, parse_mode: 'HTML' };
   }
 }

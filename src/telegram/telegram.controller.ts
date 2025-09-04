@@ -2,16 +2,16 @@ import { Controller, Post, Body, Logger, Param, Res, HttpStatus } from '@nestjs/
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
 
-import { BotService } from './services/bot.service';
+import { BotMainService } from './services';
 
 @Controller('telegram')
 export class TelegramController {
   private readonly logger = new Logger(TelegramController.name);
 
   constructor(
-    private readonly botService: BotService,
+    private readonly botOrchestrator: BotMainService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @Post('webhook/:token')
   async handleWebhook(
@@ -29,7 +29,7 @@ export class TelegramController {
         return;
       }
 
-      await this.botService.handleWebhookUpdate(update);
+      await this.botOrchestrator.handleWebhookUpdate(update);
       res.status(HttpStatus.OK).json({ ok: true });
     } catch (error) {
       this.logger.error('Ошибка обработки webhook:', error);

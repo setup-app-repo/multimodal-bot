@@ -7,7 +7,7 @@ import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { Subscription } from 'src/subscription/subscription.entity';
 
 import { PREMIUM_SUBSCRIPTION_COST_SP } from '../constants';
-import { BotService } from '../services/bot.service';
+import { BotMessagingService } from '../services';
 
 @Processor('subscription-renewal')
 @Injectable()
@@ -17,7 +17,7 @@ export class SubscriptionRenewalProcessor extends WorkerHost {
   constructor(
     private readonly em: EntityManager,
     private readonly setupAppService: SetupAppService,
-    private readonly botService: BotService,
+    private readonly botService: BotMessagingService,
     private readonly i18n: I18nService,
   ) {
     super();

@@ -10,7 +10,6 @@ import { UserModule } from 'src/user/user.module';
 
 import { SubscriptionRenewalProcessor } from './processors/subscription-renewal.processor';
 import {
-  BotService,
   MessageHandlerService,
   DocumentHandlerService,
   PhotoHandlerService,
@@ -21,6 +20,7 @@ import {
 } from './services';
 import { TelegramController } from './telegram.controller';
 import { TelegramService } from './telegram.service';
+import { BotMainService, BotInstanceService, BotMiddlewareService, BotWebhookService, BotHandlerRegistrationService, BotMessagingService } from './services';
 
 @Module({
   imports: [
@@ -36,7 +36,12 @@ import { TelegramService } from './telegram.service';
   controllers: [TelegramController],
   providers: [
     TelegramService,
-    BotService,
+    BotMainService,
+    BotInstanceService,
+    BotMiddlewareService,
+    BotWebhookService,
+    BotHandlerRegistrationService,
+    BotMessagingService,
     TelegramFileService,
     MessageHandlerService,
     DocumentHandlerService,
@@ -46,6 +51,6 @@ import { TelegramService } from './telegram.service';
     AccessControlService,
     SubscriptionRenewalProcessor,
   ],
-  exports: [BotService],
+  exports: [BotMainService, BotMessagingService],
 })
-export class TelegramModule {}
+export class TelegramModule { }
