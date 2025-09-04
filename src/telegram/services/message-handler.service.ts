@@ -21,7 +21,7 @@ export class MessageHandlerService {
     private readonly openRouterService: OpenRouterService,
     private readonly telegramFileService: TelegramFileService,
     private readonly accessControlService: AccessControlService,
-  ) {}
+  ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
     const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
@@ -51,17 +51,34 @@ export class MessageHandlerService {
       const history = await this.redisService.getHistory(userId);
 
       let fileContent: string | undefined;
+      let analyzingMessageId: number | null = null;
+      // Сообщение об анализе отправляем заранее и удаляем после завершения анализа
       try {
+        try {
+          const msg = await ctx.reply(this.t(ctx, 'file_analyzing'));
+          analyzingMessageId = msg.message_id;
+        } catch { }
+
         fileContent = await this.telegramFileService.consumeLatestFileAndProcess(userId, ctx);
         if (fileContent) {
           this.logger.log(
             `File processed successfully for user ${userId}, content length: ${fileContent.length} characters`,
           );
-          await ctx.reply(this.t(ctx, 'file_analyzing'));
         }
       } catch (fileError) {
         this.logger.error(`Error processing file for user ${userId}:`, fileError);
-        await ctx.reply(this.t(ctx, 'error_processing_file_retry'));
+        try {
+          await ctx.reply(this.t(ctx, 'error_processing_file_retry'));
+        } catch { }
+      } finally {
+        if (analyzingMessageId) {
+          try {
+            const chatId = (ctx as any)?.chat?.id ?? (ctx as any)?.msg?.chat?.id;
+            if (chatId) {
+              await ctx.api.deleteMessage(chatId, analyzingMessageId);
+            }
+          } catch { }
+        }
       }
 
       this.logger.log(
@@ -89,19 +106,53 @@ export class MessageHandlerService {
 
       // Отправляем индикатор обработки перед запросом к модели
       const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
-      let answer: string;
-      try {
-        answer = await this.openRouterService.ask(history, model, fileContent);
-      } catch (err: any) {
-        const status = (err && err.status) || (err && err.response && err.response.status);
-        const code = err?.code;
-        const name = err?.name;
-        const messageText = String(err?.message || err || '');
-        const lower = messageText.toLowerCase();
-        this.logger.error(
-          `Error calling model for user ${userId}: code=${code} status=${status} name=${name} message=${messageText}`,
-        );
 
+      // Запускаем фоновую обработку без ожидания, чтобы не блокировать обработчик и event loop
+      void this.processLlmRequest(ctx, {
+        userId,
+        model,
+        history,
+        fileContent,
+        isFilePresent,
+        price,
+        processingMessageId: processingMessage.message_id,
+      });
+      return; // немедленно выходим из хэндлера
+    } catch (error) {
+      this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error);
+      try {
+        await ctx.reply(this.t(ctx, 'error_processing_message'));
+      } catch { }
+    }
+  }
+
+  private async processLlmRequest(
+    ctx: BotContext,
+    params: {
+      userId: string;
+      model: string;
+      history: Array<any>;
+      fileContent?: string;
+      isFilePresent: boolean;
+      price: number;
+      processingMessageId: number;
+    },
+  ): Promise<void> {
+    const { userId, model, history, fileContent, isFilePresent, price, processingMessageId } = params;
+    let answer: string | undefined;
+    try {
+      answer = await this.openRouterService.ask(history, model, fileContent);
+    } catch (err: any) {
+      const status = (err && err.status) || (err && err.response && err.response.status);
+      const code = err?.code;
+      const name = err?.name;
+      const messageText = String(err?.message || err || '');
+      const lower = messageText.toLowerCase();
+      this.logger.error(
+        `Error calling model for user ${userId}: code=${code} status=${status} name=${name} message=${messageText}`,
+      );
+
+      try {
         if (
           (typeof status === 'number' && (status === 429 || status >= 500)) ||
           (name && String(name).toLowerCase().includes('timeout')) ||
@@ -109,46 +160,53 @@ export class MessageHandlerService {
           lower.includes('timed out') ||
           lower.includes('request timed out')
         ) {
-          try {
-            await ctx.reply(this.t(ctx, 'error_timeout'));
-          } catch {}
+          await ctx.reply(this.t(ctx as any, 'error_timeout'));
         } else {
-          try {
-            await ctx.reply(this.t(ctx, 'unexpected_error'));
-          } catch {}
+          await ctx.reply(this.t(ctx as any, 'unexpected_error'));
         }
-        return;
-      } finally {
-        // Удаляем индикатор независимо от результата
-        try {
-          await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id);
-        } catch {}
-      }
+      } catch { }
+      return;
+    } finally {
+      try {
+        const chatId = (ctx as any)?.chat?.id ?? (ctx as any)?.msg?.chat?.id;
+        if (chatId) {
+          await ctx.api.deleteMessage(chatId, processingMessageId);
+        }
+      } catch { }
+    }
 
-      // Списание SP через AccessControlService
-      const description = isFilePresent ? `Query to ${model} (file)` : `Query to ${model}`;
+    if (!answer) return;
+
+    // Списание SP через AccessControlService
+    const description = isFilePresent ? `Query to ${model} (file)` : `Query to ${model}`;
+    try {
       await this.accessControlService.deductSPIfNeeded(userId, model, price, description);
+    } catch (err) {
+      this.logger.error(`Failed to deduct SP for user ${userId}:`, err);
+    }
 
-      this.logger.log(
-        `Received response from OpenRouter for user ${userId}, response length: ${answer.length}`,
-      );
+    this.logger.log(
+      `Received response from OpenRouter for user ${userId}, response length: ${answer.length}`,
+    );
 
+    try {
       await this.redisService.saveMessage(userId, 'assistant', answer);
+    } catch (err) {
+      this.logger.error(`Failed to save assistant message for user ${userId}:`, err);
+    }
 
-      const modelDisplayName = getModelDisplayName(model);
-      const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
-      const safeAnswer = escapeMarkdown(answer);
+    const modelDisplayName = getModelDisplayName(model);
+    const modelInfo = ` 🤖 **${this.t(ctx as any, 'model')}:** ${modelDisplayName}\n\n`;
+    const safeAnswer = escapeMarkdown(answer);
+    try {
       await sendLongMessage(
-        ctx,
-        (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
+        ctx as any,
+        (key: string, args?: Record<string, any>) => this.t(ctx as any, key, args),
         modelInfo + safeAnswer,
         { parse_mode: 'Markdown' },
       );
-    } catch (error) {
-      this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error);
-      try {
-        await ctx.reply(this.t(ctx, 'error_processing_message'));
-      } catch {}
+    } catch (err) {
+      this.logger.error(`Failed to send answer to user ${userId}:`, err);
     }
   }
 
@@ -156,6 +214,6 @@ export class MessageHandlerService {
     this.logger.error('Unhandled bot error:', err);
     try {
       await err.ctx.reply(this.t(err.ctx, 'unexpected_error'));
-    } catch {}
+    } catch { }
   }
 }
