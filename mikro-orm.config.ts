@@ -17,6 +17,7 @@ export function createMikroOrmConfig(config: ConfigService): Options<PostgreSqlD
       user: url.username,
       password: url.password,
       host: url.hostname,
+      ssl: false,
       port: url.port ? Number(url.port) : 5432,
     } as const;
   };
