@@ -52,12 +52,15 @@ export class MessageHandlerService {
 
       let fileContent: string | undefined;
       let analyzingMessageId: number | null = null;
+      const hasPendingFile = await this.telegramFileService.hasPendingFile(userId);
       // Сообщение об анализе отправляем заранее и удаляем после завершения анализа
       try {
-        try {
-          const msg = await ctx.reply(this.t(ctx, 'file_analyzing'));
-          analyzingMessageId = msg.message_id;
-        } catch { }
+        if (hasPendingFile) {
+          try {
+            const msg = await ctx.reply(this.t(ctx, 'file_analyzing'));
+            analyzingMessageId = msg.message_id;
+          } catch { }
+        }
 
         fileContent = await this.telegramFileService.consumeLatestFileAndProcess(userId, ctx);
         if (fileContent) {

@@ -13,7 +13,19 @@ export class TelegramFileService {
     private readonly redisService: RedisService,
     private readonly openRouterService: OpenRouterService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
+
+  async hasPendingFile(userId: string): Promise<boolean> {
+    try {
+      const latestKey = await this.redisService.get<string>(`file:${userId}:latest`);
+      if (!latestKey) return false;
+      const fileInfoStr = await this.redisService.get<string>(latestKey);
+      return !!fileInfoStr;
+    } catch (error) {
+      this.logger.error(`Error checking pending file for user ${userId}:`, error);
+      return false;
+    }
+  }
 
   async saveFileMeta(
     userId: string,
