@@ -109,6 +109,14 @@ export class MessageHandlerService {
 
       // Отправляем индикатор обработки перед запросом к модели
       const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
+      let stickerMessageId: number | null = null;
+      try {
+        const stickerMessage = await ctx.api.sendSticker(
+          ctx.chat.id,
+          'CAACAgIAAxkBAAESAUdouaB2jSDK2M521AIOEGKIvoRVAwAC0gADMNSdEYJigbXczmCXNgQ',
+        );
+        stickerMessageId = (stickerMessage as any)?.message_id ?? null;
+      } catch { }
 
       // Запускаем фоновую обработку без ожидания, чтобы не блокировать обработчик и event loop
       void this.processLlmRequest(ctx, {
@@ -119,6 +127,7 @@ export class MessageHandlerService {
         isFilePresent,
         price,
         processingMessageId: processingMessage.message_id,
+        stickerMessageId: stickerMessageId ?? undefined,
       });
       return; // немедленно выходим из хэндлера
     } catch (error) {
@@ -139,9 +148,10 @@ export class MessageHandlerService {
       isFilePresent: boolean;
       price: number;
       processingMessageId: number;
+      stickerMessageId?: number;
     },
   ): Promise<void> {
-    const { userId, model, history, fileContent, isFilePresent, price, processingMessageId } = params;
+    const { userId, model, history, fileContent, isFilePresent, price, processingMessageId, stickerMessageId } = params;
     let answer: string | undefined;
     try {
       answer = await this.openRouterService.ask(history, model, fileContent);
@@ -174,6 +184,9 @@ export class MessageHandlerService {
         const chatId = (ctx as any)?.chat?.id ?? (ctx as any)?.msg?.chat?.id;
         if (chatId) {
           await ctx.api.deleteMessage(chatId, processingMessageId);
+          if (typeof stickerMessageId === 'number') {
+            try { await ctx.api.deleteMessage(chatId, stickerMessageId); } catch { }
+          }
         }
       } catch { }
     }

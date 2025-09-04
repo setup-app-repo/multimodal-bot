@@ -21,7 +21,7 @@ export class PhotoHandlerService {
     private readonly openRouterService: OpenRouterService,
     private readonly configService: ConfigService,
     private readonly accessControlService: AccessControlService,
-  ) {}
+  ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
     const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
@@ -87,6 +87,14 @@ export class PhotoHandlerService {
 
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
       const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
+      let stickerMessageId: number | null = null;
+      try {
+        const stickerMessage = await ctx.api.sendSticker(
+          ctx.chat.id,
+          'CAACAgIAAxkBAAESAUdouaB2jSDK2M521AIOEGKIvoRVAwAC0gADMNSdEYJigbXczmCXNgQ',
+        );
+        stickerMessageId = (stickerMessage as any)?.message_id ?? null;
+      } catch { }
 
       const history = await this.redisService.getHistory(userId);
 
@@ -99,7 +107,10 @@ export class PhotoHandlerService {
 
       try {
         await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id);
-      } catch {}
+        if (typeof stickerMessageId === 'number') {
+          try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
+        }
+      } catch { }
 
       // Списание SP через AccessControlService
       await this.accessControlService.deductSPIfNeeded(
@@ -125,7 +136,7 @@ export class PhotoHandlerService {
       this.logger.error(`Error processing photo from user ${String(ctx.from?.id)}:`, error);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
-      } catch {}
+      } catch { }
     }
   }
 }

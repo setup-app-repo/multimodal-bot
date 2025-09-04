@@ -95,6 +95,14 @@ export class VoiceHandlerService {
 
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
       const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
+      let stickerMessageId: number | null = null;
+      try {
+        const stickerMessage = await ctx.api.sendSticker(
+          ctx.chat.id,
+          'CAACAgIAAxkBAAESAUdouaB2jSDK2M521AIOEGKIvoRVAwAC0gADMNSdEYJigbXczmCXNgQ',
+        );
+        stickerMessageId = (stickerMessage as any)?.message_id ?? null;
+      } catch { }
 
       const history = await this.redisService.getHistory(userId);
       const answer = await this.openRouterService.askWithAudio(
@@ -107,6 +115,9 @@ export class VoiceHandlerService {
 
       try {
         await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id);
+        if (typeof stickerMessageId === 'number') {
+          try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
+        }
       } catch { }
 
       // Списание SP через AccessControlService
