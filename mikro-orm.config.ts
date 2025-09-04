@@ -31,7 +31,8 @@ export function createMikroOrmConfig(config: ConfigService): Options<PostgreSqlD
     entitiesTs: ['src/**/*.entity.ts'],
     migrations: {
       tableName: 'mikro_orm_migrations',
-      path: './migrations',
+      pathTs: './src/migrations',
+      path: './dist/migrations',
     },
   };
 }
@@ -59,7 +60,7 @@ const defaultConfig = defineConfig({
   entitiesTs: ['src/**/*.entity.ts'],
   migrations: {
     tableName: 'mikro_orm_migrations',
-    path: './migrations',
+    path: './dist/migrations',
   },
 });
 
