@@ -33,7 +33,9 @@ export class NavigationService {
     }
     if (route === 'profile_language') {
       const { t } = this.deps;
-      const kb = KeyboardBuilder.buildLanguageInlineKeyboard(ctx, t);
+      const kb = KeyboardBuilder.buildLanguageInlineKeyboard(ctx, t)
+        .row()
+        .text(t(ctx, 'back_button'), 'ui:back');
       return { text: t(ctx, 'choose_language'), keyboard: kb };
     }
     if (route === 'profile_clear') {
@@ -75,27 +77,20 @@ export class NavigationService {
     ctx.session.uiStack = ctx.session.uiStack || [];
     const previous = ctx.session.uiStack.pop();
     if (!previous) {
-      if (ctx.session.currentRoute?.route === 'premium') {
-        const userId = String(ctx.from?.id);
-        let model = await this.deps.redisService.get<string>(`chat:${userId}:model`);
-        if (!model)
-          model = this.deps.redisService
-            ? (await this.deps.redisService.get<string>(`chat:${userId}:model`)) || ''
-            : '';
-        ctx.session.currentRoute = {
-          route: 'model_connected',
-          params: { model },
-        } as any;
-        const screen = await this.buildRouteScreen(ctx, 'model_connected', {
-          model,
-        });
+      // Если пришли из премиума или выбора языка и стека нет — показываем профиль
+      if (
+        ctx.session.currentRoute?.route === 'premium' ||
+        ctx.session.currentRoute?.route === 'profile_language'
+      ) {
+        ctx.session.currentRoute = { route: 'profile' } as any;
+        const screen = await this.buildRouteScreen(ctx, 'profile');
         await renderScreen(ctx, screen);
         return;
       }
       await safeAnswerCallbackQuery(ctx);
       try {
         await ctx.deleteMessage();
-      } catch {}
+      } catch { }
       return;
     }
     ctx.session.currentRoute = previous;
