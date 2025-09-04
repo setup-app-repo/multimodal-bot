@@ -4,7 +4,7 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 
-import { DEFAULT_MODEL } from '../constants';
+import { DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID } from '../constants';
 import { BotContext } from '../interfaces';
 import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
 
@@ -113,7 +113,7 @@ export class MessageHandlerService {
       try {
         const stickerMessage = await ctx.api.sendSticker(
           ctx.chat.id,
-          'CAACAgIAAxkBAAESAUdouaB2jSDK2M521AIOEGKIvoRVAwAC0gADMNSdEYJigbXczmCXNgQ',
+          PROCESSING_STICKER_FILE_ID,
         );
         stickerMessageId = (stickerMessage as any)?.message_id ?? null;
       } catch { }

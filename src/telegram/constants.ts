@@ -103,3 +103,6 @@ export const MODELS_SUPPORTING_PHOTOS = new Set<string>([
   'qwen/qwen2.5-vl-32b-instruct',
   'openai/gpt-4o-mini',
 ]);
+
+// Стикер, отправляемый вместе со статусом обработки
+export const PROCESSING_STICKER_FILE_ID = 'CAACAgIAAxkBAAESAUdouaB2jSDK2M521AIOEGKIvoRVAwAC0gADMNSdEYJigbXczmCXNgQ';
