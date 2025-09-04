@@ -1,4 +1,4 @@
-import { Bot } from 'grammy';
+import { Bot, InlineKeyboard } from 'grammy';
 
 import { BotContext } from '../../interfaces';
 import { ModelScreen } from '../screens/model.screen';
@@ -6,7 +6,7 @@ import { NavigationService } from '../services/navigation.service';
 import { RegisterCommandsDeps, buildHelpText } from '../utils';
 
 export function registerReplyHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
-  const { t, i18n } = deps;
+  const { t, i18n, subscriptionService } = deps;
   const navigation = new NavigationService(deps);
   const modelScreen = new ModelScreen(deps);
 
@@ -26,7 +26,15 @@ export function registerReplyHandlers(bot: Bot<BotContext>, deps: RegisterComman
     const action = detectReplyAction(text);
 
     if (action === 'help') {
-      await ctx.reply(buildHelpText(ctx, t));
+      const userId = String(ctx.from?.id);
+      const hasActive = await subscriptionService.hasActiveSubscription(userId);
+      const keyboard = new InlineKeyboard();
+      if (hasActive) {
+        keyboard.url(t(ctx, 'help_contact_support_button'), 'https://t.me/setupmultisupport_bot');
+      } else {
+        keyboard.text(t(ctx, 'help_contact_support_button'), 'help:support');
+      }
+      await ctx.reply(buildHelpText(ctx, t), { reply_markup: keyboard });
       return;
     }
     if (action === 'profile') {

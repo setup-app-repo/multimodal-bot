@@ -44,6 +44,7 @@ export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterComm
       const code = data.replace('lang_', '');
       const map: Record<string, string> = { en: 'en', ru: 'ru', es: 'es', de: 'de', pt: 'pt', fr: 'fr' };
       const locale = map[code] || 'en';
+      const previousLang = await deps.redisService.get<string>(`chat:${userId}:lang`);
 
       // Persist and switch session locale
       ctx.session.lang = locale;
@@ -75,9 +76,20 @@ export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterComm
       // Also send a regular message to refresh reply keyboard (localized)
       try {
         const switchedText = t(ctx, 'language_switched', { language: languageLabel });
-        await ctx.reply(switchedText, {
-          reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),
-        });
+        if (previousLang) {
+          await ctx.reply(switchedText, {
+            reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),
+          });
+        } else {
+          const promoText = t(ctx, 'onboarding_promo', {
+            first_name: ctx.from?.first_name || ctx.from?.username || '',
+          });
+          const promoTextMd = promoText.replace(/\*\*(.+?)\*\*/g, '*$1*').replace(/\\n/g, '\n');
+          await ctx.reply(promoTextMd, {
+            reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),
+            parse_mode: 'Markdown',
+          });
+        }
       } catch { }
 
       // Do not navigate back to profile; just clean up the language selection message
