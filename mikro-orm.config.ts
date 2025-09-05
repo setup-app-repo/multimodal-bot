@@ -52,11 +52,6 @@ const buildOptions = (databaseUrl: string, sslEnabled: boolean) => {
         keepAliveInitialDelayMillis: 0,
       },
     },
-    // driverOptions: {
-    //   connection: {
-    //     ssl: sslEnabled ? { rejectUnauthorized: false } : false,
-    //   },
-    // },
     debug: true,
     entities: ['dist/**/*.entity.js'],
     entitiesTs: ['src/**/*.entity.ts'],
