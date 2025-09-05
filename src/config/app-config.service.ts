@@ -34,6 +34,13 @@ export class AppConfigService {
       LANGFUSE_PUBLIC_KEY: Joi.string().optional(),
       LANGFUSE_SECRET_KEY: Joi.string().optional(),
       LANGFUSE_BASE_URL: Joi.string().uri().optional(),
+
+      // Sentry
+      SENTRY_DSN: Joi.string().uri().allow('', null).optional(),
+      SENTRY_DEBUG: Joi.string().valid('true', 'false').optional(),
+      SENTRY_VERBOSE: Joi.string().valid('true', 'false').optional(),
+      SENTRY_TRACES_SAMPLE_RATE: Joi.number().min(0).max(1).optional(),
+      SENTRY_PROFILES_SAMPLE_RATE: Joi.number().min(0).max(1).optional(),
     });
 
     const { error } = schema.validate(process.env, { allowUnknown: true });
@@ -59,6 +66,10 @@ export class AppConfigService {
     return this.get<string>('BOT_TOKEN');
   }
 
+  get nodeEnv(): string {
+    return this.get<string>('NODE_ENV');
+  }
+
   get dbHost(): string {
     return new URL(this.get<string>('DATABASE_URL')).hostname;
   }
@@ -73,5 +84,28 @@ export class AppConfigService {
   }
   get dbName(): string {
     return new URL(this.get<string>('DATABASE_URL')).pathname.replace(/^\//, '');
+  }
+
+  // Sentry
+  get sentryDsn(): string | undefined {
+    return this.configService.get<string>('SENTRY_DSN') || undefined;
+  }
+
+  get sentryDebug(): boolean {
+    return this.configService.get<string>('SENTRY_DEBUG') === 'true';
+  }
+
+  get sentryVerbose(): boolean {
+    return this.configService.get<string>('SENTRY_VERBOSE') === 'true';
+  }
+
+  get sentryTracesSampleRate(): number | undefined {
+    const v = this.configService.get<string>('SENTRY_TRACES_SAMPLE_RATE');
+    return typeof v === 'string' ? Number(v) : undefined;
+  }
+
+  get sentryProfilesSampleRate(): number | undefined {
+    const v = this.configService.get<string>('SENTRY_PROFILES_SAMPLE_RATE');
+    return typeof v === 'string' ? Number(v) : undefined;
   }
 }

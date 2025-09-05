@@ -1,4 +1,6 @@
+import { initSentryFromConfig } from './config/sentry.config';
 import { ConfigService } from '@nestjs/config';
+import { AppConfigService } from './config/app-config.service';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
@@ -13,6 +15,9 @@ if (!global.fetch) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(ConfigService);
+  // Инициализация Sentry через конфиг сервис
+  const appConfig = app.get(AppConfigService);
+  initSentryFromConfig(appConfig);
   await app.listen(config.get<number>('PORT') ?? 3000);
 }
 bootstrap();

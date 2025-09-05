@@ -26,6 +26,8 @@ services:
       TELEGRAM_SECRET_KEY: ${TELEGRAM_SECRET_KEY}
       REDIS_URL: ${REDIS_URL}
       DATABASE_URL: ${DATABASE_URL}
+      SENTRY_DSN: ${SENTRY_DSN}
+      SENTRY_DEBUG: ${SENTRY_DEBUG}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

@@ -1,10 +1,11 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Redis } from 'ioredis';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
+  private readonly logger = new Logger(RedisService.name);
   private readonly client: Redis;
   private readonly CHAT_TTL = 60 * 60;
   private readonly MAX_HISTORY = 20;
@@ -13,10 +14,39 @@ export class RedisService implements OnModuleDestroy {
 
   constructor(private readonly configService: ConfigService) {
     const redisUrl = this.configService.get<string>('REDIS_URL');
-
-    if (redisUrl) {
-      this.client = new Redis(redisUrl);
+    if (!redisUrl) {
+      throw new Error('REDIS_URL is required for RedisService');
     }
+
+    this.client = new Redis(redisUrl, {
+      enableOfflineQueue: true,
+      // Экспоненциальная задержка переподключения (до 30 секунд)
+      retryStrategy: (retries) => {
+        const delay = Math.min(1000 * Math.pow(2, Math.min(retries, 6)), 30000);
+        return delay;
+      },
+      // Пробуем переподключаться на типичные сетевые ошибки/readonly
+      reconnectOnError: (err) => {
+        const msg = err?.message || '';
+        const code = (err as any)?.code || '';
+        return (
+          msg.includes('READONLY') ||
+          code === 'ECONNRESET' ||
+          code === 'ETIMEDOUT' ||
+          code === 'EPIPE'
+        );
+      },
+    });
+
+    this.client.on('connect', () => this.logger.log('Redis connecting...'));
+    this.client.on('ready', () => this.logger.log('Redis connection ready'));
+    this.client.on('reconnecting', (delay: number) =>
+      this.logger.warn(`Redis reconnecting in ${delay} ms`),
+    );
+    this.client.on('end', () => this.logger.warn('Redis connection ended'));
+    this.client.on('error', (err) =>
+      this.logger.error(`Redis error: ${err?.message ?? String(err)}`, (err as any)?.stack),
+    );
   }
 
   // Поддерживается как REDIS_URL, так и раздельные переменные для обратной совместимости
@@ -209,6 +239,10 @@ export class RedisService implements OnModuleDestroy {
   }
 
   async onModuleDestroy() {
-    await this.client.quit();
+    try {
+      await this.client.quit();
+    } catch {
+      try { this.client.disconnect(); } catch { }
+    }
   }
 }
