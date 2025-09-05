@@ -139,7 +139,12 @@ context_cleared =  🧹 **Kontext erfolgreich gelöscht.**
 
 # Modellauswahl
 select_model =  🤖 Wähle ein Modell für den Chat:
-select_model_title = Wähle ein Modell (SP/Anfrage • 🧠 Denkleistung)
+select_model_title = 
+select_model_intro = <b>Wähle ein Modell, um mehr zu erfahren 👇</b>
+select_model_legend = 0.01 SP — Kosten pro Anfrage
+    🧠 — Intelligenz des Modells (Denkniveau)
+    🖼 — kann Bilder generieren
+    🔥 — Top-Modell nach Beliebtheit
 model_active = Modell aktiv: {$model}. Preis {$price} SP/Anfrage. Premium senkt die Kosten pro Anfrage.
 model_buy_premium_button = ⭐ Premium kaufen
 model_close_button = Schließen

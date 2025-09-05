@@ -39,8 +39,9 @@ export class DocumentHandlerService {
       const userId = String(ctx.from?.id);
       const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
-      // Проверка поддержки медиа бесплатной моделью
-      if (!this.accessControlService.isMediaSupportedByModel(model)) {
+      // Проверка допуска медиа (бесплатная модель без Премиума запрещена)
+      const mediaAllowed = await this.accessControlService.isMediaAllowed(userId, model);
+      if (!mediaAllowed) {
         await this.accessControlService.sendFreeModelNoMediaMessage(ctx);
         return;
       }

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Filter } from 'grammy';
+import { Filter, InputFile } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -39,8 +39,9 @@ export class PhotoHandlerService {
       const userId = String(ctx.from?.id);
       const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
-      // Проверка поддержки медиа бесплатной моделью
-      if (!this.accessControlService.isMediaSupportedByModel(model)) {
+      // Проверка допуска медиа (бесплатная модель без Премиума запрещена)
+      const mediaAllowed = await this.accessControlService.isMediaAllowed(userId, model);
+      if (!mediaAllowed) {
         await this.accessControlService.sendFreeModelNoMediaMessage(ctx);
         return;
       }
@@ -98,6 +99,55 @@ export class PhotoHandlerService {
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
 
       const history = await this.redisService.getHistory(userId);
+
+      // Если выбрана модель Gemini Flash image-preview — пробуем редактирование изображения и отдаём саму картинку
+      if (model === 'google/gemini-2.5-flash-image-preview') {
+        const { images, text } = await this.openRouterService.generateOrEditImage(
+          model,
+          caption || 'Apply subtle, high-quality enhancement. Keep content and style coherent.',
+          dataUrl,
+        );
+
+        await this.accessControlService.deductSPIfNeeded(
+          userId,
+          model,
+          price,
+          `Query to ${model} (image-edit)`,
+        );
+
+        await this.redisService.saveMessage(userId, 'user', caption || '[изображение]');
+        await this.redisService.saveMessage(userId, 'assistant', text || '[image]');
+
+        if (images && images.length > 0) {
+          const first = images[0];
+          const ext = first.mimeType === 'image/png' ? 'png' : first.mimeType === 'image/webp' ? 'webp' : 'jpg';
+          const inputFile = new InputFile(first.buffer, `edit.${ext}`);
+          const modelDisplayName = getModelDisplayName(model);
+          const parts: string[] = [` 🤖 ${this.t(ctx, 'model')}: ${modelDisplayName}`];
+          if (text && text.trim()) parts.push(text.trim());
+          if (caption && caption.trim()) parts.push(`📝 ${caption.trim()}`);
+          const finalCaption = parts.join('\n\n').slice(0, 1024);
+          await ctx.api.sendPhoto(ctx.chat.id, inputFile, { caption: finalCaption });
+          return;
+        }
+
+        // fallback на текст
+        if (text) {
+          const modelDisplayName = getModelDisplayName(model);
+          const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
+          const safeAnswer = escapeMarkdown(text);
+          await sendLongMessage(
+            ctx,
+            (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
+            modelInfo + safeAnswer,
+            { parse_mode: 'Markdown' },
+          );
+          return;
+        }
+
+        await ctx.reply(this.t(ctx, 'unexpected_error'));
+        return;
+      }
 
       const answer = await this.openRouterService.askWithImages(
         history,

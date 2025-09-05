@@ -4,10 +4,10 @@ export function getModelDisplayName(model: string): string {
     'anthropic/claude-3.7-sonnet': 'Claude 3.7 Sonnet',
     'deepseek/deepseek-chat-v3.1': 'DeepSeek',
     'google/gemini-2.5-pro': 'Gemini 2.5 Pro',
-    'google/gemini-2.5-flash': 'Gemini 2.5 Flash',
-    'qwen/qwen2.5-vl-32b-instruct': 'Qwen2.5-VL 32B Instruct',
+    'google/gemini-2.5-flash-image-preview': 'Gemini 2.5 Image',
+    'qwen/qwen2.5-vl-32b-instruct': 'Qwen2.5',
     'x-ai/grok-4': 'Grok 4 (Vision)',
-    'openai/gpt-4o-mini': 'GPT-4o - mini',
+    'openai/gpt-4o-mini': 'GPT-4o — mini',
   };
   return modelNames[model] || model;
 }

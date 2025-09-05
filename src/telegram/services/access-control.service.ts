@@ -98,6 +98,18 @@ export class AccessControlService {
   }
 
   /**
+   * Разрешено ли медиа для пользователя в зависимости от модели и Премиума
+   * - Для моделей уровня BASE: разрешаем только при активном Премиуме
+   * - Для остальных уровней: всегда разрешаем
+   */
+  async isMediaAllowed(userId: string, model: string): Promise<boolean> {
+    const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
+    if (tier !== ModelTier.BASE) return true;
+    const hasActiveSubscription = await this.subscriptionService.hasActiveSubscription(userId);
+    return hasActiveSubscription;
+  }
+
+  /**
    * Отправляет сообщение о недостатке средств с кнопкой пополнения
    */
   private async sendInsufficientFundsMessage(ctx: BotContext): Promise<void> {

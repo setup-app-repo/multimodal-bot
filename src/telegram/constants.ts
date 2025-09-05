@@ -1,10 +1,10 @@
 export const models = [
   'openai/gpt-5',
+  'google/gemini-2.5-flash-image-preview', // Gemini 2.5 Image
   'anthropic/claude-3.7-sonnet',
   'x-ai/grok-4',
   'google/gemini-2.5-pro',
   'deepseek/deepseek-chat-v3.1',
-  'google/gemini-2.5-flash',
   'qwen/qwen2.5-vl-32b-instruct',
   'openai/gpt-4o-mini',
 ];
@@ -40,7 +40,6 @@ export const MODELS_SUPPORTING_FILES = new Set<string>([
   'qwen/qwen2.5-vl-32b-instruct',
   'anthropic/claude-3.7-sonnet',
   'google/gemini-2.5-pro',
-  'google/gemini-2.5-flash',
 ]);
 
 // Стоимость (SP/запрос) по умолчанию указываем как стоимость без подписки по уровню
@@ -53,10 +52,22 @@ export const MODEL_INFO: Record<string, { price: number; power: number }> = {
   // Mid
   'x-ai/grok-4': { price: 0.013, power: 750 },
   'deepseek/deepseek-chat-v3.1': { price: 0.013, power: 850 },
-  'google/gemini-2.5-flash': { price: 0.013, power: 500 },
+  'google/gemini-2.5-flash-image-preview': { price: 0.013, power: 1000 },
   'qwen/qwen2.5-vl-32b-instruct': { price: 0.013, power: 500 },
   // Base
   'openai/gpt-4o-mini': { price: 0, power: 200 },
+};
+
+// Индивидуальные цены (SP/запрос) для каждой модели
+export const MODEL_PRICES_SP: Record<string, { withSub: number; withoutSub: number }> = {
+  'openai/gpt-5': { withoutSub: 0.03, withSub: 0.02 },
+  'google/gemini-2.5-flash-image-preview': { withoutSub: 0.05, withSub: 0.03 },
+  'anthropic/claude-3.7-sonnet': { withoutSub: 0.03, withSub: 0.02 },
+  'x-ai/grok-4': { withoutSub: 0.03, withSub: 0.02 },
+  'google/gemini-2.5-pro': { withoutSub: 0.2, withSub: 0.1 },
+  'deepseek/deepseek-chat-v3.1': { withoutSub: 0.03, withSub: 0.02 },
+  'qwen/qwen2.5-vl-32b-instruct': { withoutSub: 0.02, withSub: 0.01 },
+  'openai/gpt-4o-mini': { withoutSub: 0, withSub: 0 },
 };
 
 // Тарифные уровни моделей для тарификации запросов
@@ -74,7 +85,7 @@ export const MODEL_TO_TIER: Record<string, ModelTier> = {
   'openai/gpt-5': ModelTier.TOP,
   'anthropic/claude-3.7-sonnet': ModelTier.TOP,
   'google/gemini-2.5-pro': ModelTier.TOP,
-  'google/gemini-2.5-flash': ModelTier.MID,
+  'google/gemini-2.5-flash-image-preview': ModelTier.MID,
   'qwen/qwen2.5-vl-32b-instruct': ModelTier.MID,
 };
 
@@ -93,7 +104,12 @@ export const PREMIUM_SUBSCRIPTION_COST_SP = 10;
 
 // Возвращает цену в SP для конкретной модели с учётом подписки
 export function getPriceSP(model: string, hasActiveSub: boolean): number {
-  // Цена определяется тарифным уровнем модели
+  // Приоритет: индивидуальные цены для модели
+  const specific = MODEL_PRICES_SP[model as keyof typeof MODEL_PRICES_SP];
+  if (specific) {
+    return hasActiveSub ? specific.withSub : specific.withoutSub;
+  }
+  // Fallback: цены по тарифному уровню
   const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
   const prices = TIER_PRICES_SP[tier];
   return hasActiveSub ? prices.withSub : prices.withoutSub;
@@ -101,7 +117,6 @@ export function getPriceSP(model: string, hasActiveSub: boolean): number {
 
 // Модели, поддерживающие input_audio (по OpenRouter сейчас: gemini-2.5-flash)
 export const MODELS_SUPPORTING_AUDIO = new Set<string>([
-  'google/gemini-2.5-flash',
   'google/gemini-2.5-pro',
 ]);
 
@@ -111,9 +126,22 @@ export const MODELS_SUPPORTING_PHOTOS = new Set<string>([
   'anthropic/claude-3.7-sonnet',
   'x-ai/grok-4',
   'google/gemini-2.5-pro',
-  'google/gemini-2.5-flash',
+  'google/gemini-2.5-flash-image-preview',
   'qwen/qwen2.5-vl-32b-instruct',
   'openai/gpt-4o-mini',
+]);
+
+// Модели, умеющие генерировать изображения (для иконки 🖼)
+export const MODELS_SUPPORTING_IMAGE_GENERATION = new Set<string>([
+  'google/gemini-2.5-flash-image-preview',
+]);
+
+// Популярные модели (для иконки 🔥)
+export const POPULAR_MODELS = new Set<string>([
+  'openai/gpt-5',
+  'google/gemini-2.5-flash-image-preview',
+  'google/gemini-2.5-pro',
+  'deepseek/deepseek-chat-v3.1',
 ]);
 
 // Стикер, отправляемый вместе со статусом обработки

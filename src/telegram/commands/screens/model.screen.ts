@@ -5,6 +5,8 @@ import {
   MODELS_SUPPORTING_FILES,
   MODELS_SUPPORTING_PHOTOS,
   MODELS_SUPPORTING_AUDIO,
+  MODELS_SUPPORTING_IMAGE_GENERATION,
+  POPULAR_MODELS,
   getPriceSP,
   models,
   MODEL_INFO,
@@ -14,7 +16,7 @@ import { getModelDisplayName } from '../../utils/model-display';
 import { RegisterCommandsDeps, ScreenData } from '../utils/types';
 
 export class ModelScreen {
-  constructor(private deps: RegisterCommandsDeps) {}
+  constructor(private deps: RegisterCommandsDeps) { }
 
   async buildConnected(ctx: BotContext, modelFromParams?: string): Promise<ScreenData> {
     const { t, subscriptionService, redisService } = this.deps;
@@ -48,13 +50,13 @@ export class ModelScreen {
       ? t(ctx, 'model_price_line_free')
       : isPremium
         ? t(ctx, 'model_price_line_with_premium', {
-            price_without: priceWithoutSub.toFixed(3),
-            price_with: priceWithSub.toFixed(3),
-          })
+          price_without: priceWithoutSub.toFixed(3),
+          price_with: priceWithSub.toFixed(3),
+        })
         : t(ctx, 'model_price_line_without_premium', {
-            price_without: priceWithoutSub.toFixed(3),
-            price_with: priceWithSub.toFixed(3),
-          });
+          price_without: priceWithoutSub.toFixed(3),
+          price_with: priceWithSub.toFixed(3),
+        });
 
     const attachmentsNote = t(ctx, 'attachments_double_cost_note');
     const footer = t(ctx, 'chat_start_hint');
@@ -83,7 +85,7 @@ export class ModelScreen {
 
   async buildSelectionKeyboard(
     ctx: BotContext,
-  ): Promise<{ text: string; keyboard: InlineKeyboard }> {
+  ): Promise<ScreenData> {
     const { t, subscriptionService, redisService } = this.deps;
     const userId = String(ctx.from?.id);
     const selectedModel = (await redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
@@ -94,11 +96,20 @@ export class ModelScreen {
       const price = getPriceSP(model, hasActive);
       const displayName = getModelDisplayName(model);
       const prefix = selectedModel === model ? '✅ ' : '';
-      const priceLabel = price === 0 ? t(ctx, 'price_free_short') : `${price} SP`;
-      const label = `${prefix}${displayName} • ${priceLabel} • 🧠 ${power}`;
+      const priceLabel = price === 0 ? t(ctx, 'price_free_short') : `${price.toFixed(2)} SP`;
+      const canGenerateImage = MODELS_SUPPORTING_IMAGE_GENERATION.has(model);
+      const isPopular = POPULAR_MODELS.has(model);
+      const labelCore = `${displayName} • ${priceLabel} • 🧠 ${power}`;
+      let iconSuffix = '';
+      if (canGenerateImage) iconSuffix += ' • 🖼';
+      if (isPopular) iconSuffix += ' • 🔥';
+      const label = `${prefix}${labelCore}${iconSuffix}`;
       keyboard.text(label, `model_${model}`).row();
     });
     keyboard.text(t(ctx, 'model_close_button'), 'model:close');
-    return { text: t(ctx, 'select_model_title'), keyboard };
+    const intro = t(ctx, 'select_model_intro');
+    const legend = t(ctx, 'select_model_legend');
+    const text = [intro, '', legend].join('\n');
+    return { text, keyboard, parse_mode: 'HTML' };
   }
 }

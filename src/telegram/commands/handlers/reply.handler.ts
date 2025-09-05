@@ -42,8 +42,8 @@ export function registerReplyHandlers(bot: Bot<BotContext>, deps: RegisterComman
       return;
     }
     if (action === 'model') {
-      const { text, keyboard } = await modelScreen.buildSelectionKeyboard(ctx);
-      await ctx.reply(text, { reply_markup: keyboard });
+      const { text, keyboard, parse_mode } = await modelScreen.buildSelectionKeyboard(ctx);
+      await ctx.reply(text, { reply_markup: keyboard, parse_mode });
       return;
     }
     return next();

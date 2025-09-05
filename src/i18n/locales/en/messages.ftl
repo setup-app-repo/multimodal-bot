@@ -138,7 +138,12 @@ context_cleared =  🧹 **Context has been cleared.**
 
 # Model selection
 select_model =  🤖 Select a model for chat:
-select_model_title = Choose a model (SP/request • 🧠 brain power)
+select_model_title = 
+select_model_intro = <b>Choose a model to learn more 👇</b>
+select_model_legend = 0.01 SP — cost per request
+    🧠 — model intelligence (power level)
+    🖼 — can generate images
+    🔥 — top model by popularity
 model_active = Model active: {$model}. Price {$price} SP/request. Premium reduces the cost per request.
 model_buy_premium_button = ⭐ Buy Premium
 model_close_button = Close

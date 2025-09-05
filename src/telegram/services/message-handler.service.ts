@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Filter } from 'grammy';
+import { Filter, InputFile } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -118,7 +118,21 @@ export class MessageHandlerService {
         stickerMessageId = (stickerMessage as any)?.message_id ?? null;
       } catch { }
 
-      // Запускаем фоновую обработку без ожидания, чтобы не блокировать обработчик и event loop
+      // Если выбрана модель генерации изображений Gemini 2.5 Flash (Image Preview) — генерируем картинку
+      if (model === 'google/gemini-2.5-flash-image-preview') {
+        // Фоновая обработка генерации изображения
+        void this.processImageGenerationRequest(ctx, {
+          userId,
+          model,
+          prompt: text,
+          price,
+          processingMessageId: processingMessage.message_id,
+          stickerMessageId: stickerMessageId ?? undefined,
+        });
+        return;
+      }
+
+      // Иначе — обычный LLM ответ текстом
       void this.processLlmRequest(ctx, {
         userId,
         model,
@@ -134,6 +148,76 @@ export class MessageHandlerService {
       this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_message'));
+      } catch { }
+    }
+  }
+
+  private async processImageGenerationRequest(
+    ctx: BotContext,
+    params: {
+      userId: string;
+      model: string;
+      prompt: string;
+      price: number;
+      processingMessageId: number;
+      stickerMessageId?: number;
+    },
+  ): Promise<void> {
+    const { userId, model, prompt, price, processingMessageId, stickerMessageId } = params;
+    try {
+      await ctx.api.sendChatAction((ctx as any).chat.id, 'upload_photo');
+      const { images, text } = await this.openRouterService.generateOrEditImage(
+        model,
+        prompt,
+      );
+
+      // Списание SP
+      try {
+        await this.accessControlService.deductSPIfNeeded(userId, model, price, `Query to ${model} (image-gen)`);
+      } catch (err) {
+        this.logger.error(`Failed to deduct SP for user ${userId} (image-gen):`, err);
+      }
+
+      // Сохраняем историю
+      try {
+        await this.redisService.saveMessage(userId, 'user', prompt);
+        await this.redisService.saveMessage(userId, 'assistant', text || '[image]');
+      } catch (err) {
+        this.logger.error(`Failed to save messages for user ${userId} (image-gen):`, err);
+      }
+
+      const modelDisplayName = getModelDisplayName(model);
+      const modelLabel = this.t(ctx as any, 'model');
+      const captionParts: string[] = [` 🤖 ${modelLabel}: ${modelDisplayName}`];
+      if (text && text.trim()) captionParts.push(text.trim());
+      if (prompt && prompt.trim()) captionParts.push(`📝 ${prompt.trim()}`);
+      const caption = captionParts.join('\n\n').slice(0, 1024);
+
+      if (images && images.length > 0) {
+        const first = images[0];
+        const ext = first.mimeType === 'image/png' ? 'png' : first.mimeType === 'image/webp' ? 'webp' : 'jpg';
+        const inputFile = new InputFile(first.buffer, `gen.${ext}`);
+        await (ctx as any).api.sendPhoto((ctx as any).chat.id, inputFile, { caption });
+      } else if (text) {
+        await (ctx as any).reply(text);
+      } else {
+        await (ctx as any).reply(this.t(ctx as any, 'unexpected_error'));
+      }
+    } catch (err: any) {
+      const status = err?.status || err?.response?.status;
+      const name = err?.name;
+      const msg = String(err?.message || err || '');
+      this.logger.error(`Image generation failed for user ${userId}: status=${status} name=${name} message=${msg}`);
+      try { await (ctx as any).reply(this.t(ctx as any, 'unexpected_error')); } catch { }
+    } finally {
+      try {
+        const chatId = (ctx as any)?.chat?.id ?? (ctx as any)?.msg?.chat?.id;
+        if (chatId) {
+          await (ctx as any).api.deleteMessage(chatId, processingMessageId);
+          if (typeof stickerMessageId === 'number') {
+            try { await (ctx as any).api.deleteMessage(chatId, stickerMessageId); } catch { }
+          }
+        }
       } catch { }
     }
   }

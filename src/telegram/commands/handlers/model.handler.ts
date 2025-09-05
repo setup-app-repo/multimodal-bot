@@ -12,8 +12,8 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
   const { t, redisService } = deps;
 
   bot.command('model', async (ctx) => {
-    const { text, keyboard } = await modelScreen.buildSelectionKeyboard(ctx);
-    await ctx.reply(text, { reply_markup: keyboard });
+    const { text, keyboard, parse_mode } = await modelScreen.buildSelectionKeyboard(ctx);
+    await ctx.reply(text, { reply_markup: keyboard, parse_mode });
   });
 
   bot.on('callback_query:data', async (ctx, next) => {
@@ -38,13 +38,13 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
       await safeAnswerCallbackQuery(ctx);
       try {
         await ctx.deleteMessage();
-      } catch {}
+      } catch { }
       return;
     }
     if (data === 'menu_model') {
       await safeAnswerCallbackQuery(ctx);
-      const { text, keyboard } = await modelScreen.buildSelectionKeyboard(ctx);
-      await ctx.reply(text, { reply_markup: keyboard });
+      const { text, keyboard, parse_mode } = await modelScreen.buildSelectionKeyboard(ctx);
+      await ctx.reply(text, { reply_markup: keyboard, parse_mode });
       return;
     }
     return next();

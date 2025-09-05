@@ -144,7 +144,12 @@ context_cleared =  🧹 **Contexte effacé avec succès.**
 
 # Sélection du modèle
 select_model =  🤖 Sélectionnez un modèle pour le chat :
-select_model_title = Choisissez un modèle (SP/requête • 🧠 puissance cognitive)
+select_model_title = 
+select_model_intro = <b>Choisissez un modèle pour en savoir plus 👇</b>
+select_model_legend = 0,01 SP — coût par requête
+    🧠 — intelligence du modèle (niveau de « raisonnement »)
+    🖼 — peut générer des images
+    🔥 — modèle le plus populaire
 model_active = Modèle actif : {$model}. Prix {$price} SP/requête. Le Premium réduit le coût par requête.
 model_buy_premium_button = ⭐ Acheter Premium
 model_close_button = Fermer

@@ -303,6 +303,141 @@ export class OpenRouterService implements OnModuleDestroy {
     throw lastError;
   }
 
+  /**
+   * Генерация или редактирование изображения через OpenRouter (модели с поддержкой image output).
+   * Возвращает массив изображений (как буферы) и опциональный текстовый ответ.
+   *
+   * Если передать initImageDataUrl, модель воспримет это как задачу редактирования/вариации.
+   */
+  async generateOrEditImage(
+    model: string,
+    prompt: string,
+    initImageDataUrl?: string,
+  ): Promise<{ images: { buffer: Buffer; mimeType: string }[]; text?: string }> {
+    this.logger.log(
+      `Sending image gen/edit request to OpenRouter API, model: ${model}, hasInitImage: ${!!initImageDataUrl}`,
+    );
+
+    const userContent: any[] = [];
+    const textPrompt = (prompt && prompt.trim().length > 0)
+      ? prompt
+      : 'Create an image based on the following description.';
+    userContent.push({ type: 'text', text: textPrompt });
+    if (initImageDataUrl) {
+      userContent.push({ type: 'image_url', image_url: { url: initImageDataUrl } });
+    }
+
+    const messagesForModel: any[] = [
+      {
+        role: 'system',
+        content: 'You are an assistant that generates or edits images based on the prompt.',
+      },
+      { role: 'user', content: userContent },
+    ];
+
+    const maxAttempts = this.maxAttemptsDefault;
+    let attempt = 0;
+    let lastError: any;
+
+    const trace = this.langfuse?.trace({
+      name: 'openrouter.generateOrEditImage',
+      input: { hasInitImage: !!initImageDataUrl },
+      metadata: { provider: 'openrouter', modality: 'image' },
+    });
+
+    while (attempt < maxAttempts) {
+      attempt += 1;
+      try {
+        const startTime = new Date();
+        const generation = trace?.generation({
+          name: 'chat.completions.create',
+          model,
+          input: messagesForModel,
+          startTime,
+          metadata: { provider: 'openrouter' },
+        });
+
+        const completion: any = await this.client.chat.completions.create(
+          {
+            model,
+            messages: messagesForModel,
+          },
+          { timeout: this.requestTimeoutMs },
+        );
+
+        const choice: any = completion.choices?.[0] ?? {};
+        const message: any = choice.message ?? {};
+        const text: string | undefined = message.content || undefined;
+
+        // Ожидаем массив с изображениями в формате data URL
+        const images: { buffer: Buffer; mimeType: string }[] = [];
+        if (Array.isArray(message.images)) {
+          for (const img of message.images) {
+            const url: string | undefined = img?.image_url?.url;
+            if (typeof url === 'string' && url.startsWith('data:image/')) {
+              const mimeMatch = url.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
+              const mimeType = mimeMatch?.[1] || 'image/png';
+              const base64Data = url.split(',')[1];
+              try {
+                const buffer = Buffer.from(base64Data, 'base64');
+                images.push({ buffer, mimeType });
+              } catch { /* ignore single image decode error */ }
+            }
+          }
+        }
+
+        this.logger.log(
+          `Received image gen/edit response: images=${images.length}, text=${text ? text.length : 0}`,
+        );
+        try {
+          generation?.update({
+            output: { images: images.length, text: text ?? '' },
+            endTime: new Date(),
+            usage: completion.usage
+              ? {
+                promptTokens: completion.usage.prompt_tokens,
+                completionTokens: completion.usage.completion_tokens,
+                totalTokens: completion.usage.total_tokens,
+              }
+              : undefined,
+          });
+          trace?.update({ output: { images: images.length, text: text ?? '' } });
+        } catch { }
+
+        return { images, text };
+      } catch (error: any) {
+        lastError = error;
+        const status = error?.status || error?.response?.status;
+        const code = error?.code;
+        const name = error?.name;
+        const messageText = String(error?.message || error);
+
+        const retriable = this.isRetriableError(code, status, messageText, name);
+        if (!retriable || attempt >= maxAttempts) {
+          this.logger.error(
+            `Error calling OpenRouter API (image gen/edit), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
+            error,
+          );
+          try {
+            trace?.update({
+              output: String(error?.message || error),
+              metadata: { error: true },
+            });
+          } catch { }
+          break;
+        }
+
+        const backoffMs = this.getBackoffWithJitter(attempt);
+        this.logger.warn(
+          `OpenRouter image gen/edit call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+        );
+        await this.sleep(backoffMs);
+      }
+    }
+
+    throw lastError;
+  }
+
   async ask(message: any, model: string, fileContent?: string): Promise<string> {
     this.logger.log(
       `Sending request to OpenRouter API, model: ${model}, messages: ${message.length}, has file: ${!!fileContent}`,
