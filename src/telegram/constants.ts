@@ -46,16 +46,16 @@ export const MODELS_SUPPORTING_FILES = new Set<string>([
 // Итоговая стоимость для пользователя берётся через getPriceSP(model, hasActiveSub)
 export const MODEL_INFO: Record<string, { price: number; power: number }> = {
   // Top
-  'openai/gpt-5': { price: 0.03, power: 1000 },
-  'anthropic/claude-3.7-sonnet': { price: 0.03, power: 850 },
-  'google/gemini-2.5-pro': { price: 0.03, power: 750 },
+  'openai/gpt-5': { price: 0.03, power: 100 },
+  'anthropic/claude-3.7-sonnet': { price: 0.03, power: 85 },
+  'google/gemini-2.5-pro': { price: 0.03, power: 75 },
   // Mid
-  'x-ai/grok-4': { price: 0.013, power: 750 },
-  'deepseek/deepseek-chat-v3.1': { price: 0.013, power: 850 },
-  'google/gemini-2.5-flash-image-preview': { price: 0.013, power: 1000 },
-  'qwen/qwen2.5-vl-32b-instruct': { price: 0.013, power: 500 },
+  'x-ai/grok-4': { price: 0.013, power: 75 },
+  'deepseek/deepseek-chat-v3.1': { price: 0.013, power: 85 },
+  'google/gemini-2.5-flash-image-preview': { price: 0.013, power: 100 },
+  'qwen/qwen2.5-vl-32b-instruct': { price: 0.013, power: 50 },
   // Base
-  'openai/gpt-4o-mini': { price: 0, power: 200 },
+  'openai/gpt-4o-mini': { price: 0, power: 20 },
 };
 
 // Индивидуальные цены (SP/запрос) для каждой модели
@@ -63,9 +63,9 @@ export const MODEL_PRICES_SP: Record<string, { withSub: number; withoutSub: numb
   'openai/gpt-5': { withoutSub: 0.03, withSub: 0.02 },
   'google/gemini-2.5-flash-image-preview': { withoutSub: 0.05, withSub: 0.03 },
   'anthropic/claude-3.7-sonnet': { withoutSub: 0.03, withSub: 0.02 },
-  'x-ai/grok-4': { withoutSub: 0.03, withSub: 0.02 },
+  'x-ai/grok-4': { withoutSub: 0.03, withSub: 0.01 },
   'google/gemini-2.5-pro': { withoutSub: 0.2, withSub: 0.1 },
-  'deepseek/deepseek-chat-v3.1': { withoutSub: 0.03, withSub: 0.02 },
+  'deepseek/deepseek-chat-v3.1': { withoutSub: 0.03, withSub: 0.01 },
   'qwen/qwen2.5-vl-32b-instruct': { withoutSub: 0.02, withSub: 0.01 },
   'openai/gpt-4o-mini': { withoutSub: 0, withSub: 0 },
 };
