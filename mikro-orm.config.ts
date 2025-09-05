@@ -30,11 +30,33 @@ const buildOptions = (databaseUrl: string, sslEnabled: boolean) => {
   return {
     ...connection,
     driver: PostgreSqlDriver,
+    forceUtcTimezone: true,
     driverOptions: {
       connection: {
-        ssl: sslEnabled ? { rejectUnauthorized: false } : false,
+        ssl:
+          process.env.DATABASE_SSL === 'true'
+            ? {
+              rejectUnauthorized: false,
+            }
+            : false,
+        connectionTimeoutMillis: 10000,
+        idleTimeoutMillis: 30000,
+        max: 20,
+        min: 5,
+        acquireTimeoutMillis: 30000,
+        createTimeoutMillis: 10000,
+        destroyTimeoutMillis: 5000,
+        reapIntervalMillis: 1000,
+        createRetryIntervalMillis: 200,
+        keepAlive: true,
+        keepAliveInitialDelayMillis: 0,
       },
     },
+    // driverOptions: {
+    //   connection: {
+    //     ssl: sslEnabled ? { rejectUnauthorized: false } : false,
+    //   },
+    // },
     debug: true,
     entities: ['dist/**/*.entity.js'],
     entitiesTs: ['src/**/*.entity.ts'],
