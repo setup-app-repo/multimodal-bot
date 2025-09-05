@@ -61,7 +61,7 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
         } catch {
           try {
             await ctx.deleteMessage();
-          } catch {}
+          } catch { }
           await ctx.reply('💎', { reply_markup: keyboard });
         }
       } catch (error) {
@@ -91,7 +91,13 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
         const hasEnough = await setupAppService.have(telegramId, PREMIUM_SUBSCRIPTION_COST_SP);
         if (!hasEnough) {
           const currentBalance = await setupAppService.getBalance(telegramId);
-          const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+          let url: string | undefined;
+          try {
+            url = await setupAppService.getBuySetupPointsUrl();
+          } catch { }
+          const keyboard = url
+            ? new InlineKeyboard().webApp(t(ctx, 'topup_sp_button'), url)
+            : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
           await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
             reply_markup: keyboard,
             parse_mode: 'HTML',
@@ -115,7 +121,13 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
         const message = String(error?.message || '');
         if (message.includes('INSUFFICIENT_FUNDS')) {
           const currentBalance = await setupAppService.getBalance(telegramId);
-          const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+          let url: string | undefined;
+          try {
+            url = await setupAppService.getBuySetupPointsUrl();
+          } catch { }
+          const keyboard = url
+            ? new InlineKeyboard().webApp(t(ctx, 'topup_sp_button'), url)
+            : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
           await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
             reply_markup: keyboard,
             parse_mode: 'HTML',
@@ -160,7 +172,7 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       } catch {
         try {
           await ctx.deleteMessage();
-        } catch {}
+        } catch { }
         await ctx.reply(msg);
       }
       return;
@@ -175,20 +187,20 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       const locale = getLocaleCode(ctx);
       const expiresAt = activeSub?.periodEnd
         ? new Date(activeSub.periodEnd)
-            .toLocaleDateString(locale, {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })
-            .replace(/[\u2068\u2069]/g, '')
+          .toLocaleDateString(locale, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
+          .replace(/[\u2068\u2069]/g, '')
         : '';
       const confirmText = targetEnable
         ? t(ctx, 'premium_autorenew_confirm_enable', {
-            expires_at: expiresAt,
-          }).replace(/\\n/g, '\n')
+          expires_at: expiresAt,
+        }).replace(/\\n/g, '\n')
         : t(ctx, 'premium_autorenew_confirm_disable', {
-            expires_at: expiresAt,
-          }).replace(/\\n/g, '\n');
+          expires_at: expiresAt,
+        }).replace(/\\n/g, '\n');
       const kb = new InlineKeyboard()
         .text(
           t(ctx, 'premium_autorenew_confirm_yes'),
@@ -217,7 +229,7 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       } catch {
         try {
           await ctx.deleteMessage();
-        } catch {}
+        } catch { }
         await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
       }
       return;
@@ -236,7 +248,7 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       } catch {
         try {
           await ctx.deleteMessage();
-        } catch {}
+        } catch { }
         await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
       }
       return;
@@ -253,7 +265,7 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       } catch {
         try {
           await ctx.deleteMessage();
-        } catch {}
+        } catch { }
         await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
       }
       return;
@@ -265,7 +277,13 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       const hasEnough = await setupAppService.have(telegramId, PREMIUM_SUBSCRIPTION_COST_SP);
       if (!hasEnough) {
         const currentBalance = await setupAppService.getBalance(telegramId);
-        const keyboard = new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
+        let url: string | undefined;
+        try {
+          url = await setupAppService.getBuySetupPointsUrl();
+        } catch { }
+        const keyboard = url
+          ? new InlineKeyboard().webApp(t(ctx, 'topup_sp_button'), url)
+          : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
         await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
           reply_markup: keyboard,
           parse_mode: 'HTML',
@@ -285,7 +303,7 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       } catch {
         try {
           await ctx.deleteMessage();
-        } catch {}
+        } catch { }
         await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
       }
       return;

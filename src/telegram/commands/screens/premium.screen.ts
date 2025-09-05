@@ -66,6 +66,10 @@ export class PremiumScreen {
       balance: String(balance),
     }).replace(/\\n/g, '\n');
 
+    let topupUrl: string | undefined;
+    try {
+      topupUrl = await setupAppService.getBuySetupPointsUrl();
+    } catch { }
     const keyboard = new InlineKeyboard()
       .text(t(ctx, 'premium_extend_30_button'), 'premium:extend')
       .row()
@@ -80,7 +84,7 @@ export class PremiumScreen {
         'premium:toggle_autorenew',
       )
       .row()
-      .text(t(ctx, 'topup_sp_button'), 'wallet:topup')
+    [topupUrl ? 'webApp' : 'text'](t(ctx, 'topup_sp_button'), topupUrl || 'wallet:topup')
       .row()
       .text(t(ctx, 'premium_back_button'), 'ui:back');
 

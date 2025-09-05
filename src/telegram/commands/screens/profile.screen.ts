@@ -13,7 +13,7 @@ import { getModelDisplayName } from '../../utils/model-display';
 import { RegisterCommandsDeps, ScreenData } from '../utils/types';
 
 export class ProfileScreen {
-  constructor(private deps: RegisterCommandsDeps) {}
+  constructor(private deps: RegisterCommandsDeps) { }
 
   private getLanguageNameWithoutFlag(ctx: BotContext, code: string): string {
     const { t } = this.deps;
@@ -44,7 +44,7 @@ export class ProfileScreen {
     let spBalance = 0;
     try {
       spBalance = await setupAppService.getBalance(ctx.from?.id as number);
-    } catch {}
+    } catch { }
     const isPremium = await subscriptionService.hasActiveSubscription(String(ctx.from?.id));
     const premiumLabel = isPremium ? t(ctx, 'yes') : t(ctx, 'no');
 
@@ -69,11 +69,16 @@ export class ProfileScreen {
       `${modelLine}\n` +
       `${langLine}`;
 
+    let topupUrl: string | undefined;
+    try {
+      topupUrl = await setupAppService.getBuySetupPointsUrl();
+    } catch { }
+
     const keyboard = new InlineKeyboard()
       .text(t(ctx, 'profile_language_button'), 'profile_language')
       .text(t(ctx, 'profile_premium_button'), 'profile:premium')
       .row()
-      .text(t(ctx, 'topup_sp_button'), 'wallet:topup')
+    [topupUrl ? 'webApp' : 'text'](t(ctx, 'topup_sp_button'), topupUrl || 'wallet:topup')
       .row()
       .text(t(ctx, 'profile_clear_button'), 'profile_clear');
 

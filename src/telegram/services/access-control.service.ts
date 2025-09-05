@@ -23,7 +23,7 @@ export class AccessControlService {
     private readonly subscriptionService: SubscriptionService,
     private readonly setupAppService: SetupAppService,
     private readonly i18n: I18nService,
-  ) {}
+  ) { }
 
   /**
    * Проверяет доступ пользователя к использованию модели с учетом подписки, SP и лимитов
@@ -104,8 +104,13 @@ export class AccessControlService {
     const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
     const message = this.i18n.t('insufficient_funds', userLang);
     const buttonText = this.i18n.t('topup_sp_button', userLang);
-
-    const keyboard = new InlineKeyboard().text(buttonText, 'wallet:topup');
+    let url: string | undefined;
+    try {
+      url = await this.setupAppService.getBuySetupPointsUrl();
+    } catch { }
+    const keyboard = url
+      ? new InlineKeyboard().webApp(buttonText, url)
+      : new InlineKeyboard().text(buttonText, 'wallet:topup');
     await ctx.reply(message, { reply_markup: keyboard });
   }
 
