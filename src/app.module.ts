@@ -17,6 +17,7 @@ import { SetupAppModule } from './setup-app/setup-app.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { TelegramModule } from './telegram/telegram.module';
 import { UserModule } from './user/user.module';
+import { UserLogsModule } from './user-logs/user-logs.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { UserModule } from './user/user.module';
     UserModule,
     SubscriptionModule,
     NotificationModule,
+    UserLogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

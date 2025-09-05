@@ -58,7 +58,7 @@ const buildOptions = (databaseUrl: string, sslEnabled: boolean) => {
     migrations: {
       tableName: 'mikro_orm_migrations',
       path: './dist/migrations',
-      pathTs: './src/migrations',
+      pathTs: './migrations',
     },
   } satisfies Options<PostgreSqlDriver>;
 };

@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { UserLogsService } from 'src/user-logs/user-logs.service';
 import { GrammyContext, SetupApp } from '@setup-app-repo/setup.app-sdk';
 
 import { SetupAppConfigService } from './setup-app-config.service';
@@ -8,7 +9,10 @@ export class SetupAppService {
   private readonly logger = new Logger(SetupAppService.name);
   private setupApp: SetupApp;
 
-  constructor(private readonly setupAppConfigService: SetupAppConfigService) {}
+  constructor(
+    private readonly setupAppConfigService: SetupAppConfigService,
+    private readonly userLogsService: UserLogsService,
+  ) { }
 
   async onModuleInit(): Promise<void> {
     try {
@@ -72,7 +76,13 @@ export class SetupAppService {
   }
 
   async deduct(telegramId: number, amount: number, description: string) {
-    return this.setupApp.deduct(telegramId, amount, description);
+    const result = await this.setupApp.deduct(telegramId, amount, description);
+    try {
+      await this.userLogsService.log(String(telegramId), `DEDUCT ${amount} SP — ${description}`);
+    } catch (e) {
+      this.logger.warn(`Failed to write user log for deduct: ${String(e)}`);
+    }
+    return result;
   }
 
   async getBalance(telegramId: number) {
