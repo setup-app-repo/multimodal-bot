@@ -58,6 +58,12 @@ premium_autorenew_confirm_disable = ⏹ Desativar renovação automática?
 premium_autorenew_confirm_yes = ✅ Confirmar
 premium_autorenew_confirm_no = ❌ Cancelar
 
+# Confirmação de renovação
+premium_extend_confirm = 🔁 Confirmar renovação
+premium_extend_confirm_yes = ✅ Confirmar
+premium_extend_confirm_no = 🚫 Cancelar
+premium_extend_success = <b>✅ Renovação realizada com sucesso!</b>\n\n📅 Data de término da assinatura: {$end_date}
+
 # Premium — status ativo
 premium_active_title = ⭐ <b>Premium ativo</b>
 premium_active_text = \n📅 <b>Válido até:</b> {$expires_at}\n⏳ <b>Restante:</b> {$days_left} dias\n🔄 <b>Renovação automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Vantagens:</b>\n• Desconto em solicitações pagas\n• Prioridade na fila (respostas mais rápidas)\n• Limites aumentados e acesso a modelos poderosos\n• Janela de contexto estendida (mais histórico de conversa salvo)\n• Suporte 24/7\n• Estabilidade garantida mesmo em picos de carga

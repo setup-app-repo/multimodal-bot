@@ -114,6 +114,8 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
           .text(t(ctx, 'premium_enable_autorenew_button'), 'premium:enable_autorenew')
           .row()
           .text(t(ctx, 'premium_later_button'), 'profile:back');
+        // Удаляем сообщение с подтверждением/премиум-текстом
+        try { await ctx.deleteMessage(); } catch { }
         await ctx.reply(t(ctx, 'premium_activated_success'), {
           reply_markup: keyboard,
         });
@@ -168,12 +170,12 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
         expires_at: expiresAt,
       }).replace(/\\n/g, '\n');
       try {
-        await ctx.editMessageText(msg);
+        await ctx.editMessageText(msg, { parse_mode: 'HTML' });
       } catch {
         try {
           await ctx.deleteMessage();
         } catch { }
-        await ctx.reply(msg);
+        await ctx.reply(msg, { parse_mode: 'HTML' });
       }
       return;
     }
@@ -273,38 +275,65 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
 
     if (data === 'premium:extend') {
       await safeAnswerCallbackQuery(ctx);
-      const telegramId = ctx.from?.id;
-      const hasEnough = await setupAppService.have(telegramId, PREMIUM_SUBSCRIPTION_COST_SP);
-      if (!hasEnough) {
-        const currentBalance = await setupAppService.getBalance(telegramId);
-        let url: string | undefined;
-        try {
-          url = await setupAppService.getBuySetupPointsUrl();
-        } catch { }
-        const keyboard = url
-          ? new InlineKeyboard().webApp(t(ctx, 'topup_sp_button'), url)
-          : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
-        await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
-          reply_markup: keyboard,
-          parse_mode: 'HTML',
-        });
-        return;
-      }
-      ensurePremiumDefaults(ctx);
-      const current = new Date(ctx.session.premiumExpiresAt as string);
-      const extended = new Date(current.getTime() + 30 * 24 * 60 * 60 * 1000);
-      ctx.session.premiumExpiresAt = extended.toISOString();
+      const kb = new InlineKeyboard()
+        .text(t(ctx, 'premium_extend_confirm_yes'), 'premium:extend:confirm')
+        .row()
+        .text(t(ctx, 'premium_extend_confirm_no'), 'premium:extend:cancel');
+      await renderScreen(ctx, {
+        text: t(ctx, 'premium_extend_confirm'),
+        keyboard: kb,
+        parse_mode: 'HTML',
+      });
+      return;
+    }
+
+    if (data === 'premium:extend:cancel') {
+      await safeAnswerCallbackQuery(ctx);
       const { text, keyboard } = await premiumScreen.buildActive(ctx);
+      await renderScreen(ctx, { text, keyboard, parse_mode: 'HTML' });
+      return;
+    }
+
+    if (data === 'premium:extend:confirm') {
+      await safeAnswerCallbackQuery(ctx);
+      const telegramId = ctx.from?.id;
       try {
-        await ctx.editMessageText(text, {
-          reply_markup: keyboard,
-          parse_mode: 'HTML',
-        });
-      } catch {
-        try {
-          await ctx.deleteMessage();
-        } catch { }
+        const updated = await subscriptionService.extendActiveSubscriptionWithCharge(
+          telegramId,
+          PREMIUM_SUBSCRIPTION_COST_SP,
+          'Продление подписки "Premium" на 30 дней',
+          30,
+        );
+        const locale = getLocaleCode(ctx);
+        const endDate = new Date(updated.periodEnd)
+          .toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' })
+          .replace(/[\u2068\u2069]/g, '');
+        // Удаляем сообщение с подтверждением
+        try { await ctx.deleteMessage(); } catch { }
+        const successText = t(ctx, 'premium_extend_success', { end_date: endDate }).replace(/\\n/g, '\n');
+        await ctx.reply(successText, { parse_mode: 'HTML' });
+        const { text, keyboard } = await premiumScreen.buildActive(ctx);
         await ctx.reply(text, { reply_markup: keyboard, parse_mode: 'HTML' });
+      } catch (error: any) {
+        const message = String(error?.message || '');
+        if (message.includes('INSUFFICIENT_FUNDS')) {
+          const currentBalance = await setupAppService.getBalance(telegramId);
+          let url: string | undefined;
+          try { url = await setupAppService.getBuySetupPointsUrl(); } catch { }
+          const keyboard = url
+            ? new InlineKeyboard().webApp(t(ctx, 'topup_sp_button'), url)
+            : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
+          await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
+            reply_markup: keyboard,
+            parse_mode: 'HTML',
+          });
+        } else if (message.includes('NO_ACTIVE_SUBSCRIPTION')) {
+          const screen = await premiumScreen.build(ctx);
+          await renderScreen(ctx, screen);
+        } else {
+          console.error('premium:extend:confirm failed', error);
+          await ctx.reply(t(ctx, 'unexpected_error'));
+        }
       }
       return;
     }

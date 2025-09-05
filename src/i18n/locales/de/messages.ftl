@@ -58,6 +58,12 @@ premium_autorenew_confirm_disable = ⏹ Automatische Verlängerung deaktivieren?
 premium_autorenew_confirm_yes = ✅ Bestätigen
 premium_autorenew_confirm_no = ❌ Abbrechen
 
+# Verlängerungsbestätigung
+premium_extend_confirm = 🔁 Verlängerung bestätigen
+premium_extend_confirm_yes = ✅ Bestätigen
+premium_extend_confirm_no = 🚫 Abbrechen
+premium_extend_success = <b>✅ Verlängerung erfolgreich!</b>\n\n📅 Ablaufdatum des Abonnements: {$end_date}
+
 # Premium — aktiver Status
 premium_active_title = ⭐ <b>Premium aktiv</b>
 premium_active_text = \n📅 <b>Gültig bis:</b> {$expires_at}\n⏳ <b>Verbleibend:</b> {$days_left} Tage\n🔄 <b>Automatische Verlängerung:</b> <b>{$autorenew}</b>\n💰 <b>Guthaben:</b> {$balance} SP\n\n<b>Vorteile:</b>\n• Rabatt auf kostenpflichtige Anfragen\n• Priorität in der Warteschlange (schnellere Antworten)\n• Höhere Limits und Zugang zu leistungsstarken Modellen\n• Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)\n• 24/7 Support\n• Garantierte Stabilität auch bei Spitzenlast

@@ -64,6 +64,12 @@ premium_autorenew_toggle_button_on = ⚙️ Auto-renewal: {$on}
 premium_autorenew_toggle_button_off = ⚙️ Auto-renewal: {$off}
 switch_on = ON
 switch_off = OFF
+
+# Extend confirmation
+premium_extend_confirm = 🔁 Confirm renewal
+premium_extend_confirm_yes = ✅ Confirm
+premium_extend_confirm_no = 🚫 Cancel
+premium_extend_success = <b>✅ Renewal successful!</b>\n\n📅 Subscription end date: {$end_date}
 # Menu buttons
 help_button = Help
 profile_button = Profile

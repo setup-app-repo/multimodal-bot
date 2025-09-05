@@ -14,7 +14,7 @@ export class SubscriptionService {
     private readonly em: EntityManager,
     private readonly setupAppService: SetupAppService,
     @InjectQueue('subscription-renewal') private readonly renewalQueue: Queue,
-  ) {}
+  ) { }
   /**
    * Списывает средства у пользователя через Setup.app и создаёт запись подписки в БД в одной операции.
    */
@@ -112,6 +112,50 @@ export class SubscriptionService {
     });
 
     return subscription;
+  }
+
+  @CreateRequestContext()
+  /**
+   * Продлевает активную подписку на periodDays с предварительной проверкой и списанием SP
+   */
+  async extendActiveSubscriptionWithCharge(
+    telegramId: number,
+    amount: number,
+    description: string,
+    periodDays: number = 30,
+  ): Promise<Subscription> {
+    const now = new Date();
+    const user = await this.em.findOne(User, { telegramId: String(telegramId) });
+    if (!user) {
+      throw new Error('USER_NOT_FOUND');
+    }
+
+    const active = await this.em.findOne(Subscription, {
+      user,
+      status: 'active',
+      periodStart: { $lte: now },
+      periodEnd: { $gte: now },
+    });
+
+    if (!active) {
+      throw new Error('NO_ACTIVE_SUBSCRIPTION');
+    }
+
+    const hasEnoughSP = await this.setupAppService.have(telegramId, amount);
+    if (!hasEnoughSP) {
+      throw new Error('INSUFFICIENT_FUNDS');
+    }
+
+    await this.setupAppService.deduct(telegramId, amount, description);
+
+    return await this.em.transactional(async (tem) => {
+      const currentEnd = new Date(active.periodEnd);
+      const newEnd = new Date(currentEnd);
+      newEnd.setDate(newEnd.getDate() + periodDays);
+      active.periodEnd = newEnd;
+      await tem.persistAndFlush(active);
+      return active;
+    });
   }
 
   @CreateRequestContext()
