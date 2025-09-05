@@ -13,7 +13,8 @@ export const buildHelpText = (ctx: BotContext, t: TranslateFn) => {
     `${t(ctx, 'help_language')}\n` +
     `${t(ctx, 'help_clear')}\n` +
     `${t(ctx, 'help_billing')}\n\n` +
-    `${t(ctx, 'help_files')}\n\n` +
+    `${t(ctx, 'help_files')}\n` +
+    `${t(ctx, 'help_photos')}\n\n` +
     `${t(ctx, 'help_content_rules')}`
   );
 };

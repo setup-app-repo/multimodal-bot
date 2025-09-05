@@ -101,6 +101,7 @@ help_billing = /billing — facturación y uso
 
 
 help_files = Archivos soportados (hasta 15 MB): PDF, DOCX, PPTX, CSV, texto.
+help_photos = Fotos soportadas: JPG, JPEG, PNG, WEBP.
 help_content_rules = Restricciones de contenido: prohibidos materiales ilegales, maliciosos, ofensivos.
 
 # Soporte
@@ -180,6 +181,7 @@ daily_limit_reached =  🚫 Se alcanzó el límite diario de solicitudes gratuit
 warning_select_model_first =  ⚠️ Primero selecciona un modelo a través de /model
 warning_file_size_limit =  ⚠️ El tamaño del archivo excede el límite de 15 MB.
 warning_unsupported_file_type =  ⚠️ Solo se soportan archivos PDF, DOCX, PPTX, CSV y de texto hasta 15 MB.
+warning_unsupported_photo_type =  ⚠️ Solo se admiten fotos JPG, JPEG, PNG o WEBP.
 warning_select_model_before_file =  ⚠️ Primero selecciona un modelo a través de /model, luego envía el archivo.
 warning_model_no_file_support =  🚫 El modelo actual no soporta trabajo con archivos. Por favor, selecciona otro en /model.
 warning_model_no_voice_support =  🚫 Este modelo no soporta mensajes de voz. Por favor, prueba otro modelo.

@@ -5,7 +5,7 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 
-import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID } from '../constants';
+import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID, IMAGE_EXTENSIONS, IMAGE_EXTENSION_TO_MIME } from '../constants';
 import { BotContext } from '../interfaces';
 import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
 
@@ -72,8 +72,18 @@ export class PhotoHandlerService {
       const fileUrl = `https://api.telegram.org/file/bot${token}/${file.file_path}`;
       const resp = await fetch(fileUrl);
       const buffer = Buffer.from(await resp.arrayBuffer());
+      // Проверка формата по расширению пути (jpg/jpeg/png/webp)
+      const pathLower = file.file_path.toLowerCase();
+      const ext = pathLower.split('.').pop() || '';
+      const allowed = IMAGE_EXTENSIONS.has(ext);
+      if (!allowed) {
+        this.logger.warn(`User ${userId} sent unsupported photo type: ${file.file_path}`);
+        await ctx.reply(this.t(ctx, 'warning_unsupported_photo_type'));
+        return;
+      }
       const base64 = buffer.toString('base64');
-      const dataUrl = `data:image/jpeg;base64,${base64}`;
+      const mimeType = IMAGE_EXTENSION_TO_MIME[ext] || 'image/jpeg';
+      const dataUrl = `data:${mimeType};base64,${base64}`;
 
       const caption = ctx.message.caption?.trim();
 
@@ -86,15 +96,6 @@ export class PhotoHandlerService {
       const price = accessResult.price;
 
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
-      const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
-      let stickerMessageId: number | null = null;
-      try {
-        const stickerMessage = await ctx.api.sendSticker(
-          ctx.chat.id,
-          PROCESSING_STICKER_FILE_ID,
-        );
-        stickerMessageId = (stickerMessage as any)?.message_id ?? null;
-      } catch { }
 
       const history = await this.redisService.getHistory(userId);
 
@@ -104,13 +105,6 @@ export class PhotoHandlerService {
         [{ mimeType: 'image/jpeg', dataUrl }],
         caption || undefined,
       );
-
-      try {
-        await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id);
-        if (typeof stickerMessageId === 'number') {
-          try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
-        }
-      } catch { }
 
       // Списание SP через AccessControlService
       await this.accessControlService.deductSPIfNeeded(
@@ -126,10 +120,11 @@ export class PhotoHandlerService {
       const modelDisplayName = getModelDisplayName(model);
       const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
       const safeAnswer = escapeMarkdown(answer);
+      const finalMessage = modelInfo + safeAnswer;
       await sendLongMessage(
         ctx,
         (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
-        modelInfo + safeAnswer,
+        finalMessage,
         { parse_mode: 'Markdown' },
       );
     } catch (error) {

@@ -8,6 +8,7 @@ import {
   ALLOWED_MIME_TYPES,
   MODELS_SUPPORTING_FILES,
   DEFAULT_MODEL,
+  DOC_EXTENSIONS,
 } from '../constants';
 import { BotContext } from '../interfaces';
 
@@ -23,7 +24,7 @@ export class DocumentHandlerService {
     private readonly redisService: RedisService,
     private readonly telegramFileService: TelegramFileService,
     private readonly accessControlService: AccessControlService,
-  ) {}
+  ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
     const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
@@ -64,6 +65,16 @@ export class DocumentHandlerService {
         return;
       }
 
+      // Дополнительная проверка по расширению имени файла
+      const name = (doc.file_name || '').toLowerCase();
+      const ext = name.split('.').pop() || '';
+      const hasAllowedExt = DOC_EXTENSIONS.has(ext);
+      if (!hasAllowedExt) {
+        this.logger.warn(`User ${userId} tried to upload unsupported file extension: ${doc.file_name}`);
+        await ctx.reply(this.t(ctx, 'warning_unsupported_file_type'));
+        return;
+      }
+
       if (!MODELS_SUPPORTING_FILES.has(model)) {
         this.logger.warn(`User ${userId} tried to upload file with unsupported model: ${model}`);
         await ctx.reply(this.t(ctx, 'warning_model_no_file_support'));
@@ -86,15 +97,15 @@ export class DocumentHandlerService {
 
       await ctx.reply(
         `${this.t(ctx, 'file_accepted')}\n\n` +
-          `${this.t(ctx, 'file_name', { name: doc.file_name })}\n` +
-          `${this.t(ctx, 'file_size', { size: (size / 1024 / 1024).toFixed(2) })}\n` +
-          `${this.t(ctx, 'file_type', { type: mime })}`,
+        `${this.t(ctx, 'file_name', { name: doc.file_name })}\n` +
+        `${this.t(ctx, 'file_size', { size: (size / 1024 / 1024).toFixed(2) })}\n` +
+        `${this.t(ctx, 'file_type', { type: mime })}`,
       );
     } catch (error) {
       this.logger.error(`Error processing document from user ${String(ctx.from?.id)}:`, error);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
-      } catch {}
+      } catch { }
     }
   }
 }

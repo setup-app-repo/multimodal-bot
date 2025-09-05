@@ -21,6 +21,18 @@ export const ALLOWED_MIME_TYPES = new Set([
   'text/plain',
 ]);
 
+// Расширения файлов (без точки) для унификации проверок
+export const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+export const DOC_EXTENSIONS = new Set(['pdf', 'docx', 'pptx', 'csv', 'txt']);
+
+// Маппинг расширений изображений в корректные MIME-типы
+export const IMAGE_EXTENSION_TO_MIME: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  webp: 'image/webp',
+};
+
 // Модели, поддерживающие работу с файлами (валидируем перед отправкой)
 export const MODELS_SUPPORTING_FILES = new Set<string>([
   'openai/gpt-5',
