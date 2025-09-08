@@ -214,6 +214,36 @@ export class RedisService implements OnModuleDestroy {
   }
 
   /**
+   * SET key value NX EX ttlSeconds — установить ключ, только если он не существует (lock), с истечением.
+   * Возвращает true, если ключ был установлен (лок получен), иначе false.
+   */
+  async setIfNotExists(key: string, value: string, ttlSeconds: number): Promise<boolean> {
+    const res = await (this.client as any).set(key, value, 'NX', 'EX', ttlSeconds);
+    return res === 'OK';
+  }
+
+  /**
+   * Устанавливает TTL (в секундах) для ключа.
+   */
+  async expire(key: string, ttlSeconds: number): Promise<void> {
+    await this.client.expire(key, ttlSeconds);
+  }
+
+  /**
+   * Обертка над RPUSH
+   */
+  async rpush(key: string, value: string): Promise<void> {
+    await this.client.rpush(key, value);
+  }
+
+  /**
+   * Читает весь список (LRANGE 0 -1)
+   */
+  async lrangeAll(key: string): Promise<string[]> {
+    return await this.client.lrange(key, 0, -1);
+  }
+
+  /**
    * Возвращает количество секунд до ближайшей полуночи (локальное серверное время)
    */
   private getSecondsUntilMidnight(): number {

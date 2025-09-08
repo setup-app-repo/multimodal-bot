@@ -71,9 +71,9 @@ premium_extend_confirm_yes = ✅ Confirm
 premium_extend_confirm_no = 🚫 Cancel
 premium_extend_success = <b>✅ Renewal successful!</b>\n\n📅 Subscription end date: {$end_date}
 # Menu buttons
-help_button = Help
-profile_button = Profile
-model_selection_button = Model Selection
+help_button = 🛟 Help
+profile_button = 🪪 Profile
+model_selection_button = 🧠 Model Selection
 profile_change_plan_button = Change plan
 profile_language_button = 🌍 Language
 

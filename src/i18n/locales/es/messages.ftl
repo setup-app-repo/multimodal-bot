@@ -73,9 +73,9 @@ premium_autorenew_toggle_button_off = ⚙️ Renovación automática: {$off}
 switch_on = ACTIVADO
 switch_off = DESACTIVADO
 # Botones del menú
-help_button = Ayuda
-profile_button = Perfil
-model_selection_button = Seleccionar modelo
+help_button = 🛟 Ayuda
+profile_button = 🪪 Perfil
+model_selection_button = 🧠 Seleccionar modelo
 profile_language_button = 🌍 Idioma
 profile_change_plan_button = Cambiar plan
 

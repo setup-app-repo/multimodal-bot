@@ -73,9 +73,9 @@ premium_autorenew_toggle_button_off = ⚙️ Automatische Verlängerung: {$off}
 switch_on = EIN
 switch_off = AUS
 # Menü-Buttons
-help_button = Hilfe
-profile_button = Profil
-model_selection_button = Modell auswählen
+help_button = 🛟 Hilfe
+profile_button = 🪪 Profil
+model_selection_button = 🧠 Modell auswählen
 profile_language_button = 🌍 Sprache
 topup_sp_button = 💳 SP aufladen
 profile_change_plan_button = Tarif ändern
