@@ -187,7 +187,10 @@ export class RedisService implements OnModuleDestroy {
   }
 
   async clearHistory(userId: string) {
-    await this.client.del(this.getKey(userId));
+    try {
+      await this.client.del(this.getKey(userId));
+      await this.client.del(`chat:${userId}:last_image_dataurl`);
+    } catch { }
   }
 
   async set(key: string, value: any, ttlSeconds?: number) {
