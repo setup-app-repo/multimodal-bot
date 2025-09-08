@@ -133,13 +133,14 @@ export class VoiceHandlerService {
       await this.redisService.saveMessage(userId, 'assistant', answer);
 
       const modelDisplayName = getModelDisplayName(model);
-      const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
+      const modelLabel = this.t(ctx, 'model');
+      const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
       const safeAnswer = escapeMarkdown(answer);
       await sendLongMessage(
         ctx,
         (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
         modelInfo + safeAnswer,
-        { parse_mode: 'Markdown' },
+        { parse_mode: 'HTML' },
       );
     } catch (error) {
       this.logger.error(`Error processing voice from user ${String(ctx.from?.id)}:`, error);

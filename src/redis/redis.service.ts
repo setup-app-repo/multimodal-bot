@@ -268,6 +268,22 @@ export class RedisService implements OnModuleDestroy {
     return count;
   }
 
+  /**
+   * Сохраняет последнее сгенерированное изображение для пользователя
+   */
+  async setLastImageDataUrl(userId: string, dataUrl: string): Promise<void> {
+    const key = `chat:${userId}:last_image_dataurl`;
+    await this.client.set(key, dataUrl, 'EX', this.CHAT_TTL);
+  }
+
+  /**
+   * Получает последнее сгенерированное изображение для пользователя
+   */
+  async getLastImageDataUrl(userId: string): Promise<string | null> {
+    const key = `chat:${userId}:last_image_dataurl`;
+    return await this.client.get(key);
+  }
+
   async onModuleDestroy() {
     try {
       await this.client.quit();

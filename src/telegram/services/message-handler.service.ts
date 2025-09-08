@@ -166,9 +166,14 @@ export class MessageHandlerService {
     const { userId, model, prompt, price, processingMessageId, stickerMessageId } = params;
     try {
       await ctx.api.sendChatAction((ctx as any).chat.id, 'upload_photo');
+
+      // Получаем последнее изображение для контекста (для всех моделей генерации изображений)
+      const initImageDataUrl = await this.redisService.getLastImageDataUrl(userId) || undefined;
+
       const { images, text } = await this.openRouterService.generateOrEditImage(
         model,
         prompt,
+        initImageDataUrl,
       );
 
       // Списание SP
@@ -200,6 +205,10 @@ export class MessageHandlerService {
         const ext = first.mimeType === 'image/png' ? 'png' : first.mimeType === 'image/webp' ? 'webp' : 'jpg';
         const inputFile = new InputFile(first.buffer, `gen.${ext}`);
         await (ctx as any).api.sendPhoto((ctx as any).chat.id, inputFile, { caption, parse_mode: 'HTML' });
+
+        // Сохраняем последнее сгенерированное изображение для контекста
+        const imageDataUrl = `data:${first.mimeType};base64,${first.buffer.toString('base64')}`;
+        await this.redisService.setLastImageDataUrl(userId, imageDataUrl);
       } else if (text) {
         await (ctx as any).reply(text);
       } else {
@@ -298,14 +307,15 @@ export class MessageHandlerService {
     }
 
     const modelDisplayName = getModelDisplayName(model);
-    const modelInfo = ` 🤖 **${this.t(ctx as any, 'model')}:** ${modelDisplayName}\n\n`;
+    const modelLabel = this.t(ctx as any, 'model');
+    const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
     const safeAnswer = escapeMarkdown(answer);
     try {
       await sendLongMessage(
         ctx as any,
         (key: string, args?: Record<string, any>) => this.t(ctx as any, key, args),
         modelInfo + safeAnswer,
-        { parse_mode: 'Markdown' },
+        { parse_mode: 'HTML' },
       );
     } catch (err) {
       this.logger.error(`Failed to send answer to user ${userId}:`, err);

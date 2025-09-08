@@ -93,6 +93,11 @@ export class PhotoHandlerService {
           }
 
           await ctx.api.sendPhoto(ctx.chat!.id, inputFile, { caption: finalCaption, parse_mode: 'HTML' });
+
+          // Сохраняем последнее сгенерированное изображение для контекста
+          const imageDataUrl = `data:${first.mimeType};base64,${first.buffer.toString('base64')}`;
+          await this.redisService.setLastImageDataUrl(userId, imageDataUrl);
+
           await this.redisService.saveMessage(userId, 'user', album.caption || '[изображение]');
           await this.redisService.saveMessage(userId, 'assistant', text || '[image]');
         } else if (text && text.trim()) {
@@ -104,13 +109,14 @@ export class PhotoHandlerService {
           }
 
           const modelDisplayName = getModelDisplayName(model);
-          const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
+          const modelLabel = this.t(ctx, 'model');
+          const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
           const safeAnswer = escapeMarkdown(text);
           await sendLongMessage(
             ctx,
             (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
             modelInfo + safeAnswer,
-            { parse_mode: 'Markdown' },
+            { parse_mode: 'HTML' },
           );
           await this.redisService.saveMessage(userId, 'user', album.caption || '[изображение]');
           await this.redisService.saveMessage(userId, 'assistant', text);
@@ -124,22 +130,30 @@ export class PhotoHandlerService {
           album.caption || undefined,
         );
 
+        await this.redisService.saveMessage(userId, 'user', album.caption || '[изображение]');
+        await this.redisService.saveMessage(userId, 'assistant', answer);
+
+        // Сохраняем последнюю фотографию из альбома для контекста
+        if (album.images.length > 0) {
+          const lastImage = album.images[album.images.length - 1];
+          await this.redisService.setLastImageDataUrl(userId, lastImage.dataUrl);
+        }
+
         // Удаляем индикаторы обработки
         try { await ctx.api.deleteMessage(ctx.chat!.id, processingMessage.message_id); } catch { }
         if (stickerMessageId) {
           try { await ctx.api.deleteMessage(ctx.chat!.id, stickerMessageId); } catch { }
         }
 
-        await this.redisService.saveMessage(userId, 'user', album.caption || '[изображение]');
-        await this.redisService.saveMessage(userId, 'assistant', answer);
         const modelDisplayName = getModelDisplayName(model);
-        const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
+        const modelLabel = this.t(ctx, 'model');
+        const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
         const safeAnswer = escapeMarkdown(answer);
         await sendLongMessage(
           ctx,
           (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
           modelInfo + safeAnswer,
-          { parse_mode: 'Markdown' },
+          { parse_mode: 'HTML' },
         );
       }
     } catch (error) {
@@ -270,6 +284,17 @@ export class PhotoHandlerService {
 
       const price = accessResult.price;
 
+      // Отправляем индикатор обработки перед запросом к модели
+      const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
+      let stickerMessageId: number | null = null;
+      try {
+        const stickerMessage = await ctx.api.sendSticker(
+          ctx.chat.id,
+          PROCESSING_STICKER_FILE_ID,
+        );
+        stickerMessageId = (stickerMessage as any)?.message_id ?? null;
+      } catch { }
+
       await ctx.api.sendChatAction(ctx.chat.id, 'typing');
 
       const history = await this.redisService.getHistory(userId);
@@ -304,22 +329,47 @@ export class PhotoHandlerService {
             parts.push(`📝 <b>${descriptionLabel}:</b> ${caption.trim()}`);
           }
           const finalCaption = parts.join('\n\n').slice(0, 1024);
+
+          // Удаляем индикаторы обработки
+          try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch { }
+          if (stickerMessageId) {
+            try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
+          }
+
           await ctx.api.sendPhoto(ctx.chat.id, inputFile, { caption: finalCaption, parse_mode: 'HTML' });
+
+          // Сохраняем последнее сгенерированное изображение для контекста
+          const imageDataUrl = `data:${first.mimeType};base64,${first.buffer.toString('base64')}`;
+          await this.redisService.setLastImageDataUrl(userId, imageDataUrl);
+
           return;
         }
 
         // fallback на текст
         if (text) {
+          // Удаляем индикаторы обработки
+          try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch { }
+          if (stickerMessageId) {
+            try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
+          }
+
           const modelDisplayName = getModelDisplayName(model);
-          const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
+          const modelLabel = this.t(ctx, 'model');
+          const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
           const safeAnswer = escapeMarkdown(text);
           await sendLongMessage(
             ctx,
             (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
             modelInfo + safeAnswer,
-            { parse_mode: 'Markdown' },
+            { parse_mode: 'HTML' },
           );
           return;
+        }
+
+        // Удаляем индикаторы обработки при ошибке
+        try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch { }
+        if (stickerMessageId) {
+          try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
         }
 
         await ctx.reply(this.t(ctx, 'unexpected_error'));
@@ -344,15 +394,25 @@ export class PhotoHandlerService {
       await this.redisService.saveMessage(userId, 'user', caption || '[изображение]');
       await this.redisService.saveMessage(userId, 'assistant', answer);
 
+      // Сохраняем исходную фотографию для контекста
+      await this.redisService.setLastImageDataUrl(userId, dataUrl);
+
+      // Удаляем индикаторы обработки
+      try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch { }
+      if (stickerMessageId) {
+        try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
+      }
+
       const modelDisplayName = getModelDisplayName(model);
-      const modelInfo = ` 🤖 **${this.t(ctx, 'model')}:** ${modelDisplayName}\n\n`;
+      const modelLabel = this.t(ctx, 'model');
+      const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
       const safeAnswer = escapeMarkdown(answer);
       const finalMessage = modelInfo + safeAnswer;
       await sendLongMessage(
         ctx,
         (key: string, args?: Record<string, any>) => this.t(ctx, key, args),
         finalMessage,
-        { parse_mode: 'Markdown' },
+        { parse_mode: 'HTML' },
       );
     } catch (error) {
       this.logger.error(`Error processing photo from user ${String(ctx.from?.id)}:`, error);
