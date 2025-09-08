@@ -21,7 +21,7 @@ export class I18nService implements II18nService {
 
     this.config = {
       defaultLocale: this.configService.get<string>('FALLBACK_LANGUAGE', 'ru'),
-      supportedLocales: ['ru', 'en', 'es', 'de', 'pt', 'fr'],
+      supportedLocales: ['ru', 'en', 'es', 'de', 'pt', 'fr', 'vi'],
       localesPath: resolvedLocalesPath,
     };
 

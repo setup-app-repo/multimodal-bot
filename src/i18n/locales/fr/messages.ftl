@@ -130,6 +130,7 @@ language_spanish = 🇪🇸 Espagnol
 language_german = 🇩🇪 Allemand
 language_portuguese = 🇵🇹 Portugais
 language_french = 🇫🇷 Français
+language_vietnamese = 🇻🇳 Vietnamien
 language_switched = Langue changée en : {$language}
 
 # Facturation

@@ -125,6 +125,7 @@ language_spanish = 🇪🇸 Spanisch
 language_german = 🇩🇪 Deutsch
 language_portuguese = 🇵🇹 Portugiesisch
 language_french = 🇫🇷 Französisch
+language_vietnamese = 🇻🇳 Vietnamesisch
 language_switched = Sprache gewechselt zu: {$language}
 
 # Abrechnung

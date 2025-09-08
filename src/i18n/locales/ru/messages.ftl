@@ -138,6 +138,7 @@ language_spanish = 🇪🇸 Испанский
 language_german = 🇩🇪 Немецкий
 language_portuguese = 🇵🇹 Португальский
 language_french = 🇫🇷 Французский
+language_vietnamese = 🇻🇳 Вьетнамский
 language_switched = Язык переключён на: {$language}
 
 # Биллинг

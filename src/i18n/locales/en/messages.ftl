@@ -125,6 +125,7 @@ language_spanish = 🇪🇸 Spanish
 language_german = 🇩🇪 German
 language_portuguese = 🇵🇹 Portuguese
 language_french = 🇫🇷 French
+language_vietnamese = 🇻🇳 Vietnamese
 language_switched = Language switched to: {$language}
 
 # Billing

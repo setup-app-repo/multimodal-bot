@@ -128,6 +128,7 @@ language_spanish = 🇪🇸 Espanhol
 language_german = 🇩🇪 Alemão
 language_portuguese = 🇵🇹 Português
 language_french = 🇫🇷 Francês
+language_vietnamese = 🇻🇳 Vietnamita
 language_switched = Idioma alterado para: {$language}
 
 # Cobrança

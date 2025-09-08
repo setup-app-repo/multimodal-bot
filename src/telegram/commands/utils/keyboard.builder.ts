@@ -26,6 +26,8 @@ export class KeyboardBuilder {
       .row()
       .text(t(ctx, 'language_portuguese'), 'lang_pt')
       .row()
-      .text(t(ctx, 'language_french'), 'lang_fr');
+      .text(t(ctx, 'language_french'), 'lang_fr')
+      .row()
+      .text(t(ctx, 'language_vietnamese'), 'lang_vi');
   }
 }

@@ -42,7 +42,7 @@ export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterComm
     if (data.startsWith('lang_')) {
       const userId = String(ctx.from?.id);
       const code = data.replace('lang_', '');
-      const map: Record<string, string> = { en: 'en', ru: 'ru', es: 'es', de: 'de', pt: 'pt', fr: 'fr' };
+      const map: Record<string, string> = { en: 'en', ru: 'ru', es: 'es', de: 'de', pt: 'pt', fr: 'fr', vi: 'vi' };
       const locale = map[code] || 'en';
       const previousLang = await deps.redisService.get<string>(`chat:${userId}:lang`);
 
@@ -69,6 +69,7 @@ export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterComm
         de: 'language_german',
         pt: 'language_portuguese',
         fr: 'language_french',
+        vi: 'language_vietnamese',
       };
       const languageLabel = deps.i18n.t(languageKeyByCode[locale] || 'language_english', ctx.session.lang);
       await safeAnswerCallbackQuery(ctx, { text: t(ctx, 'language_switched', { language: languageLabel }) });
