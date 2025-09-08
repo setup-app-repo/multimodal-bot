@@ -62,10 +62,11 @@ export class MessageHandlerService {
           } catch { }
         }
 
-        fileContent = await this.telegramFileService.consumeLatestFileAndProcess(userId, ctx);
-        if (fileContent) {
+        const processed = await this.telegramFileService.consumeAllPendingFilesAndProcess(userId, ctx);
+        if (processed.combinedContent) {
+          fileContent = processed.combinedContent;
           this.logger.log(
-            `File processed successfully for user ${userId}, content length: ${fileContent.length} characters`,
+            `Processed ${processed.count} file(s) for user ${userId}, combined length: ${fileContent.length} characters`,
           );
         }
       } catch (fileError) {
