@@ -193,7 +193,7 @@ warning_free_model_no_media =  ⚠️ In the free model, photos/files/voice mess
 # Files
 file_accepted =  📎 File accepted! Now send your question, and I will analyze the file content.
 file_name =  📄 File name: {$name}
-file_size =  📊 Size: {$size} MB
+file_size =  📊 Size: {$size}
 file_type =  🔍 Type: {$type}
 file_analyzing =  🔍 Analyzing file content...
 

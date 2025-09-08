@@ -7,7 +7,7 @@ import { RedisService } from 'src/redis/redis.service';
 
 import { DEFAULT_MODEL, MODELS_SUPPORTING_AUDIO, PROCESSING_STICKER_FILE_ID } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { AudioConversionService } from './audio-conversion.service';
@@ -106,12 +106,14 @@ export class VoiceHandlerService {
       } catch { }
 
       const history = await this.redisService.getHistory(userId);
+      const contextImageDataUrl = await this.redisService.getLastImageDataUrl(userId).catch(() => null);
       const answer = await this.openRouterService.askWithAudio(
         history,
         model,
         base64Audio,
         format,
         undefined,
+        contextImageDataUrl || undefined,
       );
 
       try {
@@ -135,7 +137,8 @@ export class VoiceHandlerService {
       const modelDisplayName = getModelDisplayName(model);
       const modelLabel = this.t(ctx, 'model');
       const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
-      const safeAnswer = escapeMarkdown(answer);
+      const cleaned = stripCodeFences(answer);
+      const safeAnswer = escapeHtml(cleaned);
       await sendLongMessage(
         ctx,
         (key: string, args?: Record<string, any>) => this.t(ctx, key, args),

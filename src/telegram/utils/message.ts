@@ -12,6 +12,28 @@ export function escapeMarkdown(text: string): string {
 }
 
 /**
+ * Удаляет тройные бэктики ``` и одиночные ` из текста ответа модели
+ */
+export function stripCodeFences(text: string): string {
+  // Удаляем блоки ```lang ... ``` и просто ``` ... ```
+  let out = text.replace(/```[a-zA-Z0-9+-]*\n([\s\S]*?)```/g, '$1');
+  out = out.replace(/```([\s\S]*?)```/g, '$1');
+  // Удаляем одиночные инлайновые бэктики вокруг фраз
+  out = out.replace(/`([^`]+)`/g, '$1');
+  return out;
+}
+
+/**
+ * Экранирует спецсимволы для HTML parse_mode в Telegram
+ */
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+/**
  * Разбивает длинное сообщение на части, чтобы не превысить лимит Telegram (4096 символов)
  */
 export function splitLong(text: string, maxLength: number = 4096): string[] {

@@ -198,7 +198,7 @@ warning_free_model_no_media =  ⚠️ Dans le modèle gratuit, les photos/fichie
 # Fichiers
 file_accepted =  📎 Fichier accepté ! Maintenant envoyez votre question et j'analyserai le contenu du fichier.
 file_name =  📁 Nom du fichier : {$name}
-file_size =  📊 Größe : {$size} Mo
+file_size =  📊 Taille : {$size}
 file_type =  🔍 Type : {$type}
 file_analyzing =  🔍 Analyse du contenu du fichier...
 

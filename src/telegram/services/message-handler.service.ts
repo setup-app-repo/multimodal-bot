@@ -6,7 +6,7 @@ import { RedisService } from 'src/redis/redis.service';
 
 import { DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, escapeMarkdown, sendLongMessage } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { TelegramFileService } from './telegram-file.service';
@@ -249,7 +249,14 @@ export class MessageHandlerService {
     const { userId, model, history, fileContent, isFilePresent, price, processingMessageId, stickerMessageId } = params;
     let answer: string | undefined;
     try {
-      answer = await this.openRouterService.ask(history, model, fileContent);
+      // Добавляем последнее изображение как визуальный контекст для всех моделей, поддерживающих фото
+      const contextImageDataUrl = await this.redisService.getLastImageDataUrl(userId).catch(() => null);
+      answer = await this.openRouterService.ask(
+        history,
+        model,
+        fileContent,
+        contextImageDataUrl || undefined,
+      );
     } catch (err: any) {
       const status = (err && err.status) || (err && err.response && err.response.status);
       const code = err?.code;
@@ -309,7 +316,8 @@ export class MessageHandlerService {
     const modelDisplayName = getModelDisplayName(model);
     const modelLabel = this.t(ctx as any, 'model');
     const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
-    const safeAnswer = escapeMarkdown(answer);
+    const cleaned = stripCodeFences(answer);
+    const safeAnswer = escapeHtml(cleaned);
     try {
       await sendLongMessage(
         ctx as any,

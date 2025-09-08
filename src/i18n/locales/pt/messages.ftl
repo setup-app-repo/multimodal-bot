@@ -196,7 +196,7 @@ warning_free_model_no_media =  ⚠️ No modelo gratuito, fotos/arquivos/mensage
 # Arquivos
 file_accepted =  ✅ Arquivo aceito! Agora envie sua pergunta e analisarei o conteúdo do arquivo.
 file_name =  📄 Nome do arquivo: {$name}
-file_size =  📊 Tamanho: {$size} MB
+file_size =  📊 Tamanho: {$size}
 file_type =  🔧 Tipo: {$type}
 file_analyzing =  🔍 Analisando o conteúdo do arquivo...
 

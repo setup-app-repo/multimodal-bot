@@ -96,10 +96,16 @@ export class DocumentHandlerService {
 
       this.logger.log(`File ${doc.file_name} saved for user ${userId}, fileId: ${doc.file_id}`);
 
+      const humanSize = size < 1024
+        ? `${size} B`
+        : size < 1024 * 1024
+          ? `${(size / 1024).toFixed(2)} KB`
+          : `${(size / 1024 / 1024).toFixed(2)} MB`;
+
       await ctx.reply(
         `${this.t(ctx, 'file_accepted')}\n\n` +
         `${this.t(ctx, 'file_name', { name: doc.file_name })}\n` +
-        `${this.t(ctx, 'file_size', { size: (size / 1024 / 1024).toFixed(2) })}\n` +
+        `${this.t(ctx, 'file_size', { size: humanSize })}\n` +
         `${this.t(ctx, 'file_type', { type: mime })}`,
       );
     } catch (error) {

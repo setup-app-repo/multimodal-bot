@@ -75,6 +75,7 @@ export class OpenRouterService implements OnModuleDestroy {
     base64Audio: string,
     format: 'wav' | 'mp3',
     prompt?: string,
+    contextImageDataUrl?: string,
   ): Promise<string> {
     this.logger.log(
       `Sending audio request to OpenRouter API, model: ${model}, history: ${history.length}, hasPrompt: ${!!prompt}, format: ${format}`,
@@ -102,6 +103,10 @@ export class OpenRouterService implements OnModuleDestroy {
         format,
       },
     });
+
+    if (contextImageDataUrl) {
+      contentParts.push({ type: 'image_url', image_url: { url: contextImageDataUrl } });
+    }
 
     messagesForModel.push({ role: 'user', content: contentParts });
 
@@ -570,7 +575,7 @@ export class OpenRouterService implements OnModuleDestroy {
     throw lastError;
   }
 
-  async ask(message: any, model: string, fileContent?: string): Promise<string> {
+  async ask(message: any, model: string, fileContent?: string, contextImageDataUrl?: string): Promise<string> {
     this.logger.log(
       `Sending request to OpenRouter API, model: ${model}, messages: ${message.length}, has file: ${!!fileContent}`,
     );
@@ -593,6 +598,17 @@ export class OpenRouterService implements OnModuleDestroy {
         content: `Содержимое загруженного файла:\n\n${fileContent}\n\nПожалуйста, проанализируй этот файл и ответь на вопрос пользователя.`,
       };
       messagesForModel.push(fileMessage);
+    }
+
+    if (contextImageDataUrl) {
+      const imageContextMessage = {
+        role: 'user',
+        content: [
+          { type: 'text', text: 'В качестве визуального контекста приложено последнее изображение пользователя.' },
+          { type: 'image_url', image_url: { url: contextImageDataUrl } },
+        ],
+      } as any;
+      messagesForModel.push(imageContextMessage);
     }
 
     const maxAttempts = this.maxAttemptsDefault;

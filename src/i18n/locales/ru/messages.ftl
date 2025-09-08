@@ -210,7 +210,7 @@ warning_free_model_no_media =  ⚠️ В бесплатной модели по�
 # Файлы
 file_accepted =  📎 Файл принят! Теперь отправь свой вопрос, и я проанализирую содержимое файла.
 file_name =  📄 Имя файла: {$name}
-file_size =  📊 Размер: {$size} МБ
+file_size =  📊 Размер: {$size}
 file_type =  🔍 Тип: {$type}
 file_analyzing =  🔍 Анализирую содержимое файла...
 
