@@ -78,9 +78,12 @@ export class PhotoHandlerService {
           const ext = first.mimeType === 'image/png' ? 'png' : first.mimeType === 'image/webp' ? 'webp' : 'jpg';
           const inputFile = new InputFile(first.buffer, `result.${ext}`);
           const modelDisplayName = getModelDisplayName(model);
-          const parts: string[] = [` 🤖 ${this.t(ctx, 'model')}: ${modelDisplayName}`];
-          if (text && text.trim()) parts.push(text.trim());
-          if (album.caption && album.caption.trim()) parts.push(`📝 ${album.caption.trim()}`);
+          const modelLabel = this.t(ctx, 'model');
+          const descriptionLabel = this.t(ctx, 'image_description');
+          const parts: string[] = [`🤖 <b>${modelLabel}:</b> ${modelDisplayName}`];
+          if (album.caption && album.caption.trim()) {
+            parts.push(`📝 <b>${descriptionLabel}:</b> ${album.caption.trim()}`);
+          }
           const finalCaption = parts.join('\n\n').slice(0, 1024);
 
           // Удаляем индикаторы обработки
@@ -89,7 +92,7 @@ export class PhotoHandlerService {
             try { await ctx.api.deleteMessage(ctx.chat!.id, stickerMessageId); } catch { }
           }
 
-          await ctx.api.sendPhoto(ctx.chat!.id, inputFile, { caption: finalCaption });
+          await ctx.api.sendPhoto(ctx.chat!.id, inputFile, { caption: finalCaption, parse_mode: 'HTML' });
           await this.redisService.saveMessage(userId, 'user', album.caption || '[изображение]');
           await this.redisService.saveMessage(userId, 'assistant', text || '[image]');
         } else if (text && text.trim()) {
@@ -294,11 +297,14 @@ export class PhotoHandlerService {
           const ext = first.mimeType === 'image/png' ? 'png' : first.mimeType === 'image/webp' ? 'webp' : 'jpg';
           const inputFile = new InputFile(first.buffer, `edit.${ext}`);
           const modelDisplayName = getModelDisplayName(model);
-          const parts: string[] = [` 🤖 ${this.t(ctx, 'model')}: ${modelDisplayName}`];
-          if (text && text.trim()) parts.push(text.trim());
-          if (caption && caption.trim()) parts.push(`📝 ${caption.trim()}`);
+          const modelLabel = this.t(ctx, 'model');
+          const descriptionLabel = this.t(ctx, 'image_description');
+          const parts: string[] = [`🤖 <b>${modelLabel}:</b> ${modelDisplayName}`];
+          if (caption && caption.trim()) {
+            parts.push(`📝 <b>${descriptionLabel}:</b> ${caption.trim()}`);
+          }
           const finalCaption = parts.join('\n\n').slice(0, 1024);
-          await ctx.api.sendPhoto(ctx.chat.id, inputFile, { caption: finalCaption });
+          await ctx.api.sendPhoto(ctx.chat.id, inputFile, { caption: finalCaption, parse_mode: 'HTML' });
           return;
         }
 

@@ -220,6 +220,9 @@ plan_custom_limits = benutzerdefinierte Paketlimits
 model = Modell
 model_not_selected = — nicht ausgewählt —
 
+# Bilder
+image_description = Beschreibung
+
 # Systemnachrichten für Dateien
 file_content_message = Inhalt der hochgeladenen Datei:
 file_analysis_request = Bitte analysiere diese Datei und beantworte die Frage des Benutzers.

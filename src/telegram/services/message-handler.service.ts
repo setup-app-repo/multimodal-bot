@@ -188,16 +188,18 @@ export class MessageHandlerService {
 
       const modelDisplayName = getModelDisplayName(model);
       const modelLabel = this.t(ctx as any, 'model');
-      const captionParts: string[] = [` 🤖 ${modelLabel}: ${modelDisplayName}`];
-      if (text && text.trim()) captionParts.push(text.trim());
-      if (prompt && prompt.trim()) captionParts.push(`📝 ${prompt.trim()}`);
+      const descriptionLabel = this.t(ctx as any, 'image_description');
+      const captionParts: string[] = [`🤖 <b>${modelLabel}:</b> ${modelDisplayName}`];
+      if (prompt && prompt.trim()) {
+        captionParts.push(`📝 <b>${descriptionLabel}:</b> ${prompt.trim()}`);
+      }
       const caption = captionParts.join('\n\n').slice(0, 1024);
 
       if (images && images.length > 0) {
         const first = images[0];
         const ext = first.mimeType === 'image/png' ? 'png' : first.mimeType === 'image/webp' ? 'webp' : 'jpg';
         const inputFile = new InputFile(first.buffer, `gen.${ext}`);
-        await (ctx as any).api.sendPhoto((ctx as any).chat.id, inputFile, { caption });
+        await (ctx as any).api.sendPhoto((ctx as any).chat.id, inputFile, { caption, parse_mode: 'HTML' });
       } else if (text) {
         await (ctx as any).reply(text);
       } else {

@@ -223,6 +223,9 @@ plan_custom_limits = limites personalizados do plano
 model = Modelo
 model_not_selected = — não selecionado —
 
+# Imagens
+image_description = Descrição
+
 # Mensagens do sistema para arquivos
 file_content_message = Conteúdo do arquivo carregado:
 file_analysis_request = Por favor, analise este arquivo e responda à pergunta do usuário.

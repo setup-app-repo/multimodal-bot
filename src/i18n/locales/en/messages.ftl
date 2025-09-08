@@ -220,6 +220,9 @@ plan_custom_limits = custom plan restrictions
 model = Model
 model_not_selected = — not selected —
 
+# Images
+image_description = Description
+
 # System messages for files
 file_content_message = Content of uploaded file:
 file_analysis_request = Please analyze this file and answer the user's question.

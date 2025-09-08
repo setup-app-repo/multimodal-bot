@@ -225,6 +225,9 @@ plan_custom_limits = limites personnalisées du forfait
 model = Modèle
 model_not_selected = — non sélectionné —
 
+# Images
+image_description = Description
+
 # Messages système pour les fichiers
 file_content_message = Contenu du fichier téléchargé :
 file_analysis_request = Veuillez analyser ce fichier et répondre à la question de l'utilisateur.
