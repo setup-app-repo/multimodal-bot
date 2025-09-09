@@ -145,4 +145,4 @@ export const POPULAR_MODELS = new Set<string>([
 ]);
 
 // Стикер, отправляемый вместе со статусом обработки
-export const PROCESSING_STICKER_FILE_ID = 'CAACAgIAAxkBAAESAUdouaB2jSDK2M521AIOEGKIvoRVAwAC0gADMNSdEYJigbXczmCXNgQ';
+export const PROCESSING_STICKER_FILE_ID = 'CAACAgIAAxkBAAESJRFowC0q2XhJ_hqLbkrUe3v2twRQRgACsIUAAtvAAUqsKv_aWARYsTYE';
