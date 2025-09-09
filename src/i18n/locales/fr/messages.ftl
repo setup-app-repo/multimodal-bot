@@ -228,6 +228,8 @@ model_not_selected = — non sélectionné —
 
 # Images
 image_description = Description
+image_generated_via_footer = ✨ Généré via <a href="{$url}">bot Multi-Chat</a>
+image_generated_via_footer_plain = ✨ Généré via le bot Multi-Chat
 
 # Messages système pour les fichiers
 file_content_message = Contenu du fichier téléchargé :

@@ -324,9 +324,28 @@ export class OpenRouterService implements OnModuleDestroy {
     );
 
     const userContent: any[] = [];
-    const textPrompt = (prompt && prompt.trim().length > 0)
-      ? prompt
+    const basePrompt = (prompt && prompt.trim().length > 0)
+      ? prompt.trim()
       : 'Create an image based on the following description.';
+
+    // Если передано initImageDataUrl, добавляем явные инструкции по разруливанию режима:
+    // 1) РЕДАКТИРОВАТЬ, если пользователь явно просит редактирование/вариацию/использование предыдущего изображения
+    // 2) ИГНОРИРОВАТЬ КАРТИНКУ и сгенерировать НОВОЕ изображение, если таких указаний нет
+    const disambiguationInstruction = initImageDataUrl
+      ? [
+        'CRITICAL INSTRUCTIONS:',
+        '- If both a text prompt and an image are provided, treat the TEXT as the single source of truth.',
+        '- Use the attached/previous image ONLY if the prompt explicitly asks to edit/modify/make a variation or to base the result on it (e.g., "edit", "modify", "retouch", "enhance", "variation", "на основе", "измени", "сделай вариацию").',
+        '- Otherwise, IGNORE the attached image entirely and generate a COMPLETELY NEW image unrelated to it.',
+        '- Do NOT transfer style, palette, composition, characters, objects, or details from the attached image unless explicitly requested by the prompt.',
+        '- If you cannot produce an image (safety, content, or capability), return a concise text explanation of the reason instead of an image.',
+      ].join('\n')
+      : '';
+
+    const textPrompt = disambiguationInstruction
+      ? `${disambiguationInstruction}\n\nUSER PROMPT:\n${basePrompt}`
+      : basePrompt;
+
     userContent.push({ type: 'text', text: textPrompt });
     if (initImageDataUrl) {
       userContent.push({ type: 'image_url', image_url: { url: initImageDataUrl } });
@@ -335,7 +354,7 @@ export class OpenRouterService implements OnModuleDestroy {
     const messagesForModel: any[] = [
       {
         role: 'system',
-        content: 'You are an assistant that generates or edits images based on the prompt.',
+        content: 'You are an image assistant. When both a text prompt and an image are provided, use the image ONLY if the prompt clearly asks to edit/modify/use it; otherwise ignore the image and generate a brand-new image from the text. Never transfer style or elements from the image unless explicitly requested. If you cannot generate an image, return a concise text explanation of the reason.',
       },
       { role: 'user', content: userContent },
     ];
@@ -372,23 +391,106 @@ export class OpenRouterService implements OnModuleDestroy {
 
         const choice: any = completion.choices?.[0] ?? {};
         const message: any = choice.message ?? {};
-        const text: string | undefined = message.content || undefined;
 
-        // Ожидаем массив с изображениями в формате data URL
+        const text: any = message.content;
+
+        // Ожидаем массив с изображениями в формате data URL или HTTP(S). Парсим максимально гибко.
         const images: { buffer: Buffer; mimeType: string }[] = [];
+        const httpUrls: string[] = [];
+
+        const tryPushDataUrl = (url: string) => {
+          if (!url || !url.startsWith('data:image/')) return;
+          const mimeMatch = url.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
+          const mimeType = mimeMatch?.[1] || 'image/png';
+          const base64Data = url.split(',')[1];
+          if (!base64Data) return;
+          try {
+            const buffer = Buffer.from(base64Data, 'base64');
+            images.push({ buffer, mimeType });
+          } catch { /* ignore single image decode error */ }
+        };
+
+        const queueUrl = (url?: string) => {
+          if (!url || typeof url !== 'string') return;
+          const trimmed = url.trim();
+          if (trimmed.startsWith('data:image/')) {
+            tryPushDataUrl(trimmed);
+            return;
+          }
+          if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+            httpUrls.push(trimmed);
+          }
+        };
+
+        // 1) Стандартное место OpenRouter image-output
         if (Array.isArray(message.images)) {
           for (const img of message.images) {
-            const url: string | undefined = img?.image_url?.url;
-            if (typeof url === 'string' && url.startsWith('data:image/')) {
-              const mimeMatch = url.match(/^data:(image\/[a-zA-Z0-9+.-]+);base64,/);
-              const mimeType = mimeMatch?.[1] || 'image/png';
-              const base64Data = url.split(',')[1];
+            const url: string | undefined = img?.image_url?.url || img?.url;
+            queueUrl(url);
+            // b64_json путь
+            const b64: string | undefined = img?.b64_json || img?.image_url?.b64_json || img?.image?.b64_json;
+            const mimeTypeB64: string = img?.mime_type || 'image/png';
+            if (typeof b64 === 'string' && b64.length > 0) {
               try {
-                const buffer = Buffer.from(base64Data, 'base64');
-                images.push({ buffer, mimeType });
-              } catch { /* ignore single image decode error */ }
+                const buffer = Buffer.from(b64, 'base64');
+                images.push({ buffer, mimeType: mimeTypeB64 });
+              } catch { }
             }
           }
+        }
+
+        // 2) Контент как массив частей (OpenAI/OR контент-части)
+        if (Array.isArray(message.content)) {
+          for (const part of message.content) {
+            const maybeUrl: string | undefined = part?.image_url?.url || part?.url || part?.image?.url;
+            queueUrl(maybeUrl);
+            // Поддержка частей вида { type: 'image', b64_json, mime_type }
+            if ((part?.type === 'image' || part?.type === 'output_image') && typeof part?.b64_json === 'string') {
+              const mimeType = typeof part?.mime_type === 'string' ? part.mime_type : 'image/png';
+              try {
+                const buffer = Buffer.from(String(part.b64_json), 'base64');
+                images.push({ buffer, mimeType });
+              } catch { }
+            }
+            // Также проверяем текстовые части на встраиваемые data URL
+            const partText: string | undefined = typeof part?.text === 'string' ? part.text : undefined;
+            if (partText) {
+              const dataUrls = partText.match(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+/g);
+              if (dataUrls) dataUrls.forEach((u) => tryPushDataUrl(u));
+              const httpMatches = partText.match(/https?:\/\/[^\s)]+\.(?:png|jpe?g|webp|gif)/gi);
+              if (httpMatches) httpMatches.forEach((u) => queueUrl(u));
+            }
+          }
+        }
+
+        // 3) Контент как строка с markdown/текстовым data URL
+        if (typeof message.content === 'string') {
+          const dataUrls = message.content.match(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+/g);
+          if (dataUrls) dataUrls.forEach((u) => tryPushDataUrl(u));
+          const httpMatches = message.content.match(/https?:\/\/[^\s)]+\.(?:png|jpe?g|webp|gif)/gi);
+          if (httpMatches) httpMatches.forEach((u) => queueUrl(u));
+        }
+
+        // 4) Если есть HTTP-ссылки, скачиваем и конвертируем в буферы
+        if (images.length === 0 && httpUrls.length > 0) {
+          try {
+            const fetched = await Promise.all(
+              httpUrls.slice(0, 4).map(async (u) => {
+                try {
+                  const resp = await fetch(u);
+                  if (!resp.ok) return null;
+                  const mime = resp.headers.get('content-type') || 'image/jpeg';
+                  const arr = await resp.arrayBuffer();
+                  return { buffer: Buffer.from(arr), mimeType: mime };
+                } catch {
+                  return null;
+                }
+              }),
+            );
+            for (const item of fetched) {
+              if (item) images.push(item);
+            }
+          } catch { }
         }
 
         this.logger.log(

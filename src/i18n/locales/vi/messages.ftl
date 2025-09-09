@@ -240,6 +240,8 @@ model_not_selected = — chưa chọn —
 
 # Hình ảnh
 image_description = Mô tả
+image_generated_via_footer = ✨ Được tạo qua <a href="{$url}">bot Multi-Chat</a>
+image_generated_via_footer_plain = ✨ Được tạo qua bot Multi-Chat
 
 # Thông điệp hệ thống cho tệp
 file_content_message = Nội dung tệp đã tải lên:

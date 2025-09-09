@@ -27,11 +27,39 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
     if (ctx.from?.id) {
       try {
         const telegramId = ctx.from?.id;
-        await setupAppService.auth(telegramId, {
-          firstName: ctx.from?.first_name || '',
-          lastName: ctx.from?.last_name || '',
-          username: ctx.from?.username || '',
-        });
+        // Обрабатываем реферал: /start <referralId>
+        const referralId = ctx.match && typeof ctx.match === 'string' ? Number(ctx.match) : undefined;
+        if (!referralId) {
+          await setupAppService.auth(telegramId, {
+            firstName: ctx.from?.first_name || '',
+            lastName: ctx.from?.last_name || '',
+            username: ctx.from?.username || '',
+          });
+        } else {
+          try {
+            const userData = {
+              firstName: ctx.from?.first_name || '',
+              lastName: ctx.from?.last_name || '',
+              username: ctx.from?.username || '',
+            };
+            const result = await setupAppService.setReferral(telegramId, referralId, userData);
+            this.logger.log(` ✅ Referral set successfully`, {
+              telegramId,
+              referralId: result.referral
+            });
+            const curatorId = String(referralId);
+            // Сообщение пользователю, который перешёл по ссылке
+            try {
+              await ctx.reply(
+                `✅ Поздравляем, ваш куратор в системе Setup — ID ${curatorId}`,
+                { parse_mode: 'HTML' },
+              );
+            } catch { }
+          } catch (error: any) {
+            console.error('Ошибка работы с рефералами:', error);
+            await ctx.reply(error?.message || '❌ Ошибка при работе с реферальной программой');
+          }
+        }
 
         await userService.findOrCreateUser(String(telegramId), {
           telegramId: String(telegramId),
@@ -47,11 +75,7 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
       }
     }
     const userId = String(ctx.from?.id);
-    const [model, plan, savedLang] = await Promise.all([
-      redisService.get<string>(`chat:${userId}:model`),
-      redisService.get<string>(`chat:${userId}:plan`),
-      redisService.get<string>(`chat:${userId}:lang`),
-    ]);
+    const savedLang = await redisService.get<string>(`chat:${userId}:lang`);
 
     if (!savedLang) {
       const profileLangCode = ctx.from?.language_code;
@@ -74,18 +98,13 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
 
     try {
       if (setupAppService.isInitialized()) {
-        await setupAppService.auth(telegramId, {
-          firstName: ctx.from?.first_name || '',
-          lastName: ctx.from?.last_name || '',
-          username: ctx.from?.username || '',
-        });
         const currentLang = ctx.session.lang || i18n.getDefaultLocale();
         await setupAppService.setupMenuButton(ctx as any, {
           language: currentLang,
           appType: AppType.DEFAULT,
         });
       }
-    } catch {}
+    } catch { }
 
     await ctx.reply(promoTextStartMd, {
       reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),

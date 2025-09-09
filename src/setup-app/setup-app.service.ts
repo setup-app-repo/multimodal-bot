@@ -4,6 +4,7 @@ import { EUserLogType } from 'src/user-logs/user-log.entity';
 import { GrammyContext, SetupApp } from '@setup-app-repo/setup.app-sdk';
 
 import { SetupAppConfigService } from './setup-app-config.service';
+import { ISetupAppUserData } from './interfaces';
 
 @Injectable()
 export class SetupAppService {
@@ -67,6 +68,11 @@ export class SetupAppService {
   async getReferralUrl(telegramId: number) {
     return this.setupApp.getReferralUrl(telegramId);
   }
+
+  async setReferral(telegramId: number, referralId: number, userData: ISetupAppUserData) {
+    return this.setupApp.setReferral(telegramId, referralId, userData);
+  }
+
 
   async auth(telegramId: number, userData) {
     return this.setupApp.auth(telegramId, userData);

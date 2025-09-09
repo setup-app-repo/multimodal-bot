@@ -10,6 +10,7 @@ import { BotContext } from '../interfaces';
 import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } from '../utils';
 
 import { AccessControlService } from './access-control.service';
+import { SetupAppService } from 'src/setup-app/setup-app.service';
 
 @Injectable()
 export class PhotoHandlerService {
@@ -27,6 +28,7 @@ export class PhotoHandlerService {
     private readonly openRouterService: OpenRouterService,
     private readonly configService: ConfigService,
     private readonly accessControlService: AccessControlService,
+    private readonly setupAppService: SetupAppService,
   ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -84,6 +86,13 @@ export class PhotoHandlerService {
           if (album.caption && album.caption.trim()) {
             parts.push(`📝 <b>${descriptionLabel}:</b> ${album.caption.trim()}`);
           }
+          const info = await this.setupAppService.getIntegrationInfo();
+          const botUsername = (info as any)?.botUsername || '';
+          const tgId = String((ctx as any)?.from?.id ?? userId);
+          const link = botUsername ? `https://t.me/${botUsername}?start=${encodeURIComponent(tgId)}` : undefined;
+          const footer =
+            `✨ Сгенерировано через <a href="${link}">Мульти‑Чат бота</a>`
+          parts.push(footer);
           const finalCaption = parts.join('\n\n').slice(0, 1024);
 
           // Удаляем индикаторы обработки
@@ -330,6 +339,14 @@ export class PhotoHandlerService {
           if (caption && caption.trim()) {
             parts.push(`📝 <b>${descriptionLabel}:</b> ${caption.trim()}`);
           }
+          const info = await this.setupAppService.getIntegrationInfo();
+          const botUsername = (info as any)?.botUsername || '';
+          const tgId = String((ctx as any)?.from?.id ?? userId);
+          const link = botUsername ? `https://t.me/${botUsername}?start=${encodeURIComponent(tgId)}` : undefined;
+          const footer = link
+            ? `✨ Сгенерировано через <a href="${link}">Мульти‑Чат бота</a>`
+            : '✨ Сгенерировано через Мульти‑Чат бота';
+          parts.push(footer);
           const finalCaption = parts.join('\n\n').slice(0, 1024);
 
           // Удаляем индикаторы обработки

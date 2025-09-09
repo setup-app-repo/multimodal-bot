@@ -20,7 +20,7 @@ export function registerCommands(bot: Bot<BotContext>, deps: RegisterCommandsDep
       if (ctx.message && ctx.from?.id) {
         await userService.updateUser(String(ctx.from.id));
       }
-    } catch {}
+    } catch { }
     return next();
   });
 

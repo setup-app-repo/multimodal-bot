@@ -9,6 +9,7 @@ import { BotContext } from '../interfaces';
 import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } from '../utils';
 
 import { AccessControlService } from './access-control.service';
+import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { TelegramFileService } from './telegram-file.service';
 
 @Injectable()
@@ -21,6 +22,7 @@ export class MessageHandlerService {
     private readonly openRouterService: OpenRouterService,
     private readonly telegramFileService: TelegramFileService,
     private readonly accessControlService: AccessControlService,
+    private readonly setupAppService: SetupAppService,
   ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -171,11 +173,30 @@ export class MessageHandlerService {
       // Получаем последнее изображение для контекста (для всех моделей генерации изображений)
       const initImageDataUrl = await this.redisService.getLastImageDataUrl(userId) || undefined;
 
-      const { images, text } = await this.openRouterService.generateOrEditImage(
+      let { images, text } = await this.openRouterService.generateOrEditImage(
         model,
         prompt,
         initImageDataUrl,
       );
+
+      // Фолбэк: если модель не вернула изображения, пробуем ещё раз без initImageDataUrl
+      if (!images || images.length === 0) {
+        this.logger.warn(`Image gen returned no images for user ${userId}. Retrying without init image.`);
+        try {
+          const retryPrompt = `${prompt}\n\nINSTRUCTIONS:\n- Generate a brand-new image strictly from the text above.\n- Ignore any previous/attached image.\n- If you cannot generate an image, reply with a concise text explanation of the reason.\n- If the prompt conflicts with safety, produce a benign, neutral scenic image matching a safe interpretation of the prompt or explain briefly why you cannot.`;
+          const retry = await this.openRouterService.generateOrEditImage(
+            model,
+            retryPrompt,
+            undefined,
+          );
+          if (retry?.images && retry.images.length > 0) {
+            images = retry.images;
+            text = retry.text ?? text;
+          }
+        } catch (retryErr) {
+          this.logger.warn(`Image gen retry failed for user ${userId}: ${String((retryErr as Error)?.message || retryErr)}`);
+        }
+      }
 
       // Списание SP
       try {
@@ -199,6 +220,14 @@ export class MessageHandlerService {
       if (prompt && prompt.trim()) {
         captionParts.push(`📝 <b>${descriptionLabel}:</b> ${prompt.trim()}`);
       }
+      const info = await this.setupAppService.getIntegrationInfo();
+      const botUsername = (info as any)?.botUsername || '';
+      const tgId = String((ctx as any)?.from?.id ?? userId);
+      const link = botUsername ? `https://t.me/${botUsername}?start=${encodeURIComponent(tgId)}` : undefined;
+      const footer = link
+        ? `✨ Сгенерировано через <a href="${link}">Мульти‑Чат бота</a>`
+        : '✨ Сгенерировано через Мульти‑Чат бота';
+      captionParts.push(footer);
       const caption = captionParts.join('\n\n').slice(0, 1024);
 
       if (images && images.length > 0) {

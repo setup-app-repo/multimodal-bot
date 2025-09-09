@@ -240,6 +240,8 @@ model_not_selected = — не выбрана —
 
 # Изображения
 image_description = Описание
+image_generated_via_footer = ✨ Сгенерировано через <a href="{$url}">Мульти‑Чат бота</a>
+image_generated_via_footer_plain = ✨ Сгенерировано через Мульти‑Чат бота
 
 # Системные сообщения для файлов
 file_content_message = Содержимое загруженного файла:
