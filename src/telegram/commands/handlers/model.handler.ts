@@ -27,7 +27,7 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
         });
         return;
       }
-      await redisService.set(`chat:${String(ctx.from?.id)}:model`, selectedModel, 60 * 60);
+      await redisService.set(`chat:${String(ctx.from?.id)}:model`, selectedModel, 7 * 24 * 60 * 60);
       await safeAnswerCallbackQuery(ctx);
       await navigation.navigateTo(ctx, 'model_connected', {
         model: selectedModel,
