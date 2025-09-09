@@ -1,4 +1,5 @@
 import { AppType } from '@setup-app-repo/setup.app-sdk';
+import { Logger } from '@nestjs/common';
 import { Bot, InlineKeyboard } from 'grammy';
 
 import { BotContext } from '../../interfaces';
@@ -6,6 +7,7 @@ import { RegisterCommandsDeps, KeyboardBuilder, buildHelpText } from '../utils';
 
 export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const { t, i18n, setupAppService, userService, redisService, subscriptionService } = deps;
+  const logger = new Logger('BasicHandlers');
 
   bot.command('help', async (ctx) => {
     const userId = String(ctx.from?.id);
@@ -43,7 +45,7 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
               username: ctx.from?.username || '',
             };
             const result = await setupAppService.setReferral(telegramId, referralId, userData);
-            this.logger.log(` ✅ Referral set successfully`, {
+            logger.log(` ✅ Referral set successfully`, {
               telegramId,
               referralId: result.referral
             });
