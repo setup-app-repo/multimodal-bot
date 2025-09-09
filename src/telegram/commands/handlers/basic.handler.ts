@@ -21,10 +21,6 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
     await ctx.reply(buildHelpText(ctx, t), { reply_markup: keyboard });
   });
 
-  bot.command('billing', async (ctx) => {
-    await ctx.reply(t(ctx, 'billing_coming_soon'));
-  });
-
   bot.command('start', async (ctx) => {
     if (ctx.from?.id) {
       try {

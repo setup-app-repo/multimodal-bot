@@ -86,7 +86,6 @@ model_command = Sélectionner le modèle
 profile_command = Afficher votre profil
 language_command = Sélectionner la langue de l'interface
 clear_command = Effacer l'historique du chat
-billing_command = Facturation et utilisation
 
 # Aide
 help_usage = Comment utiliser : envoyez du texte/voix/image/document ou un lien vidéo — je m’en charge et je réponds
@@ -97,7 +96,6 @@ help_model = /model — sélectionner le modèle
 help_profile = /profile — profil utilisateur
 help_language = /language — langue de l'interface
 help_clear = /clear — effacer le contexte
-help_billing = /billing — facturation et utilisation
 
 
 help_files = Fichiers supportés (jusqu'à 15 Mo) : PDF, DOCX, PPTX, CSV, texte.
@@ -133,8 +131,6 @@ language_french = 🇫🇷 Français
 language_vietnamese = 🇻🇳 Vietnamien
 language_switched = Langue changée en : {$language}
 
-# Facturation
-billing_coming_soon =  💳 Facturation : bientôt disponible.
 change_plan_coming_soon =  🔧 Changer de forfait : bientôt disponible.
 
 # Nettoyage du contexte
@@ -242,11 +238,9 @@ bot_command_model = Sélectionner le modèle
 bot_command_profile = Afficher le profil
 bot_command_language = Choisir la langue
 bot_command_clear = Effacer l'historique
-bot_command_billing = Facturation
 
 # Textes supplémentaires
 profile_coming_soon_en =  👤 Profil : bientôt disponible.
-billing_coming_soon_en =  💳 Facturation : bientôt disponible.
 
 # Division des messages
 message_part = Partie {$current} de {$total}
@@ -258,7 +252,6 @@ processing_request = ⏳ Traitement de votre demande...
 notification_inactive_recall = {$first_name}, ça fait longtemps 👋\nEnvoyez n’importe quelle demande — je vous aide !
 autorenew_failed_insufficient_sp = <b>⚠️ Échec du renouvellement du Premium</b>\n\n🔹 Requis : <b>{$required} SP</b>\n🔹 Solde actuel : <b>{$balance} SP</b>
 autorenew_success = <b>✅ Renouvellement automatique réussi</b>\n\n🔹 Nouvelle échéance : <b>jusqu’au {$premium_expires_at}</b>\n🔹 Solde actuel : <b>{$balance} SP</b>
-billing_topup_balance_button = 💳 Recharger le solde
 subscription_expiring_3_days = Premium ⭐ expire dans 3 jours — {$premium_expires_at}. Renouvelez pour conserver les réductions et la priorité.
 subscription_expiring_1_day = Premium ⏳ expire demain — {$premium_expires_at}. Renouvelez pour 30 jours pour 10 SP.
 premium_renew_button = 🔁 Renouveler

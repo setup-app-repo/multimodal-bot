@@ -87,7 +87,6 @@ model_command = Selecionar modelo
 profile_command = Mostrar seu perfil
 language_command = Selecionar idioma da interface
 clear_command = Limpar histórico do chat
-billing_command = Cobrança e uso
 
 # Ajuda
 help_usage = Como usar: envie texto/voz/imagem/documento ou um link de vídeo — eu resolvo e respondo
@@ -98,7 +97,6 @@ help_model = /model — selecionar modelo
 help_profile = /profile — perfil do usuário
 help_language = /language — idioma da interface
 help_clear = /clear — limpar contexto
-help_billing = /billing — cobrança e uso
 
 
 help_files = Arquivos suportados (até 15 MB): PDF, DOCX, PPTX, CSV, texto.
@@ -131,8 +129,6 @@ language_french = 🇫🇷 Francês
 language_vietnamese = 🇻🇳 Vietnamita
 language_switched = Idioma alterado para: {$language}
 
-# Cobrança
-billing_coming_soon =  💰 Cobrança: em breve disponível.
 change_plan_coming_soon =  🔧 Alterar plano: em breve disponível.
 
 # Limpeza do contexto
@@ -240,11 +236,9 @@ bot_command_model = Selecionar modelo
 bot_command_profile = Mostrar perfil
 bot_command_language = Escolher idioma
 bot_command_clear = Limpar histórico
-bot_command_billing = Cobrança
 
 # Textos adicionais
 profile_coming_soon_en =  👤 Perfil: em breve disponível.
-billing_coming_soon_en =  💳 Cobrança: em breve disponível.
 
 # Divisão de mensagens
 message_part = Parte {$current} de {$total}
@@ -256,7 +250,6 @@ processing_request = ⏳ Processando sua solicitação...
 notification_inactive_recall = {$first_name}, há quanto tempo 👋\nEnvie qualquer pedido — eu ajudo!
 autorenew_failed_insufficient_sp = <b>⚠️ Falha ao renovar o Premium</b>\n\n🔹 Necessário: <b>{$required} SP</b>\n🔹 Saldo atual: <b>{$balance} SP</b>
 autorenew_success = <b>✅ Renovação automática bem-sucedida</b>\n\n🔹 Novo prazo: <b>até {$premium_expires_at}</b>\n🔹 Saldo atual: <b>{$balance} SP</b>
-billing_topup_balance_button = 💳 Recarregar saldo
 subscription_expiring_3_days = Premium ⭐ expira em 3 dias — {$premium_expires_at}. Renove para manter os descontos e a prioridade.
 subscription_expiring_1_day = Premium ⏳ expira amanhã — {$premium_expires_at}. Renove por 30 dias por 10 SP.
 premium_renew_button = 🔁 Renovar

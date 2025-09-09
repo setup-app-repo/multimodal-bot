@@ -86,7 +86,6 @@ model_command = Seleccionar modelo
 profile_command = Mostrar tu perfil
 language_command = Seleccionar idioma de la interfaz
 clear_command = Limpiar historial del chat
-billing_command = Facturación y uso
 
 # Ayuda
 help_usage = Cómo usar: envía texto/voz/imagen/documento o un enlace de video — lo procesaré y responderé
@@ -97,7 +96,6 @@ help_model = /model — seleccionar modelo
 help_profile = /profile — perfil de usuario
 help_language = /language — idioma de la interfaz
 help_clear = /clear — limpiar contexto
-help_billing = /billing — facturación y uso
 
 
 help_files = Archivos soportados (hasta 15 MB): PDF, DOCX, PPTX, CSV, texto.
@@ -133,8 +131,6 @@ language_french = 🇫🇷 Francés
 language_vietnamese = 🇻🇳 Vietnamita
 language_switched = Idioma cambiado a: {$language}
 
-# Facturación
-billing_coming_soon =  💳 Facturación: próximamente disponible.
 change_plan_coming_soon = 🔧 Cambiar plan: próximamente disponible.
 
 # Limpieza del contexto
@@ -243,11 +239,9 @@ bot_command_model = Seleccionar modelo
 bot_command_profile = Mostrar perfil
 bot_command_language = Elegir idioma
 bot_command_clear = Limpiar historial
-bot_command_billing = Facturación
 
 # Textos adicionales
 profile_coming_soon_en =  👤 Perfil: próximamente disponible.
-billing_coming_soon_en =  💳 Facturación: próximamente disponible.
 
 # División de mensajes
 message_part = Parte {$current} de {$total}
@@ -261,5 +255,4 @@ subscription_expiring_3_days = Premium ⭐ expira en 3 días — {$premium_expir
 subscription_expiring_1_day = Premium ⏳ expira mañana — {$premium_expires_at}. Renueva por 30 días por 10 SP.
 autorenew_failed_insufficient_sp = <b>⚠️ No se pudo renovar Premium</b>\n\n🔹 Requerido: <b>{$required} SP</b>\n🔹 Saldo actual: <b>{$balance} SP</b>
 autorenew_success = <b>✅ Renovación automática exitosa</b>\n\n🔹 Nuevo vencimiento: <b>hasta {$premium_expires_at}</b>\n🔹 Saldo actual: <b>{$balance} SP</b>
-billing_topup_balance_button = 💳 Recargar saldo
 premium_renew_button = 🔁 Renovar

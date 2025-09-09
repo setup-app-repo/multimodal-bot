@@ -84,7 +84,6 @@ model_command = Select model
 profile_command = Show your profile
 language_command = Choose interface language
 clear_command = Clear chat history
-billing_command = Billing and usage
 
 # Help
 help_usage = How to use: send text/voice/image/document or a video link — I’ll handle it and reply
@@ -95,7 +94,6 @@ help_model = /model — select model
 help_profile = /profile — user profile
 help_language = /language — interface language
 help_clear = /clear — clear context
-help_billing = /billing — billing and usage
 
 
 help_files = Supported files (up to 15 MB): PDF, DOCX, PPTX, CSV, text.
@@ -128,8 +126,6 @@ language_french = 🇫🇷 French
 language_vietnamese = 🇻🇳 Vietnamese
 language_switched = Language switched to: {$language}
 
-# Billing
-billing_coming_soon =  💳 Billing: coming soon.
 
 # Context clearing
 clear_confirm =  **Clear the current chat?**
@@ -237,11 +233,9 @@ bot_command_model = Select model
 bot_command_profile = Show profile
 bot_command_language = Choose language
 bot_command_clear = Clear history
-bot_command_billing = Billing
 
 # Additional texts
 profile_coming_soon_en =  👤 Profile: coming soon.
-billing_coming_soon_en =  💳 Billing: coming soon.
 
 # Message splitting
 message_part = Part {$current} of {$total}
@@ -256,4 +250,3 @@ subscription_expiring_1_day = Premium ⏳ expires tomorrow — {$premium_expires
 premium_renew_button = 🔁 Renew
 autorenew_failed_insufficient_sp = <b>⚠️ Failed to renew Premium</b>\n\n🔹 Required: <b>{$required} SP</b>\n🔹 Current balance: <b>{$balance} SP</b>
 autorenew_success = <b>✅ Auto-renewal successful</b>\n\n🔹 New expiration: <b>until {$premium_expires_at}</b>\n🔹 Current balance: <b>{$balance} SP</b>
-billing_topup_balance_button = 💳 Top up balance

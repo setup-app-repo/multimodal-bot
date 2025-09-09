@@ -92,7 +92,6 @@ model_command = Chọn mô hình
 profile_command = Hiển thị hồ sơ
 language_command = Chọn ngôn ngữ giao diện
 clear_command = Xoá lịch sử chat
-billing_command = Thanh toán & sử dụng
 
 # Trợ giúp
 help_usage = Cách dùng: gửi văn bản/giọng nói/hình ảnh/tài liệu hoặc liên kết video — tôi sẽ phân tích và trả lời
@@ -103,7 +102,6 @@ help_model = /model — chọn mô hình
 help_profile = /profile — hồ sơ người dùng
 help_language = /language — ngôn ngữ giao diện
 help_clear = /clear — xoá ngữ cảnh
-help_billing = /billing — thanh toán & sử dụng
 
 
 help_files = Tệp được hỗ trợ (tối đa 15 MB): PDF, DOCX, PPTX, CSV, văn bản.
@@ -141,8 +139,6 @@ language_french = 🇫🇷 Tiếng Pháp
 language_vietnamese = 🇻🇳 Tiếng Việt
 language_switched = Đã chuyển ngôn ngữ sang: {$language}
 
-# Thanh toán
-billing_coming_soon =  💳 Thanh toán: sắp ra mắt.
 change_plan_coming_soon =  🔧 Đổi gói: sắp khả dụng.
 
 # Xoá ngữ cảnh
@@ -254,11 +250,9 @@ bot_command_model = Chọn mô hình
 bot_command_profile = Hồ sơ
 bot_command_language = Ngôn ngữ
 bot_command_clear = Xoá lịch sử
-bot_command_billing = Thanh toán
 
 # Văn bản bổ sung
 profile_coming_soon_en =  👤 Hồ sơ: sắp ra mắt.
-billing_coming_soon_en =  💳 Thanh toán: sắp ra mắt.
 
 # Chia nhỏ thông điệp
 message_part = Phần {$current} / {$total}
@@ -273,6 +267,5 @@ subscription_expiring_1_day = Premium ⏳ sẽ hết hạn vào ngày mai — {$
 premium_renew_button = 🔁 Gia hạn
 autorenew_failed_insufficient_sp = <b>⚠️ Không thể tự gia hạn Premium</b>\n\n🔹 Cần: <b>{$required} SP</b>\n🔹 Số dư hiện tại: <b>{$balance} SP</b>
 autorenew_success = <b>✅ Tự gia hạn thành công</b>\n\n🔹 Hạn mới: <b>đến {$premium_expires_at}</b>\n🔹 Số dư hiện tại: <b>{$balance} SP</b>
-billing_topup_balance_button = 💳 Nạp số dư
 
 

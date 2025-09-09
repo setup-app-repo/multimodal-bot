@@ -87,7 +87,6 @@ model_command = Modell auswählen
 profile_command = Dein Profil anzeigen
 language_command = Interface-Sprache auswählen
 clear_command = Chat-Verlauf löschen
-billing_command = Abrechnung und Nutzung
 
 # Hilfe
 help_usage = So verwenden Sie es: Senden Sie Text/Sprach-/Bild-/Dokumente oder einen Videolink — ich kümmere mich darum und antworte
@@ -98,7 +97,6 @@ help_model = /model — Modell auswählen
 help_profile = /profile — Benutzerprofil
 help_language = /language — Interface-Sprache
 help_clear = /clear — Kontext löschen
-help_billing = /billing — Abrechnung und Nutzung
 
 
 help_files = Unterstützte Dateien (bis 15 MB): PDF, DOCX, PPTX, CSV, Text.
@@ -128,8 +126,6 @@ language_french = 🇫🇷 Französisch
 language_vietnamese = 🇻🇳 Vietnamesisch
 language_switched = Sprache gewechselt zu: {$language}
 
-# Abrechnung
-billing_coming_soon =  💳 Abrechnung: bald verfügbar.
 change_plan_coming_soon =  🔧 Tarif ändern: bald verfügbar.
 
 # Kontext löschen
@@ -237,11 +233,9 @@ bot_command_model = Modell auswählen
 bot_command_profile = Profil anzeigen
 bot_command_language = Sprache wählen
 bot_command_clear = Verlauf löschen
-bot_command_billing = Abrechnung
 
 # Zusätzliche Texte
 profile_coming_soon_en =  👤 Profil: demnächst verfügbar.
-billing_coming_soon_en =  💳 Abrechnung: demnächst verfügbar.
 
 # Nachrichtenteilung
 message_part = Teil {$current} von {$total}
@@ -256,7 +250,6 @@ onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI-Assiste
 notification_inactive_recall = {$first_name}, lange nicht gesehen 👋\nSende eine Anfrage — ich helfe!
 autorenew_failed_insufficient_sp = <b>⚠️ Premium konnte nicht verlängert werden</b>\n\n🔹 Erforderlich: <b>{$required} SP</b>\n🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
 autorenew_success = <b>✅ Automatische Verlängerung erfolgreich</b>\n\n🔹 Neues Ablaufdatum: <b>bis {$premium_expires_at}</b>\n🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
-billing_topup_balance_button = 💳 Guthaben aufladen
 subscription_expiring_3_days = Premium ⭐ läuft in 3 Tagen ab — {$premium_expires_at}. Verlängern Sie, um Rabatte und Priorität zu behalten.
 subscription_expiring_1_day = Premium ⏳ läuft morgen ab — {$premium_expires_at}. Verlängern Sie um 30 Tage für 10 SP.
 premium_renew_button = 🔁 Verlängern
