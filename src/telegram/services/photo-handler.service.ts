@@ -7,7 +7,7 @@ import { RedisService } from 'src/redis/redis.service';
 
 import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID, IMAGE_EXTENSIONS, IMAGE_EXTENSION_TO_MIME } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -34,6 +34,11 @@ export class PhotoHandlerService {
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
     const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
     return this.i18n.t(key, userLang, args);
+  }
+
+  private buildImageFooter(ctx: BotContext, link?: string): string {
+    const lang = (ctx as any)?.session?.lang || this.i18n.getDefaultLocale();
+    return buildImageFooterByLang(lang, link);
   }
 
   private async processAlbum(ctx: BotContext, userId: string, model: string, albumKey: string) {
@@ -90,8 +95,7 @@ export class PhotoHandlerService {
           const botUsername = (info as any)?.botUsername || '';
           const tgId = String((ctx as any)?.from?.id ?? userId);
           const link = botUsername ? `https://t.me/${botUsername}?start=${encodeURIComponent(tgId)}` : undefined;
-          const footer =
-            `✨ Сгенерировано через <a href="${link}">Мульти‑Чат бота</a>`
+          const footer = this.buildImageFooter(ctx, link)
           parts.push(footer);
           const finalCaption = parts.join('\n\n').slice(0, 1024);
 
@@ -343,9 +347,7 @@ export class PhotoHandlerService {
           const botUsername = (info as any)?.botUsername || '';
           const tgId = String((ctx as any)?.from?.id ?? userId);
           const link = botUsername ? `https://t.me/${botUsername}?start=${encodeURIComponent(tgId)}` : undefined;
-          const footer = link
-            ? `✨ Сгенерировано через <a href="${link}">Мульти‑Чат бота</a>`
-            : '✨ Сгенерировано через Мульти‑Чат бота';
+          const footer = this.buildImageFooter(ctx, link)
           parts.push(footer);
           const finalCaption = parts.join('\n\n').slice(0, 1024);
 

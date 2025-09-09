@@ -33,6 +33,41 @@ export function escapeHtml(text: string): string {
     .replace(/>/g, '&gt;');
 }
 
+export function buildImageFooterByLang(lang: string, link?: string): string {
+  const hasLink = !!link;
+  switch (lang) {
+    case 'en':
+      return hasLink
+        ? `✨ Generated via <a href="${link}">Multi‑Chat bot</a>`
+        : '✨ Generated via Multi‑Chat bot';
+    case 'es':
+      return hasLink
+        ? `✨ Generado a través de <a href="${link}">bot Multi‑Chat</a>`
+        : '✨ Generado a través del bot Multi‑Chat';
+    case 'de':
+      return hasLink
+        ? `✨ Generiert über <a href="${link}">Multi‑Chat‑Bot</a>`
+        : '✨ Generiert über den Multi‑Chat‑Bot';
+    case 'pt':
+      return hasLink
+        ? `✨ Gerado via <a href="${link}">bot Multi‑Chat</a>`
+        : '✨ Gerado via bot Multi‑Chat';
+    case 'fr':
+      return hasLink
+        ? `✨ Généré via <a href="${link}">bot Multi‑Chat</a>`
+        : '✨ Généré via le bot Multi‑Chat';
+    case 'vi':
+      return hasLink
+        ? `✨ Được tạo qua <a href="${link}">bot Multi‑Chat</a>`
+        : '✨ Được tạo qua bot Multi‑Chat';
+    case 'ru':
+    default:
+      return hasLink
+        ? `✨ Сгенерировано через <a href="${link}">Мульти‑Чат бота</a>`
+        : '✨ Сгенерировано через Мульти‑Чат бота';
+  }
+}
+
 /**
  * Разбивает длинное сообщение на части, чтобы не превысить лимит Telegram (4096 символов)
  */

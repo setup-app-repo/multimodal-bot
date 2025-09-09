@@ -6,7 +6,7 @@ import { RedisService } from 'src/redis/redis.service';
 
 import { DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -28,6 +28,11 @@ export class MessageHandlerService {
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
     const userLang = ctx.session?.lang || this.i18n.getDefaultLocale();
     return this.i18n.t(key, userLang, args);
+  }
+
+  private buildImageFooter(ctx: BotContext, link?: string): string {
+    const lang = (ctx as any)?.session?.lang || this.i18n.getDefaultLocale();
+    return buildImageFooterByLang(lang, link);
   }
 
   async handleText(ctx: Filter<BotContext, 'message:text'>) {
@@ -224,9 +229,7 @@ export class MessageHandlerService {
       const botUsername = (info as any)?.botUsername || '';
       const tgId = String((ctx as any)?.from?.id ?? userId);
       const link = botUsername ? `https://t.me/${botUsername}?start=${encodeURIComponent(tgId)}` : undefined;
-      const footer = link
-        ? `✨ Сгенерировано через <a href="${link}">Мульти‑Чат бота</a>`
-        : '✨ Сгенерировано через Мульти‑Чат бота';
+      const footer = this.buildImageFooter(ctx as any, link);
       captionParts.push(footer);
       const caption = captionParts.join('\n\n').slice(0, 1024);
 
