@@ -63,7 +63,7 @@ export class ProfileScreen {
     }).replace(/^(?:[^:]+:)/, (m) => `<b>${m}</b>`);
 
     const text =
-      `👤 ${t(ctx, 'profile_title')}\n\n` +
+      `⚙️ ${t(ctx, 'profile_title')}\n\n` +
       `💰 ${balanceLine}\n` +
       `⭐ ${premiumLine}\n` +
       `${modelLine}\n` +
