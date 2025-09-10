@@ -50,12 +50,12 @@ export class ModelScreen {
       ? t(ctx, 'model_price_line_free')
       : isPremium
         ? t(ctx, 'model_price_line_with_premium', {
-          price_without: priceWithoutSub.toFixed(3),
-          price_with: priceWithSub.toFixed(3),
+          price_without: priceWithoutSub.toFixed(2),
+          price_with: priceWithSub.toFixed(2),
         })
         : t(ctx, 'model_price_line_without_premium', {
-          price_without: priceWithoutSub.toFixed(3),
-          price_with: priceWithSub.toFixed(3),
+          price_without: priceWithoutSub.toFixed(2),
+          price_with: priceWithSub.toFixed(2),
         });
 
     const attachmentsNote = t(ctx, 'attachments_double_cost_note');
