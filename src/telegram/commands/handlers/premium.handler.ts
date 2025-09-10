@@ -97,7 +97,9 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
           } catch { }
           const keyboard = url
             ? new InlineKeyboard().webApp(t(ctx, 'topup_sp_button'), url)
-            : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+            : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
+          // Убираем предыдущее окно подтверждения/премиума
+          try { await ctx.deleteMessage(); } catch { }
           await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
             reply_markup: keyboard,
             parse_mode: 'HTML',
@@ -129,7 +131,9 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
           } catch { }
           const keyboard = url
             ? new InlineKeyboard().webApp(t(ctx, 'topup_sp_button'), url)
-            : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'billing:topup');
+            : new InlineKeyboard().text(t(ctx, 'topup_sp_button'), 'wallet:topup');
+          // Убираем предыдущее окно подтверждения/премиума
+          try { await ctx.deleteMessage(); } catch { }
           await ctx.reply(t(ctx, 'premium_insufficient_sp', { balance: currentBalance }), {
             reply_markup: keyboard,
             parse_mode: 'HTML',
