@@ -7,7 +7,7 @@ import { RedisService } from 'src/redis/redis.service';
 
 import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID, IMAGE_EXTENSIONS, IMAGE_EXTENSION_TO_MIME } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang, stripBasicMarkdown } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -122,7 +122,7 @@ export class PhotoHandlerService {
           const modelDisplayName = getModelDisplayName(model);
           const modelLabel = this.t(ctx, 'model');
           const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
-          const cleaned = stripCodeFences(text);
+          const cleaned = stripBasicMarkdown(stripCodeFences(text));
           const safeAnswer = escapeHtml(cleaned);
           await sendLongMessage(
             ctx,
@@ -160,7 +160,7 @@ export class PhotoHandlerService {
         const modelDisplayName = getModelDisplayName(model);
         const modelLabel = this.t(ctx, 'model');
         const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
-        const cleaned = stripCodeFences(answer);
+        const cleaned = stripBasicMarkdown(stripCodeFences(answer));
         const safeAnswer = escapeHtml(cleaned);
         await sendLongMessage(
           ctx,
@@ -374,7 +374,7 @@ export class PhotoHandlerService {
           const modelDisplayName = getModelDisplayName(model);
           const modelLabel = this.t(ctx, 'model');
           const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
-          const cleaned = stripCodeFences(text);
+          const cleaned = stripBasicMarkdown(stripCodeFences(text));
           const safeAnswer = escapeHtml(cleaned);
           await sendLongMessage(
             ctx,
@@ -425,7 +425,7 @@ export class PhotoHandlerService {
       const modelDisplayName = getModelDisplayName(model);
       const modelLabel = this.t(ctx, 'model');
       const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
-      const cleaned = stripCodeFences(answer);
+      const cleaned = stripBasicMarkdown(stripCodeFences(answer));
       const safeAnswer = escapeHtml(cleaned);
       const finalMessage = modelInfo + safeAnswer;
       await sendLongMessage(

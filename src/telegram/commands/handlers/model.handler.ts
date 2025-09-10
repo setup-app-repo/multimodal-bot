@@ -28,6 +28,10 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
         return;
       }
       await redisService.set(`chat:${String(ctx.from?.id)}:model`, selectedModel, 7 * 24 * 60 * 60);
+      // Чистим последний медиа‑контекст при смене модели
+      try {
+        await redisService.del(`chat:${String(ctx.from?.id)}:lastImageDataUrl`);
+      } catch { }
       await safeAnswerCallbackQuery(ctx);
       await navigation.navigateTo(ctx, 'model_connected', {
         model: selectedModel,

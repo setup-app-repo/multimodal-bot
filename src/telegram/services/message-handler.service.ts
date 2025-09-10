@@ -4,9 +4,9 @@ import { I18nService } from 'src/i18n/i18n.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 
-import { DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID } from '../constants';
+import { DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID, MODELS_SUPPORTING_PHOTOS } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang, stripBasicMarkdown } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -290,13 +290,16 @@ export class MessageHandlerService {
     const { userId, model, history, fileContent, isFilePresent, price, processingMessageId, stickerMessageId } = params;
     let answer: string | undefined;
     try {
-      // Добавляем последнее изображение как визуальный контекст для всех моделей, поддерживающих фото
-      const contextImageDataUrl = await this.redisService.getLastImageDataUrl(userId).catch(() => null);
+      // Добавляем последнее изображение как визуальный контекст ТОЛЬКО для моделей, поддерживающих фото
+      const supportsPhotos = MODELS_SUPPORTING_PHOTOS.has(model as any);
+      const contextImageDataUrl = supportsPhotos
+        ? await this.redisService.getLastImageDataUrl(userId).catch(() => null)
+        : null;
       answer = await this.openRouterService.ask(
         history,
         model,
         fileContent,
-        contextImageDataUrl || undefined,
+        (supportsPhotos ? contextImageDataUrl || undefined : undefined),
       );
     } catch (err: any) {
       const status = (err && err.status) || (err && err.response && err.response.status);
@@ -360,7 +363,7 @@ export class MessageHandlerService {
     const modelDisplayName = getModelDisplayName(model);
     const modelLabel = this.t(ctx as any, 'model');
     const modelInfo = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}\n\n`;
-    const cleaned = stripCodeFences(answer);
+    const cleaned = stripBasicMarkdown(stripCodeFences(answer));
     const safeAnswer = escapeHtml(cleaned);
     try {
       await sendLongMessage(
