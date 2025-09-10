@@ -86,11 +86,7 @@ export class PhotoHandlerService {
           const inputFile = new InputFile(first.buffer, `result.${ext}`);
           const modelDisplayName = getModelDisplayName(model);
           const modelLabel = this.t(ctx, 'model');
-          const descriptionLabel = this.t(ctx, 'image_description');
           const parts: string[] = [`🤖 <b>${modelLabel}:</b> ${modelDisplayName}`];
-          if (album.caption && album.caption.trim()) {
-            parts.push(`📝 <b>${descriptionLabel}:</b> ${album.caption.trim()}`);
-          }
           const info = await this.setupAppService.getIntegrationInfo();
           const botUsername = (info as any)?.botUsername || '';
           const tgId = String((ctx as any)?.from?.id ?? userId);
@@ -105,7 +101,8 @@ export class PhotoHandlerService {
             try { await ctx.api.deleteMessage(ctx.chat!.id, stickerMessageId); } catch { }
           }
 
-          await ctx.api.sendPhoto(ctx.chat!.id, inputFile, { caption: finalCaption, parse_mode: 'HTML' });
+          const replyTo = (ctx as any)?.message?.message_id ?? (ctx as any)?.msg?.message_id;
+          await ctx.api.sendPhoto(ctx.chat!.id, inputFile, { caption: finalCaption, parse_mode: 'HTML', reply_to_message_id: replyTo });
 
           // Сохраняем последнее сгенерированное изображение для контекста
           const imageDataUrl = `data:${first.mimeType};base64,${first.buffer.toString('base64')}`;
@@ -338,11 +335,7 @@ export class PhotoHandlerService {
           const inputFile = new InputFile(first.buffer, `edit.${ext}`);
           const modelDisplayName = getModelDisplayName(model);
           const modelLabel = this.t(ctx, 'model');
-          const descriptionLabel = this.t(ctx, 'image_description');
           const parts: string[] = [`🤖 <b>${modelLabel}:</b> ${modelDisplayName}`];
-          if (caption && caption.trim()) {
-            parts.push(`📝 <b>${descriptionLabel}:</b> ${caption.trim()}`);
-          }
           const info = await this.setupAppService.getIntegrationInfo();
           const botUsername = (info as any)?.botUsername || '';
           const tgId = String((ctx as any)?.from?.id ?? userId);
@@ -357,7 +350,8 @@ export class PhotoHandlerService {
             try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
           }
 
-          await ctx.api.sendPhoto(ctx.chat.id, inputFile, { caption: finalCaption, parse_mode: 'HTML' });
+          const replyTo = (ctx as any)?.message?.message_id ?? (ctx as any)?.msg?.message_id;
+          await ctx.api.sendPhoto(ctx.chat.id, inputFile, { caption: finalCaption, parse_mode: 'HTML', reply_to_message_id: replyTo });
 
           // Сохраняем последнее сгенерированное изображение для контекста
           const imageDataUrl = `data:${first.mimeType};base64,${first.buffer.toString('base64')}`;

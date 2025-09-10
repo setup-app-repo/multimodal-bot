@@ -220,24 +220,29 @@ export class MessageHandlerService {
 
       const modelDisplayName = getModelDisplayName(model);
       const modelLabel = this.t(ctx as any, 'model');
-      const descriptionLabel = this.t(ctx as any, 'image_description');
-      const captionParts: string[] = [`🤖 <b>${modelLabel}:</b> ${modelDisplayName}`];
-      if (prompt && prompt.trim()) {
-        captionParts.push(`📝 <b>${descriptionLabel}:</b> ${prompt.trim()}`);
-      }
+      const maxCaptionLen = 1024;
+      let caption = `🤖 <b>${modelLabel}:</b> ${modelDisplayName}`;
+
       const info = await this.setupAppService.getIntegrationInfo();
       const botUsername = (info as any)?.botUsername || '';
       const tgId = String((ctx as any)?.from?.id ?? userId);
       const link = botUsername ? `https://t.me/${botUsername}?start=${encodeURIComponent(tgId)}` : undefined;
-      const footer = this.buildImageFooter(ctx as any, link);
-      captionParts.push(footer);
-      const caption = captionParts.join('\n\n').slice(0, 1024);
+      const footerCandidate = this.buildImageFooter(ctx as any, link);
+
+      // Добавляем футер, если помещается целиком (не режем HTML)
+      if (footerCandidate) {
+        const remaining = maxCaptionLen - (caption.length + 2);
+        if (remaining >= footerCandidate.length) {
+          caption += `\n\n${footerCandidate}`;
+        }
+      }
 
       if (images && images.length > 0) {
         const first = images[0];
         const ext = first.mimeType === 'image/png' ? 'png' : first.mimeType === 'image/webp' ? 'webp' : 'jpg';
         const inputFile = new InputFile(first.buffer, `gen.${ext}`);
-        await (ctx as any).api.sendPhoto((ctx as any).chat.id, inputFile, { caption, parse_mode: 'HTML' });
+        const replyTo = (ctx as any)?.message?.message_id ?? (ctx as any)?.msg?.message_id;
+        await (ctx as any).api.sendPhoto((ctx as any).chat.id, inputFile, { caption, parse_mode: 'HTML', reply_to_message_id: replyTo });
 
         // Сохраняем последнее сгенерированное изображение для контекста
         const imageDataUrl = `data:${first.mimeType};base64,${first.buffer.toString('base64')}`;
