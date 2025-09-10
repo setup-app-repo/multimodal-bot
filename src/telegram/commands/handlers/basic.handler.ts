@@ -1,13 +1,11 @@
 import { AppType } from '@setup-app-repo/setup.app-sdk';
-import { Logger } from '@nestjs/common';
 import { Bot, InlineKeyboard } from 'grammy';
 
 import { BotContext } from '../../interfaces';
 import { RegisterCommandsDeps, KeyboardBuilder, buildHelpText } from '../utils';
 
 export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
-  const { t, i18n, setupAppService, userService, redisService, subscriptionService } = deps;
-  const logger = new Logger('BasicHandlers');
+  const { t, i18n, setupAppService, userService, redisService, subscriptionService, logger } = deps;
 
   bot.command('help', async (ctx) => {
     const userId = String(ctx.from?.id);
@@ -44,7 +42,7 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
             logger.log(` ✅ Referral set successfully`, {
               telegramId,
               referralId: result.referral
-            });
+            } as any);
             const curatorId = String(referralId);
             // Сообщение пользователю, который перешёл по ссылке
             try {
@@ -54,7 +52,7 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
               );
             } catch { }
           } catch (error: any) {
-            console.error('Ошибка работы с рефералами:', error);
+            logger.error('Ошибка работы с рефералами:', error);
             await ctx.reply(error?.message || '❌ Ошибка при работе с реферальной программой');
           }
         }
@@ -67,9 +65,9 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
           languageCode: ctx.from.language_code,
           isPremium: ctx.from.is_premium || false,
         });
-        console.debug(`User ensured in DB: ${telegramId}`);
+        logger.debug(`User ensured in DB: ${telegramId}`);
       } catch (e) {
-        console.error('Error ensuring user in DB on /start:', e);
+        logger.error('Error ensuring user in DB on /start:', e as any);
       }
     }
     const userId = String(ctx.from?.id);

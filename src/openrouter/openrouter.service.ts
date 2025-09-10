@@ -1,14 +1,14 @@
-import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import csvParse from 'csv-parse';
 import mammoth from 'mammoth';
 import OpenAI from 'openai';
 import pdfParse from 'pdf-parse';
 import { Langfuse } from 'langfuse';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class OpenRouterService implements OnModuleDestroy {
-  private readonly logger = new Logger(OpenRouterService.name);
   private client: OpenAI;
   private readonly requestTimeoutMs: number;
   private readonly maxAttemptsDefault: number;
@@ -16,7 +16,7 @@ export class OpenRouterService implements OnModuleDestroy {
   private readonly retryMaxMs: number;
   private langfuse?: Langfuse;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: ConfigService, private readonly logger: WinstonLoggerService) {
     this.requestTimeoutMs =
       Number(this.configService.get<string>('OPENROUTER_TIMEOUT_MS')) || 60000;
     this.maxAttemptsDefault =
@@ -47,12 +47,12 @@ export class OpenRouterService implements OnModuleDestroy {
           secretKey: lfSecretKey,
           baseUrl: lfBaseUrl || undefined,
         });
-        this.logger.log('Langfuse initialized');
+        this.logger.log('Langfuse initialized', OpenRouterService.name);
       } catch (e) {
-        this.logger.warn(`Langfuse initialization failed: ${String((e as Error)?.message || e)}`);
+        this.logger.warn(`Langfuse initialization failed: ${String((e as Error)?.message || e)}`, OpenRouterService.name);
       }
     } else {
-      this.logger.log('Langfuse is not configured (no keys), skipping telemetry');
+      this.logger.log('Langfuse is not configured (no keys), skipping telemetry', OpenRouterService.name);
     }
   }
 
@@ -65,7 +65,7 @@ export class OpenRouterService implements OnModuleDestroy {
         await anyLf.shutdownAsync();
       }
     } catch (e) {
-      this.logger.warn(`Langfuse shutdown failed: ${String((e as Error)?.message || e)}`);
+      this.logger.warn(`Langfuse shutdown failed: ${String((e as Error)?.message || e)}`, OpenRouterService.name);
     }
   }
 
@@ -79,6 +79,7 @@ export class OpenRouterService implements OnModuleDestroy {
   ): Promise<string> {
     this.logger.log(
       `Sending audio request to OpenRouter API, model: ${model}, history: ${history.length}, hasPrompt: ${!!prompt}, format: ${format}`,
+      OpenRouterService.name,
     );
 
     const systemMessage = {
@@ -145,6 +146,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const response = completion.choices[0].message?.content || '';
         this.logger.log(
           `Received response from OpenRouter API (audio), model: ${model}, response length: ${response.length}`,
+          OpenRouterService.name,
         );
         try {
           generation?.update({
@@ -174,6 +176,7 @@ export class OpenRouterService implements OnModuleDestroy {
           this.logger.error(
             `Error calling OpenRouter API (audio), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
+            OpenRouterService.name,
           );
           try {
             trace?.update({
@@ -187,6 +190,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const backoffMs = this.getBackoffWithJitter(attempt);
         this.logger.warn(
           `OpenRouter audio call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+          OpenRouterService.name,
         );
         await this.sleep(backoffMs);
       }
@@ -203,6 +207,7 @@ export class OpenRouterService implements OnModuleDestroy {
   ): Promise<string> {
     this.logger.log(
       `Sending multimodal request to OpenRouter API, model: ${model}, history: ${history.length}, images: ${images.length}, hasPrompt: ${!!prompt}`,
+      OpenRouterService.name,
     );
 
     const systemMessage = {
@@ -258,6 +263,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const response = completion.choices[0].message?.content || '';
         this.logger.log(
           `Received response from OpenRouter API (multimodal), model: ${model}, response length: ${response.length}`,
+          OpenRouterService.name,
         );
         try {
           generation?.update({
@@ -287,6 +293,7 @@ export class OpenRouterService implements OnModuleDestroy {
           this.logger.error(
             `Error calling OpenRouter API (multimodal), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
+            OpenRouterService.name,
           );
           try {
             trace?.update({
@@ -300,6 +307,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const backoffMs = this.getBackoffWithJitter(attempt);
         this.logger.warn(
           `OpenRouter multimodal call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+          OpenRouterService.name,
         );
         await this.sleep(backoffMs);
       }
@@ -321,6 +329,7 @@ export class OpenRouterService implements OnModuleDestroy {
   ): Promise<{ images: { buffer: Buffer; mimeType: string }[]; text?: string }> {
     this.logger.log(
       `Sending image gen/edit request to OpenRouter API, model: ${model}, hasInitImage: ${!!initImageDataUrl}`,
+      OpenRouterService.name,
     );
 
     const userContent: any[] = [];
@@ -495,6 +504,7 @@ export class OpenRouterService implements OnModuleDestroy {
 
         this.logger.log(
           `Received image gen/edit response: images=${images.length}, text=${text ? text.length : 0}`,
+          OpenRouterService.name,
         );
         try {
           generation?.update({
@@ -524,6 +534,7 @@ export class OpenRouterService implements OnModuleDestroy {
           this.logger.error(
             `Error calling OpenRouter API (image gen/edit), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
+            OpenRouterService.name,
           );
           try {
             trace?.update({
@@ -537,6 +548,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const backoffMs = this.getBackoffWithJitter(attempt);
         this.logger.warn(
           `OpenRouter image gen/edit call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+          OpenRouterService.name,
         );
         await this.sleep(backoffMs);
       }
@@ -556,6 +568,7 @@ export class OpenRouterService implements OnModuleDestroy {
   ): Promise<{ images: { buffer: Buffer; mimeType: string }[]; text?: string }> {
     this.logger.log(
       `Sending multi-image gen request to OpenRouter API, model: ${model}, images: ${imageDataUrls.length}`,
+      OpenRouterService.name,
     );
 
     const userContent: any[] = [];
@@ -627,6 +640,7 @@ export class OpenRouterService implements OnModuleDestroy {
 
         this.logger.log(
           `Received multi-image gen response: images=${images.length}, text=${text ? text.length : 0}`,
+          OpenRouterService.name,
         );
         try {
           generation?.update({
@@ -656,6 +670,7 @@ export class OpenRouterService implements OnModuleDestroy {
           this.logger.error(
             `Error calling OpenRouter API (multi-image gen), model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
+            OpenRouterService.name,
           );
           try {
             trace?.update({
@@ -669,6 +684,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const backoffMs = this.getBackoffWithJitter(attempt);
         this.logger.warn(
           `OpenRouter multi-image gen call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+          OpenRouterService.name,
         );
         await this.sleep(backoffMs);
       }
@@ -680,6 +696,7 @@ export class OpenRouterService implements OnModuleDestroy {
   async ask(message: any, model: string, fileContent?: string, contextImageDataUrl?: string): Promise<string> {
     this.logger.log(
       `Sending request to OpenRouter API, model: ${model}, messages: ${message.length}, has file: ${!!fileContent}`,
+      OpenRouterService.name,
     );
 
     const systemMessage = {
@@ -694,6 +711,7 @@ export class OpenRouterService implements OnModuleDestroy {
     if (fileContent) {
       this.logger.log(
         `Adding file content to request, content length: ${fileContent.length} characters`,
+        OpenRouterService.name,
       );
       const fileMessage = {
         role: 'user',
@@ -748,6 +766,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const response = completion.choices[0].message?.content || '';
         this.logger.log(
           `Received response from OpenRouter API, model: ${model}, response length: ${response.length}`,
+          OpenRouterService.name,
         );
         try {
           generation?.update({
@@ -777,6 +796,7 @@ export class OpenRouterService implements OnModuleDestroy {
           this.logger.error(
             `Error calling OpenRouter API, model: ${model}, attempt: ${attempt}/${maxAttempts}:`,
             error,
+            OpenRouterService.name,
           );
           try {
             trace?.update({
@@ -790,6 +810,7 @@ export class OpenRouterService implements OnModuleDestroy {
         const backoffMs = this.getBackoffWithJitter(attempt);
         this.logger.warn(
           `OpenRouter call failed (attempt ${attempt}/${maxAttempts}). Will retry in ${backoffMs}ms. Reason: code=${code} status=${status} message=${messageText}`,
+          OpenRouterService.name,
         );
         await this.sleep(backoffMs);
       }
@@ -801,6 +822,7 @@ export class OpenRouterService implements OnModuleDestroy {
   async processFile(fileBuffer: Buffer, mimeType: string): Promise<string> {
     this.logger.log(
       `Processing file with mime type: ${mimeType}, buffer size: ${fileBuffer.length} bytes`,
+      OpenRouterService.name,
     );
 
     try {
@@ -834,10 +856,11 @@ export class OpenRouterService implements OnModuleDestroy {
 
       this.logger.log(
         `File processed successfully, mime type: ${mimeType}, extracted text length: ${result.length} characters`,
+        OpenRouterService.name,
       );
       return result;
     } catch (error) {
-      this.logger.error(`Error processing file, mime type: ${mimeType}:`, error);
+      this.logger.error(`Error processing file, mime type: ${mimeType}:`, error, OpenRouterService.name);
       throw new Error(`Ошибка при обработке файла: ${error.message}`);
     }
   }

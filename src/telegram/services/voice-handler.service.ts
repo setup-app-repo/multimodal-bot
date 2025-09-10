@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Filter } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
@@ -11,11 +11,10 @@ import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } fro
 
 import { AccessControlService } from './access-control.service';
 import { AudioConversionService } from './audio-conversion.service';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class VoiceHandlerService {
-  private readonly logger = new Logger(VoiceHandlerService.name);
-
   constructor(
     private readonly i18n: I18nService,
     private readonly redisService: RedisService,
@@ -23,6 +22,7 @@ export class VoiceHandlerService {
     private readonly configService: ConfigService,
     private readonly audioConversionService: AudioConversionService,
     private readonly accessControlService: AccessControlService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -52,6 +52,7 @@ export class VoiceHandlerService {
 
       this.logger.log(
         `Voice message from user ${userId}: file_id=${voice.file_id}, duration=${voice.duration}s, size=${voice.file_size || 0}`,
+        VoiceHandlerService.name,
       );
 
       const file = await ctx.api.getFile(voice.file_id);
@@ -66,7 +67,7 @@ export class VoiceHandlerService {
       let convertedBuffer: Buffer;
       let format: 'mp3' | 'wav' = 'mp3';
       if (file.file_path.endsWith('.ogg') || file.file_path.endsWith('.oga')) {
-        this.logger.log(`Converting OGG/OGA (Opus) to mp3 for user ${userId}`);
+        this.logger.log(`Converting OGG/OGA (Opus) to mp3 for user ${userId}`, VoiceHandlerService.name);
         convertedBuffer = await this.audioConversionService.oggOpusToMp3(inputBuffer);
         format = 'mp3';
       } else if (file.file_path.endsWith('.wav')) {
@@ -79,6 +80,7 @@ export class VoiceHandlerService {
         // На всякий случай: пробуем как ogg->mp3
         this.logger.log(
           `Unknown extension for voice ${file.file_path}, attempting ogg->mp3 conversion`,
+          VoiceHandlerService.name,
         );
         convertedBuffer = await this.audioConversionService.oggOpusToMp3(inputBuffer);
         format = 'mp3';
@@ -146,7 +148,7 @@ export class VoiceHandlerService {
         { parse_mode: 'HTML' },
       );
     } catch (error) {
-      this.logger.error(`Error processing voice from user ${String(ctx.from?.id)}:`, error);
+      this.logger.error(`Error processing voice from user ${String(ctx.from?.id)}:`, error as any, VoiceHandlerService.name);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
       } catch { }

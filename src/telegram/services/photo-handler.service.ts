@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Filter, InputFile } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
@@ -11,10 +11,10 @@ import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buil
 
 import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class PhotoHandlerService {
-  private readonly logger = new Logger(PhotoHandlerService.name);
   private readonly albumCollector = new Map<string, {
     images: { mimeType: string; dataUrl: string }[],
     caption?: string,
@@ -29,6 +29,7 @@ export class PhotoHandlerService {
     private readonly configService: ConfigService,
     private readonly accessControlService: AccessControlService,
     private readonly setupAppService: SetupAppService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -49,7 +50,7 @@ export class PhotoHandlerService {
     album.processed = true;
     clearTimeout(album.timer);
 
-    this.logger.log(`Processing album ${albumKey} with ${album.images.length} images`);
+    this.logger.log(`Processing album ${albumKey} with ${album.images.length} images`, PhotoHandlerService.name);
 
     try {
       // Проверка доступа и списание
@@ -169,7 +170,7 @@ export class PhotoHandlerService {
         );
       }
     } catch (error) {
-      this.logger.error(`Error processing album ${albumKey}:`, error);
+      this.logger.error(`Error processing album ${albumKey}:`, error as any, PhotoHandlerService.name);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
       } catch { }
@@ -199,19 +200,21 @@ export class PhotoHandlerService {
 
       this.logger.log(
         `Photo received from user ${userId}: file_id=${largest.file_id}, size=${largest.file_size || 0}`,
+        PhotoHandlerService.name,
       );
 
       const size = largest.file_size ?? 0;
       if (size > MAX_FILE_SIZE_BYTES) {
         this.logger.warn(
           `User ${userId} tried to upload photo with size ${size} bytes (exceeds limit)`,
+          PhotoHandlerService.name,
         );
         await ctx.reply(this.t(ctx, 'warning_file_size_limit'));
         return;
       }
 
       if (!MODELS_SUPPORTING_PHOTOS.has(model)) {
-        this.logger.warn(`User ${userId} tried to upload photo with unsupported model: ${model}`);
+        this.logger.warn(`User ${userId} tried to upload photo with unsupported model: ${model}`, PhotoHandlerService.name);
         await ctx.reply(this.t(ctx, 'warning_model_no_photo_support'));
         return;
       }
@@ -229,7 +232,7 @@ export class PhotoHandlerService {
         const pathLower = file.file_path.toLowerCase();
         const ext = pathLower.split('.').pop() || '';
         if (!IMAGE_EXTENSIONS.has(ext)) {
-          this.logger.warn(`User ${userId} sent unsupported photo type: ${file.file_path}`);
+          this.logger.warn(`User ${userId} sent unsupported photo type: ${file.file_path}`, PhotoHandlerService.name);
           await ctx.reply(this.t(ctx, 'warning_unsupported_photo_type'));
           return;
         }
@@ -257,12 +260,12 @@ export class PhotoHandlerService {
             timer,
             processed: false
           });
-          this.logger.log(`Started album collection for ${albumKey}`);
+          this.logger.log(`Started album collection for ${albumKey}`, PhotoHandlerService.name);
         } else {
           // Добавляем к существующему альбому
           existing.images.push({ mimeType, dataUrl });
           if (!existing.caption && caption) existing.caption = caption;
-          this.logger.log(`Added photo to album ${albumKey}, total: ${existing.images.length}`);
+          this.logger.log(`Added photo to album ${albumKey}, total: ${existing.images.length}`, PhotoHandlerService.name);
         }
         return;
       }
@@ -280,7 +283,7 @@ export class PhotoHandlerService {
       const ext = pathLower.split('.').pop() || '';
       const allowed = IMAGE_EXTENSIONS.has(ext);
       if (!allowed) {
-        this.logger.warn(`User ${userId} sent unsupported photo type: ${file.file_path}`);
+        this.logger.warn(`User ${userId} sent unsupported photo type: ${file.file_path}`, PhotoHandlerService.name);
         await ctx.reply(this.t(ctx, 'warning_unsupported_photo_type'));
         return;
       }
@@ -432,7 +435,7 @@ export class PhotoHandlerService {
         { parse_mode: 'HTML' },
       );
     } catch (error) {
-      this.logger.error(`Error processing photo from user ${String(ctx.from?.id)}:`, error);
+      this.logger.error(`Error processing photo from user ${String(ctx.from?.id)}:`, error as any, PhotoHandlerService.name);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
       } catch { }

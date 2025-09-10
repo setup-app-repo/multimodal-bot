@@ -1,6 +1,6 @@
 import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { I18nService } from 'src/i18n/i18n.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -8,17 +8,17 @@ import { Subscription } from 'src/subscription/subscription.entity';
 
 import { PREMIUM_SUBSCRIPTION_COST_SP } from '../constants';
 import { BotMessagingService } from '../services';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Processor('subscription-renewal')
 @Injectable()
 export class SubscriptionRenewalProcessor extends WorkerHost {
-  private readonly logger = new Logger(SubscriptionRenewalProcessor.name);
-
   constructor(
     private readonly em: EntityManager,
     private readonly setupAppService: SetupAppService,
     private readonly botService: BotMessagingService,
     private readonly i18n: I18nService,
+    private readonly logger: WinstonLoggerService,
   ) {
     super();
   }
@@ -91,7 +91,7 @@ export class SubscriptionRenewalProcessor extends WorkerHost {
       });
       await this.botService.sendPlainText(telegramId, successText);
     } catch (error) {
-      this.logger.error(`Renewal job failed for ${job.id}`, error);
+      this.logger.error(`Renewal job failed for ${job.id}`, error as any, 'SubscriptionRenewalProcessor');
       throw error;
     }
   }

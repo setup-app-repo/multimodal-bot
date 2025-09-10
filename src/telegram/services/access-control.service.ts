@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InlineKeyboard } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -7,6 +7,7 @@ import { SubscriptionService } from 'src/subscription/subscription.service';
 
 import { getPriceSP, MODEL_TO_TIER, ModelTier, DAILY_BASE_FREE_LIMIT } from '../constants';
 import { BotContext } from '../interfaces';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 export interface AccessCheckResult {
   canProceed: boolean;
@@ -16,13 +17,12 @@ export interface AccessCheckResult {
 
 @Injectable()
 export class AccessControlService {
-  private readonly logger = new Logger(AccessControlService.name);
-
   constructor(
     private readonly redisService: RedisService,
     private readonly subscriptionService: SubscriptionService,
     private readonly setupAppService: SetupAppService,
     private readonly i18n: I18nService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   /**
@@ -42,6 +42,7 @@ export class AccessControlService {
 
     this.logger.log(
       `Access check for user ${userId}: model=${model}, tier=${tier}, hasSubscription=${hasActiveSubscription}, price=${price}`,
+      'AccessControlService',
     );
 
     // Проверка SP для платных моделей
@@ -63,9 +64,10 @@ export class AccessControlService {
         }
         this.logger.log(
           `User ${userId} used ${usedToday}/${DAILY_BASE_FREE_LIMIT} free requests today`,
+          'AccessControlService',
         );
       } catch (limitError) {
-        this.logger.error(`Daily limit check failed for user ${userId}:`, limitError);
+        this.logger.error(`Daily limit check failed for user ${userId}:`, limitError as any, 'AccessControlService');
         // В случае ошибки проверки лимита, разрешаем доступ
       }
     }
@@ -85,7 +87,7 @@ export class AccessControlService {
     const tier = MODEL_TO_TIER[model] ?? ModelTier.MID;
     if (tier !== ModelTier.BASE && price > 0) {
       await this.setupAppService.deduct(Number(userId), price, description);
-      this.logger.log(`Deducted ${price} SP from user ${userId} for: ${description}`);
+      this.logger.log(`Deducted ${price} SP from user ${userId} for: ${description}`, 'AccessControlService');
     }
   }
 

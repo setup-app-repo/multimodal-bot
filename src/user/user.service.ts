@@ -1,19 +1,19 @@
 import { EntityManager, EntityRepository, CreateRequestContext } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { CreateUserDTO } from './dto';
 import { User } from './user.entity';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
-
   constructor(
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
     private readonly em: EntityManager,
-  ) {}
+    private readonly logger: WinstonLoggerService,
+  ) { }
 
   /**
    * Создает нового пользователя или возвращает существующего
@@ -23,7 +23,7 @@ export class UserService {
     let user = await this.userRepository.findOne({ telegramId });
 
     if (user) {
-      this.logger.debug(`User found: ${telegramId}`);
+      this.logger.debug(`User found: ${telegramId}`, 'UserService');
 
       // Обновляем lastMessageAt
       user.lastMessageAt = new Date();
@@ -33,7 +33,7 @@ export class UserService {
     }
 
     // Создаем нового пользователя
-    this.logger.log(`Creating new user: ${telegramId}`);
+    this.logger.log(`Creating new user: ${telegramId}`, 'UserService');
 
     user = this.userRepository.create({
       telegramId,
@@ -49,7 +49,7 @@ export class UserService {
     });
 
     await this.em.persistAndFlush(user);
-    this.logger.log(`User created successfully: ${user.telegramId}`);
+    this.logger.log(`User created successfully: ${user.telegramId}`, 'UserService');
 
     return user;
   }

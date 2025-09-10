@@ -53,6 +53,7 @@
     "joi": "^17.13.3",
     "langfuse": "^3.38.5",
     "mammoth": "^1.10.0",
+    "nest-winston": "^1.10.2",
     "node-fetch": "^2.7.0",
     "openai": "^5.15.0",
     "pdf-parse": "^1.1.1",

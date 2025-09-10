@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Filter } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -14,16 +14,16 @@ import { BotContext } from '../interfaces';
 
 import { AccessControlService } from './access-control.service';
 import { TelegramFileService } from './telegram-file.service';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class DocumentHandlerService {
-  private readonly logger = new Logger(DocumentHandlerService.name);
-
   constructor(
     private readonly i18n: I18nService,
     private readonly redisService: RedisService,
     private readonly telegramFileService: TelegramFileService,
     private readonly accessControlService: AccessControlService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -48,12 +48,14 @@ export class DocumentHandlerService {
 
       this.logger.log(
         `Document received from user ${userId}: ${doc.file_name} (${doc.mime_type}, ${doc.file_size} bytes)`,
+        DocumentHandlerService.name,
       );
 
       const size = doc.file_size ?? 0;
       if (size > MAX_FILE_SIZE_BYTES) {
         this.logger.warn(
           `User ${userId} tried to upload file ${doc.file_name} with size ${size} bytes (exceeds limit)`,
+          DocumentHandlerService.name,
         );
         await ctx.reply(this.t(ctx, 'warning_file_size_limit'));
         return;
@@ -61,7 +63,7 @@ export class DocumentHandlerService {
 
       const mime = doc.mime_type || '';
       if (!ALLOWED_MIME_TYPES.has(mime)) {
-        this.logger.warn(`User ${userId} tried to upload unsupported file type: ${mime}`);
+        this.logger.warn(`User ${userId} tried to upload unsupported file type: ${mime}`, DocumentHandlerService.name);
         await ctx.reply(this.t(ctx, 'warning_unsupported_file_type'));
         return;
       }
@@ -71,13 +73,13 @@ export class DocumentHandlerService {
       const ext = name.split('.').pop() || '';
       const hasAllowedExt = DOC_EXTENSIONS.has(ext);
       if (!hasAllowedExt) {
-        this.logger.warn(`User ${userId} tried to upload unsupported file extension: ${doc.file_name}`);
+        this.logger.warn(`User ${userId} tried to upload unsupported file extension: ${doc.file_name}`, DocumentHandlerService.name);
         await ctx.reply(this.t(ctx, 'warning_unsupported_file_type'));
         return;
       }
 
       if (!MODELS_SUPPORTING_FILES.has(model)) {
-        this.logger.warn(`User ${userId} tried to upload file with unsupported model: ${model}`);
+        this.logger.warn(`User ${userId} tried to upload file with unsupported model: ${model}`, DocumentHandlerService.name);
         await ctx.reply(this.t(ctx, 'warning_model_no_file_support'));
         return;
       }
@@ -94,7 +96,7 @@ export class DocumentHandlerService {
         60 * 60,
       );
 
-      this.logger.log(`File ${doc.file_name} saved for user ${userId}, fileId: ${doc.file_id}`);
+      this.logger.log(`File ${doc.file_name} saved for user ${userId}, fileId: ${doc.file_id}`, DocumentHandlerService.name);
 
       const humanSize = size < 1024
         ? `${size} B`
@@ -109,7 +111,7 @@ export class DocumentHandlerService {
         `${this.t(ctx, 'file_type', { type: mime })}`,
       );
     } catch (error) {
-      this.logger.error(`Error processing document from user ${String(ctx.from?.id)}:`, error);
+      this.logger.error(`Error processing document from user ${String(ctx.from?.id)}:`, error as any, DocumentHandlerService.name);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_file'));
       } catch { }

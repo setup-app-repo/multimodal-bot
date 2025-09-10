@@ -1,16 +1,16 @@
-import { Controller, Post, Body, Logger, Param, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Param, Res, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
 
 import { BotMainService } from './services';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Controller('telegram')
 export class TelegramController {
-  private readonly logger = new Logger(TelegramController.name);
-
   constructor(
     private readonly botOrchestrator: BotMainService,
     private readonly configService: ConfigService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   @Post('webhook/:token')
@@ -19,7 +19,7 @@ export class TelegramController {
     @Body() update: any,
     @Res() res: Response,
   ): Promise<void> {
-    this.logger.log('Получен webhook update от Telegram');
+    this.logger.log('Получен webhook update от Telegram', 'TelegramController');
 
     try {
       const secretKey = this.configService.get<string>('TELEGRAM_SECRET_KEY');
@@ -32,7 +32,7 @@ export class TelegramController {
       await this.botOrchestrator.handleWebhookUpdate(update);
       res.status(HttpStatus.OK).json({ ok: true });
     } catch (error) {
-      this.logger.error('Ошибка обработки webhook:', error);
+      this.logger.error('Ошибка обработки webhook:', error as any, 'TelegramController');
       throw error;
     }
   }

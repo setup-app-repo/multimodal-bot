@@ -1,20 +1,20 @@
 import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
 import { SqlEntityManager } from '@mikro-orm/postgresql';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { I18nService } from 'src/i18n/i18n.service';
 import { Subscription } from 'src/subscription/subscription.entity';
 import { BotMessagingService } from 'src/telegram/services';
 import { User } from 'src/user/user.entity';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class NotificationService {
-  private readonly logger = new Logger(NotificationService.name);
-
   constructor(
     private readonly em: EntityManager,
     private readonly i18n: I18nService,
     private readonly bot: BotMessagingService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   /**
@@ -51,7 +51,7 @@ export class NotificationService {
       .execute();
 
     if (!rows.length) {
-      this.logger.debug('Нет кандидатов для напоминаний об неактивности');
+      this.logger.debug('Нет кандидатов для напоминаний об неактивности', 'NotificationService');
       return;
     }
 
@@ -69,11 +69,12 @@ export class NotificationService {
           const raw = this.i18n.t('notification_inactive_recall', locale, {
             first_name: row.firstName || row.username || '',
           });
-          const text = raw.replace(/\\n/g, '\n');
+          const text = raw.replace(/\n/g, '\n');
           await this.bot.sendPlainText(Number(row.telegramId), text);
         } catch (error) {
           this.logger.warn(
             `Не удалось отправить напоминание пользователю ${row.telegramId}: ${String(error)}`,
+            'NotificationService',
           );
         }
       });
@@ -134,6 +135,7 @@ export class NotificationService {
       } catch (error) {
         this.logger.warn(
           `Не удалось отправить уведомление о подписке ${row.id} пользователю ${row.telegramId}: ${String(error)}`,
+          'NotificationService',
         );
       }
     });

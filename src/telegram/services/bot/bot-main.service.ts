@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 
 import { I18nService } from 'src/i18n/i18n.service';
 import { RedisService } from 'src/redis/redis.service';
@@ -11,11 +11,10 @@ import { BotWebhookService } from './bot-webhook.service';
 import { BotHandlerRegistrationService } from './bot-handler-registration.service';
 import { TranslateFn } from 'src/telegram/commands/utils/types';
 import { BotContext } from 'src/telegram/interfaces';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class BotMainService implements OnModuleInit {
-    private readonly logger = new Logger(BotMainService.name);
-
     constructor(
         private readonly botInstance: BotInstanceService,
         private readonly middleware: BotMiddlewareService,
@@ -27,10 +26,11 @@ export class BotMainService implements OnModuleInit {
         private readonly setupAppService: SetupAppService,
         private readonly userService: UserService,
         private readonly subscriptionService: SubscriptionService,
+        private readonly logger: WinstonLoggerService,
     ) { }
 
     async onModuleInit(): Promise<void> {
-        this.logger.log('Initializing BotMainService...');
+        this.logger.log('Initializing BotMainService...', 'BotMainService');
         const bot = this.botInstance.createBot();
 
         this.middleware.setupAll(bot);
@@ -38,7 +38,7 @@ export class BotMainService implements OnModuleInit {
 
         await bot.init();
         await this.webhook.setupWebhook(bot);
-        this.logger.log('BotMainService initialized');
+        this.logger.log('BotMainService initialized', 'BotMainService');
     }
 
     private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -55,6 +55,7 @@ export class BotMainService implements OnModuleInit {
             setupAppService: this.setupAppService,
             userService: this.userService,
             subscriptionService: this.subscriptionService,
+            logger: this.logger,
         };
     }
 

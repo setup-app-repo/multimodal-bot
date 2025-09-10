@@ -1,18 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 
 import { BotContext } from '../interfaces';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class TelegramFileService {
-  private readonly logger = new Logger(TelegramFileService.name);
-
   constructor(
     private readonly redisService: RedisService,
     private readonly openRouterService: OpenRouterService,
     private readonly configService: ConfigService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   async hasPendingFile(userId: string): Promise<boolean> {
@@ -25,7 +25,7 @@ export class TelegramFileService {
       const fileInfoStr = await this.redisService.get<string>(latestKey);
       return !!fileInfoStr;
     } catch (error) {
-      this.logger.error(`Error checking pending file for user ${userId}:`, error);
+      this.logger.error(`Error checking pending file for user ${userId}:`, error as any, TelegramFileService.name);
       return false;
     }
   }
@@ -52,11 +52,11 @@ export class TelegramFileService {
       await this.redisService.rpush(`file:${userId}:queue`, key);
       await this.redisService.expire(`file:${userId}:queue`, ttlSeconds);
     } catch (err) {
-      this.logger.warn(`Failed to push file key to queue for user ${userId}: ${String(err)}`);
+      this.logger.warn(`Failed to push file key to queue for user ${userId}: ${String(err)}`, TelegramFileService.name);
       // Fallback: сохраняем указатель на последний файл (legacy)
       await this.redisService.set(`file:${userId}:latest`, key, ttlSeconds);
     }
-    this.logger.log(`Saved file meta for user ${userId}, key: ${key}`);
+    this.logger.log(`Saved file meta for user ${userId}, key: ${key}`, TelegramFileService.name);
   }
 
   async consumeLatestFileAndProcess(userId: string, ctx: BotContext): Promise<string | undefined> {
@@ -76,6 +76,7 @@ export class TelegramFileService {
 
       this.logger.log(
         `Processing file ${fileInfo.fileName ?? fileId} (${fileInfo.mimeType}) for user ${userId}`,
+        TelegramFileService.name,
       );
 
       const file = await ctx.api.getFile(fileId);
@@ -94,7 +95,7 @@ export class TelegramFileService {
 
       return content;
     } catch (error) {
-      this.logger.error(`Error processing latest file for user ${userId}:`, error);
+      this.logger.error(`Error processing latest file for user ${userId}:`, error as any, TelegramFileService.name);
       return undefined;
     }
   }
@@ -153,7 +154,7 @@ export class TelegramFileService {
       const combinedContent = parts.join('\n\n---\n\n');
       return { combinedContent, count: processed };
     } catch (error) {
-      this.logger.error(`Error processing pending files for user ${userId}:`, error);
+      this.logger.error(`Error processing pending files for user ${userId}:`, error as any, TelegramFileService.name);
       return { combinedContent: undefined, count: 0 };
     }
   }

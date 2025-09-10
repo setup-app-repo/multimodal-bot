@@ -1,12 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class AppConfigService {
-  private readonly logger = new Logger(AppConfigService.name);
-
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: ConfigService, private readonly logger: WinstonLoggerService) {
     this.validateInput();
   }
 
@@ -45,7 +44,7 @@ export class AppConfigService {
 
     const { error } = schema.validate(process.env, { allowUnknown: true });
     if (error) {
-      this.logger.error(`Configuration validation error: ${error.message}`);
+      this.logger.error(`Configuration validation error: ${error.message}`, undefined, 'AppConfigService');
       throw new Error(`Configuration validation error: ${error.message}`);
     }
   }

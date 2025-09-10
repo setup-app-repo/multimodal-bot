@@ -1,19 +1,20 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserLogsService } from 'src/user-logs/user-logs.service';
 import { EUserLogType } from 'src/user-logs/user-log.entity';
 import { GrammyContext, SetupApp } from '@setup-app-repo/setup.app-sdk';
 
 import { SetupAppConfigService } from './setup-app-config.service';
 import { ISetupAppUserData } from './interfaces';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class SetupAppService {
-  private readonly logger = new Logger(SetupAppService.name);
   private setupApp: SetupApp;
 
   constructor(
     private readonly setupAppConfigService: SetupAppConfigService,
     private readonly userLogsService: UserLogsService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   async onModuleInit(): Promise<void> {
@@ -34,9 +35,9 @@ export class SetupAppService {
         hasServiceKey: !!config.serviceKey,
         enableLogging: config.enableLogging,
         timestamp: new Date().toISOString(),
-      });
+      } as any);
     } catch (error) {
-      console.error(` Failed to initialize Setup.app SDK:`, error);
+      this.logger.error(` Failed to initialize Setup.app SDK:`, error as any, SetupAppService.name);
       throw error;
     }
   }
@@ -73,7 +74,6 @@ export class SetupAppService {
     return this.setupApp.setReferral(telegramId, referralId, userData);
   }
 
-
   async auth(telegramId: number, userData) {
     return this.setupApp.auth(telegramId, userData);
   }
@@ -87,7 +87,7 @@ export class SetupAppService {
     try {
       await this.userLogsService.log(String(telegramId), EUserLogType.DEDUCT, amount, description);
     } catch (e) {
-      this.logger.warn(`Failed to write user log for deduct: ${String(e)}`);
+      this.logger.warn(`Failed to write user log for deduct: ${String(e)}`, SetupAppService.name);
     }
     return result;
   }

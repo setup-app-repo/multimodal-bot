@@ -6,6 +6,7 @@ import { SubscriptionService } from 'src/subscription/subscription.service';
 import { UserService } from 'src/user/user.service';
 
 import { BotContext } from '../../interfaces';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 export type TranslateFn = (ctx: BotContext, key: string, args?: Record<string, any>) => string;
 
@@ -16,6 +17,7 @@ export interface RegisterCommandsDeps {
   setupAppService: SetupAppService;
   userService: UserService;
   subscriptionService: SubscriptionService;
+  logger: WinstonLoggerService;
 }
 
 export type ScreenData = {

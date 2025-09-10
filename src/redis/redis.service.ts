@@ -1,18 +1,18 @@
-import { Injectable, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { Redis } from 'ioredis';
+import { WinstonLoggerService } from '../logger/winston-logger.service';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
-  private readonly logger = new Logger(RedisService.name);
   private readonly client: Redis;
   private readonly CHAT_TTL = 60 * 60;
   private readonly MAX_HISTORY = 20;
   private readonly HISTORY_RETENTION_DAYS = 50;
   private readonly MAX_HISTORY_CHARS = 30000;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: ConfigService, private readonly logger: WinstonLoggerService) {
     const redisUrl = this.configService.get<string>('REDIS_URL');
     if (!redisUrl) {
       throw new Error('REDIS_URL is required for RedisService');
@@ -38,14 +38,14 @@ export class RedisService implements OnModuleDestroy {
       },
     });
 
-    this.client.on('connect', () => this.logger.log('Redis connecting...'));
-    this.client.on('ready', () => this.logger.log('Redis connection ready'));
+    this.client.on('connect', () => this.logger.log('Redis connecting...', RedisService.name));
+    this.client.on('ready', () => this.logger.log('Redis connection ready', RedisService.name));
     this.client.on('reconnecting', (delay: number) =>
-      this.logger.warn(`Redis reconnecting in ${delay} ms`),
+      this.logger.warn(`Redis reconnecting in ${delay} ms`, RedisService.name),
     );
-    this.client.on('end', () => this.logger.warn('Redis connection ended'));
+    this.client.on('end', () => this.logger.warn('Redis connection ended', RedisService.name));
     this.client.on('error', (err) =>
-      this.logger.error(`Redis error: ${err?.message ?? String(err)}`, (err as any)?.stack),
+      this.logger.error(`Redis error: ${err?.message ?? String(err)}`, (err as any)?.stack, RedisService.name),
     );
   }
 
@@ -57,7 +57,7 @@ export class RedisService implements OnModuleDestroy {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   private async cleanupOldHistory() {
     try {
-      console.log('Starting daily history cleanup...');
+      this.logger.log('Starting daily history cleanup...', RedisService.name);
       const cutoffTime =
         Date.now() - this.HISTORY_RETENTION_DAYS * 24 * 60 * 60 * 1000;
       const pattern = 'chat:*:history';
@@ -90,11 +90,12 @@ export class RedisService implements OnModuleDestroy {
           cleanedCount++;
         }
       }
-      console.log(
+      this.logger.log(
         `History cleanup completed. Cleaned ${cleanedCount} chat histories.`,
+        RedisService.name,
       );
     } catch (error) {
-      console.error('Error during history cleanup:', error);
+      this.logger.error('Error during history cleanup:', error as any, RedisService.name);
     }
   }
 

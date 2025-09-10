@@ -2,18 +2,18 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 
 import { I18n } from '@grammyjs/i18n';
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { II18nService, I18nConfig } from './interfaces';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class I18nService implements II18nService {
-  private readonly logger = new Logger(I18nService.name);
   private readonly i18n: I18n;
   private readonly config: I18nConfig;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(private readonly configService: ConfigService, private readonly logger: WinstonLoggerService) {
     const cwd = process.cwd();
     const distLocalesPath = join(cwd, 'dist', 'locales');
     const srcLocalesPath = join(cwd, 'src', 'i18n', 'locales');
@@ -31,9 +31,9 @@ export class I18nService implements II18nService {
       directory: this.config.localesPath,
     });
 
-    this.logger.log(`I18n initialized with default locale: ${this.config.defaultLocale}`);
-    this.logger.log(`Supported locales: ${this.config.supportedLocales.join(', ')}`);
-    this.logger.log(`Locales directory: ${this.config.localesPath}`);
+    this.logger.log(`I18n initialized with default locale: ${this.config.defaultLocale}`, I18nService.name);
+    this.logger.log(`Supported locales: ${this.config.supportedLocales.join(', ')}`, I18nService.name);
+    this.logger.log(`Locales directory: ${this.config.localesPath}`, I18nService.name);
   }
 
   /**
@@ -46,7 +46,6 @@ export class I18nService implements II18nService {
       // Конвертируем ключ из dot-notation в kebab-case для FTL
       const ftlKey = this.convertKeyToFtl(key);
 
-      // 🚀 ОПТИМИЗАЦИЯ: Убираем debug логи для производительности
       // this.logger.debug(`Translating key: ${key} -> ${ftlKey} (locale: ${targetLocale})`);
 
       // Используем Grammy i18n для получения перевода
@@ -57,6 +56,7 @@ export class I18nService implements II18nService {
       if (!translation || translation === ftlKey) {
         this.logger.warn(
           `Missing translation for key: ${ftlKey} (original: ${key}, locale: ${targetLocale})`,
+          I18nService.name,
         );
         // Fallback на английский, если перевод не найден
         if (targetLocale !== this.config.defaultLocale) {
@@ -76,11 +76,13 @@ export class I18nService implements II18nService {
         this.logger.error(
           `Error getting translation for key ${key}: ${error.message}`,
           error.stack,
+          I18nService.name,
         );
       } else {
         this.logger.error(
           `Error getting translation for key ${key} (unknown error type):`,
           String(error),
+          I18nService.name,
         );
       }
       return key.replace('messages.', ''); // Возвращаем читаемый ключ

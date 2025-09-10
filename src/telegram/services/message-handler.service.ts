@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Filter, InputFile } from 'grammy';
 import { I18nService } from 'src/i18n/i18n.service';
 import { OpenRouterService } from 'src/openrouter/openrouter.service';
@@ -11,11 +11,10 @@ import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buil
 import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { TelegramFileService } from './telegram-file.service';
+import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
 export class MessageHandlerService {
-  private readonly logger = new Logger(MessageHandlerService.name);
-
   constructor(
     private readonly i18n: I18nService,
     private readonly redisService: RedisService,
@@ -23,6 +22,7 @@ export class MessageHandlerService {
     private readonly telegramFileService: TelegramFileService,
     private readonly accessControlService: AccessControlService,
     private readonly setupAppService: SetupAppService,
+    private readonly logger: WinstonLoggerService,
   ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -48,7 +48,7 @@ export class MessageHandlerService {
       const userId = String(ctx.from?.id);
       const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
-      this.logger.log(`Processing text message from user ${userId}, model: ${model}`);
+      this.logger.log(`Processing text message from user ${userId}, model: ${model}`, MessageHandlerService.name);
 
       // Модель по умолчанию всегда установлена через DEFAULT_MODEL
 
@@ -74,10 +74,11 @@ export class MessageHandlerService {
           fileContent = processed.combinedContent;
           this.logger.log(
             `Processed ${processed.count} file(s) for user ${userId}, combined length: ${fileContent.length} characters`,
+            MessageHandlerService.name,
           );
         }
       } catch (fileError) {
-        this.logger.error(`Error processing file for user ${userId}:`, fileError);
+        this.logger.error(`Error processing file for user ${userId}:`, fileError as any, MessageHandlerService.name);
         try {
           await ctx.reply(this.t(ctx, 'error_processing_file_retry'));
         } catch { }
@@ -94,6 +95,7 @@ export class MessageHandlerService {
 
       this.logger.log(
         `Sending request to OpenRouter for user ${userId}, model: ${model}, history length: ${history.length}, has file: ${!!fileContent}`,
+        MessageHandlerService.name,
       );
 
       const isFilePresent = !!fileContent && fileContent.length > 0;
@@ -113,6 +115,7 @@ export class MessageHandlerService {
       const price = accessResult.price;
       this.logger.log(
         `Will deduct ${price} SP for user ${userId} for model ${model}. isFilePresent: ${isFilePresent}`,
+        MessageHandlerService.name,
       );
 
       // Отправляем индикатор обработки перед запросом к модели
@@ -153,7 +156,7 @@ export class MessageHandlerService {
       });
       return; // немедленно выходим из хэндлера
     } catch (error) {
-      this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error);
+      this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error as any, MessageHandlerService.name);
       try {
         await ctx.reply(this.t(ctx, 'error_processing_message'));
       } catch { }
@@ -186,7 +189,7 @@ export class MessageHandlerService {
 
       // Фолбэк: если модель не вернула изображения, пробуем ещё раз без initImageDataUrl
       if (!images || images.length === 0) {
-        this.logger.warn(`Image gen returned no images for user ${userId}. Retrying without init image.`);
+        this.logger.warn(`Image gen returned no images for user ${userId}. Retrying without init image.`, MessageHandlerService.name);
         try {
           const retryPrompt = `${prompt}\n\nINSTRUCTIONS:\n- Generate a brand-new image strictly from the text above.\n- Ignore any previous/attached image.\n- If you cannot generate an image, reply with a concise text explanation of the reason.\n- If the prompt conflicts with safety, produce a benign, neutral scenic image matching a safe interpretation of the prompt or explain briefly why you cannot.`;
           const retry = await this.openRouterService.generateOrEditImage(
@@ -199,7 +202,7 @@ export class MessageHandlerService {
             text = retry.text ?? text;
           }
         } catch (retryErr) {
-          this.logger.warn(`Image gen retry failed for user ${userId}: ${String((retryErr as Error)?.message || retryErr)}`);
+          this.logger.warn(`Image gen retry failed for user ${userId}: ${String((retryErr as Error)?.message || retryErr)}`, MessageHandlerService.name);
         }
       }
 
@@ -207,7 +210,7 @@ export class MessageHandlerService {
       try {
         await this.accessControlService.deductSPIfNeeded(userId, model, price, `Query to ${model} (image-gen)`);
       } catch (err) {
-        this.logger.error(`Failed to deduct SP for user ${userId} (image-gen):`, err);
+        this.logger.error(`Failed to deduct SP for user ${userId} (image-gen):`, err as any, MessageHandlerService.name);
       }
 
       // Сохраняем историю
@@ -215,7 +218,7 @@ export class MessageHandlerService {
         await this.redisService.saveMessage(userId, 'user', prompt);
         await this.redisService.saveMessage(userId, 'assistant', text || '[image]');
       } catch (err) {
-        this.logger.error(`Failed to save messages for user ${userId} (image-gen):`, err);
+        this.logger.error(`Failed to save messages for user ${userId} (image-gen):`, err as any, MessageHandlerService.name);
       }
 
       const modelDisplayName = getModelDisplayName(model);
@@ -256,7 +259,7 @@ export class MessageHandlerService {
       const status = err?.status || err?.response?.status;
       const name = err?.name;
       const msg = String(err?.message || err || '');
-      this.logger.error(`Image generation failed for user ${userId}: status=${status} name=${name} message=${msg}`);
+      this.logger.error(`Image generation failed for user ${userId}: status=${status} name=${name} message=${msg}`, undefined, MessageHandlerService.name);
       try { await (ctx as any).reply(this.t(ctx as any, 'unexpected_error')); } catch { }
     } finally {
       try {
@@ -303,6 +306,8 @@ export class MessageHandlerService {
       const lower = messageText.toLowerCase();
       this.logger.error(
         `Error calling model for user ${userId}: code=${code} status=${status} name=${name} message=${messageText}`,
+        undefined,
+        MessageHandlerService.name,
       );
 
       try {
@@ -338,17 +343,18 @@ export class MessageHandlerService {
     try {
       await this.accessControlService.deductSPIfNeeded(userId, model, price, description);
     } catch (err) {
-      this.logger.error(`Failed to deduct SP for user ${userId}:`, err);
+      this.logger.error(`Failed to deduct SP for user ${userId}:`, err as any, MessageHandlerService.name);
     }
 
     this.logger.log(
       `Received response from OpenRouter for user ${userId}, response length: ${answer.length}`,
+      MessageHandlerService.name,
     );
 
     try {
       await this.redisService.saveMessage(userId, 'assistant', answer);
     } catch (err) {
-      this.logger.error(`Failed to save assistant message for user ${userId}:`, err);
+      this.logger.error(`Failed to save assistant message for user ${userId}:`, err as any, MessageHandlerService.name);
     }
 
     const modelDisplayName = getModelDisplayName(model);
@@ -364,12 +370,12 @@ export class MessageHandlerService {
         { parse_mode: 'HTML' },
       );
     } catch (err) {
-      this.logger.error(`Failed to send answer to user ${userId}:`, err);
+      this.logger.error(`Failed to send answer to user ${userId}:`, err as any, MessageHandlerService.name);
     }
   }
 
   async handleError(err: any) {
-    this.logger.error('Unhandled bot error:', err);
+    this.logger.error('Unhandled bot error:', err as any, MessageHandlerService.name);
     try {
       await err.ctx.reply(this.t(err.ctx, 'unexpected_error'));
     } catch { }
