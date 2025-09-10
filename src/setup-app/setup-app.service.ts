@@ -30,14 +30,21 @@ export class SetupAppService {
         enableLogging: config.enableLogging ?? true,
       });
 
-      this.logger.log(`🚀 Setup.app SDK successfully initialized`, {
+      this.logger.logWithMeta('info', 'Setup.app SDK initialized', {
         baseUrl: config.baseUrl,
         hasServiceKey: !!config.serviceKey,
-        enableLogging: config.enableLogging,
+        enableLogging: config.enableLogging ?? true,
+        serviceKeyLength: (config.serviceKey || '').length,
         timestamp: new Date().toISOString(),
-      } as any);
+      });
     } catch (error) {
-      this.logger.error(` Failed to initialize Setup.app SDK:`, error as any, SetupAppService.name);
+      this.logger.logWithMeta('error', 'Failed to initialize Setup.app SDK', {
+        errorName: (error as any)?.name,
+        errorMessage: (error as any)?.message ?? String(error),
+        stack: (error as any)?.stack,
+        service: 'setup-app',
+        context: 'SetupAppService',
+      });
       throw error;
     }
   }

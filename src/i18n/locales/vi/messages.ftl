@@ -8,7 +8,7 @@ current_plan =  📦 Gói: {$plan}
 current_limits =  ⚡ Giới hạn: {$limits}
 
 # Hồ sơ (các khoá mới)
-profile_title = Hồ sơ
+profile_title = Cài đặt
 profile_balance = Số dư: {$balance} SP
 profile_premium = Premium: {$status}
 yes = Có
@@ -51,8 +51,8 @@ topup_sp_button = 💳 Nạp SP
 premium_activated_success = Premium đã được kích hoạt! Chúc bạn sử dụng hiệu quả ✨
 premium_enable_autorenew_button = Bật tự gia hạn
 premium_later_button = Để sau
-premium_autorenew_enabled = <b>Đã bật tự gia hạn</b> ✅\n\nCó thể tắt trong Hồ sơ
-premium_autorenew_later_info = Có thể bật tự gia hạn sau trong Hồ sơ → Premium
+premium_autorenew_enabled = <b>Đã bật tự gia hạn</b> ✅\n\nCó thể tắt trong Cài đặt
+premium_autorenew_later_info = Có thể bật tự gia hạn sau trong Cài đặt → Premium
 
 # Xác nhận bật/tắt tự gia hạn
 premium_autorenew_confirm_enable = 🔄 Bật tự gia hạn?
@@ -79,7 +79,7 @@ premium_extend_success = <b>✅ Gia hạn thành công!</b>\n\n📅 Ngày hết 
 
 # Nút menu
 help_button = 🛟 Trợ giúp
-profile_button = 🪪 Hồ sơ
+profile_button = ⚙️ Cài đặt
 model_selection_button = 🧠 Chọn mô hình
 setup_menu_button = Cài đặt nút menu
 profile_language_button = 🌍 Ngôn ngữ
@@ -89,7 +89,7 @@ profile_change_plan_button = Đổi gói
 start_command = Khởi động bot
 help_command = Hiển thị trợ giúp
 model_command = Chọn mô hình
-profile_command = Hiển thị hồ sơ
+profile_command = Mở cài đặt
 language_command = Chọn ngôn ngữ giao diện
 clear_command = Xoá lịch sử chat
 
@@ -99,7 +99,7 @@ help_commands_title = Lệnh:
 help_start = /start — menu chính
 help_help = /help — trợ giúp này
 help_model = /model — chọn mô hình
-help_profile = /profile — hồ sơ người dùng
+help_profile = /profile — cài đặt
 help_language = /language — ngôn ngữ giao diện
 help_clear = /clear — xoá ngữ cảnh
 
@@ -125,7 +125,7 @@ setup_menu_success =  ✅ Đã cài nút menu
 setup_menu_error =  ❌ Không thể cài nút menu. Thử lại sau.
 
 # Hồ sơ
-profile_coming_soon =  👤 Hồ sơ: sắp ra mắt.
+profile_coming_soon =  ⚙️ Cài đặt: sắp ra mắt.
 
 # Ngôn ngữ
 choose_language = Chọn ngôn ngữ:
@@ -247,7 +247,7 @@ file_analysis_request = Vui lòng phân tích tệp này và trả lời câu h�
 bot_command_start = Khởi động bot
 bot_command_help = Trợ giúp
 bot_command_model = Chọn mô hình
-bot_command_profile = Hồ sơ
+bot_command_profile = Cài đặt
 bot_command_language = Ngôn ngữ
 bot_command_clear = Xoá lịch sử
 

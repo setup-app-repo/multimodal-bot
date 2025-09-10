@@ -52,7 +52,7 @@ const buildOptions = (databaseUrl: string, sslEnabled: boolean) => {
         keepAliveInitialDelayMillis: 0,
       },
     },
-    debug: true,
+    debug: false,
     entities: ['dist/**/*.entity.js'],
     entitiesTs: ['src/**/*.entity.ts'],
     migrations: {

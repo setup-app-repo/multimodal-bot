@@ -8,7 +8,7 @@ current_plan =  📦 Forfait : {$plan}
 current_limits =  ⚡ Limites : {$limits}
 
 # Profil (nouvelles clés)
-profile_title = Profil
+profile_title = Paramètres
 profile_balance = Solde : {$balance} SP
 profile_premium = Premium : {$status}
 yes = Oui
@@ -47,8 +47,8 @@ premium_insufficient_sp = ⚠️ <b>SP insuffisants</b>
 premium_activated_success = Premium activé ! Bon travail ✨
 premium_enable_autorenew_button = Activer le renouvellement automatique
 premium_later_button = Plus tard
-premium_autorenew_enabled = <b>Renouvellement automatique activé</b> ✅\n\nVous pouvez le désactiver dans Profil
-premium_autorenew_later_info = Vous pouvez activer le renouvellement automatique plus tard dans Profil → Premium
+premium_autorenew_enabled = <b>Renouvellement automatique activé</b> ✅\n\nVous pouvez le désactiver dans Paramètres
+premium_autorenew_later_info = Vous pouvez activer le renouvellement automatique plus tard dans Paramètres → Premium
 
 # Confirmation du renouvellement automatique
 premium_autorenew_confirm_enable = 🔄 Activer le renouvellement automatique ?
@@ -74,7 +74,7 @@ switch_on = ACTIVÉ
 switch_off = DÉSACTIVÉ
 # Boutons du menu
 help_button = 🛟 Aide
-profile_button = 🪪 Profil
+profile_button = ⚙️ Paramètres
 model_selection_button = 🧠 Sélectionner le modèle
 profile_language_button = 🌍 Langue
 profile_change_plan_button = Changer de forfait
@@ -83,7 +83,7 @@ profile_change_plan_button = Changer de forfait
 start_command = Démarrer le bot
 help_command = Afficher l'aide
 model_command = Sélectionner le modèle
-profile_command = Afficher votre profil
+profile_command = Ouvrir les paramètres
 language_command = Sélectionner la langue de l'interface
 clear_command = Effacer l'historique du chat
 
@@ -93,7 +93,7 @@ help_commands_title = Commandes :
 help_start = /start — menu principal
 help_help = /help — cette aide
 help_model = /model — sélectionner le modèle
-help_profile = /profile — profil utilisateur
+help_profile = /profile — paramètres
 help_language = /language — langue de l'interface
 help_clear = /clear — effacer le contexte
 
@@ -117,7 +117,7 @@ onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant 
 onboarding_choose_model_button = 🚀 Choisir le modèle
 
 # Profil
-profile_coming_soon =  👤 Profil : bientôt disponible.
+profile_coming_soon =  ⚙️ Paramètres : bientôt disponible.
 
 # Langue
 choose_language = Sélectionnez la langue :
@@ -235,7 +235,7 @@ file_analysis_request = Veuillez analyser ce fichier et répondre à la question
 bot_command_start = Démarrer le bot
 bot_command_help = Afficher l'aide
 bot_command_model = Sélectionner le modèle
-bot_command_profile = Afficher le profil
+bot_command_profile = Ouvrir les paramètres
 bot_command_language = Choisir la langue
 bot_command_clear = Effacer l'historique
 

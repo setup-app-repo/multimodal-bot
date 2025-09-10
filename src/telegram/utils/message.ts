@@ -13,6 +13,7 @@ export function escapeMarkdown(text: string): string {
 
 /**
  * Удаляет тройные бэктики ``` и одиночные ` из текста ответа модели
+ * + убирает жирный markdown **...** и упрощает LaTeX ($...$, $$...$$, \boxed{...})
  */
 export function stripCodeFences(text: string): string {
   // Удаляем блоки ```lang ... ``` и просто ``` ... ```
@@ -20,6 +21,20 @@ export function stripCodeFences(text: string): string {
   out = out.replace(/```([\s\S]*?)```/g, '$1');
   // Удаляем одиночные инлайновые бэктики вокруг фраз
   out = out.replace(/`([^`]+)`/g, '$1');
+
+  // Убираем markdown-жирный **...**
+  out = out.replace(/\*\*([^*]+)\*\*/g, '$1');
+
+  // Упрощаем/убираем базовый LaTeX
+  // Блоки $$...$$ → содержимое
+  out = out.replace(/\$\$([\s\S]*?)\$\$/g, '$1');
+  // Инлайн $...$ → содержимое (осторожно, уберём долларовые формулы)
+  out = out.replace(/\$([^$]+)\$/g, '$1');
+  // Специально убираем \\boxed{...} → ...
+  out = out.replace(/\\boxed\{([^}]*)\}/g, '$1');
+  // Убираем скобочные маркеры \\( \\) \\[ \\]
+  out = out.replace(/\\[\[\]\(\)]/g, '');
+
   return out;
 }
 
@@ -31,6 +46,25 @@ export function escapeHtml(text: string): string {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+/**
+ * Убирает базовый Markdown-разметчик (заголовки ###, жирный **, курсив *_ _*)
+ */
+export function stripBasicMarkdown(text: string): string {
+  if (!text) return text;
+  let out = text;
+  // Заголовки в начале строки (#, ##, ### ...)
+  out = out.replace(/^\s{0,3}#{1,6}\s+/gm, '');
+  // Жирный и подчёркнутый
+  out = out.replace(/\*\*([^*]+)\*\*/g, '$1');
+  out = out.replace(/__([^_]+)__/g, '$1');
+  // Курсив
+  out = out.replace(/\*([^*]+)\*/g, '$1');
+  out = out.replace(/_([^_]+)_/g, '$1');
+  // Инлайн-код
+  out = out.replace(/`([^`]+)`/g, '$1');
+  return out;
 }
 
 export function buildImageFooterByLang(lang: string, link?: string): string {

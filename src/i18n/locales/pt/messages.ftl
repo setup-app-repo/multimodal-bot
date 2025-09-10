@@ -8,7 +8,7 @@ current_plan =  📦 Plano: {$plan}
 current_limits =  ⚡ Limites: {$limits}
 
 # Perfil (novas chaves)
-profile_title = Perfil
+profile_title = Configurações
 profile_balance = Saldo: {$balance} SP
 profile_premium = Premium: {$status}
 yes = Sim
@@ -47,8 +47,8 @@ premium_insufficient_sp = ⚠️ <b>SP insuficientes</b>
 premium_activated_success = Premium ativado! Bom trabalho ✨
 premium_enable_autorenew_button = Ativar renovação automática
 premium_later_button = Mais tarde
-premium_autorenew_enabled = <b>Renovação automática ativada</b> ✅\n\nVocê pode desativar no Perfil
-premium_autorenew_later_info = Você pode ativar a renovação automática mais tarde em Perfil → Premium
+premium_autorenew_enabled = <b>Renovação automática ativada</b> ✅\n\nVocê pode desativar em Configurações
+premium_autorenew_later_info = Você pode ativar a renovação automática mais tarde em Configurações → Premium
 
 # Confirmação de renovação automática
 premium_autorenew_confirm_enable = 🔄 Ativar renovação automática?
@@ -74,7 +74,7 @@ switch_on = ATIVADO
 switch_off = DESATIVADO
 # Botões do menu
 help_button = 🛟 Ajuda
-profile_button = 🪪 Perfil
+profile_button = ⚙️ Configurações
 model_selection_button = 🧠 Selecionar modelo
 profile_language_button = 🌍 Idioma
 topup_sp_button = 💳 Recarregar SP
@@ -84,7 +84,7 @@ profile_change_plan_button = Alterar plano
 start_command = Iniciar bot
 help_command = Mostrar ajuda
 model_command = Selecionar modelo
-profile_command = Mostrar seu perfil
+profile_command = Abrir configurações
 language_command = Selecionar idioma da interface
 clear_command = Limpar histórico do chat
 
@@ -94,7 +94,7 @@ help_commands_title = Comandos:
 help_start = /start — menu principal
 help_help = /help — esta ajuda
 help_model = /model — selecionar modelo
-help_profile = /profile — perfil do usuário
+help_profile = /profile — configurações
 help_language = /language — idioma da interface
 help_clear = /clear — limpar contexto
 
@@ -115,7 +115,7 @@ onboarding_promo = **Oi, {$first_name}!** 👋\n\n**Sou o assistente de IA SETUP
 onboarding_choose_model_button = 🚀 Escolher modelo
 
 # Perfil
-profile_coming_soon =  👤 Perfil: em breve disponível.
+profile_coming_soon =  ⚙️ Configurações: em breve.
 
 # Idioma
 choose_language = Selecione o idioma:
@@ -233,7 +233,7 @@ file_analysis_request = Por favor, analise este arquivo e responda à pergunta d
 bot_command_start = Iniciar o bot
 bot_command_help = Mostrar ajuda
 bot_command_model = Selecionar modelo
-bot_command_profile = Mostrar perfil
+bot_command_profile = Abrir configurações
 bot_command_language = Escolher idioma
 bot_command_clear = Limpar histórico
 

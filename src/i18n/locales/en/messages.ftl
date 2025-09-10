@@ -8,7 +8,7 @@ current_plan =  📦 Plan: {$plan}
 current_limits =  ⚡ Limits: {$limits}
 
 # Profile (new keys)
-profile_title = Profile
+profile_title = Settings
 profile_balance = Balance: {$balance} SP
 profile_premium = Premium: {$status}
 yes = Yes
@@ -45,8 +45,8 @@ topup_sp_button = 💳 Top up SP
 premium_activated_success = Premium activated! Enjoy ✨
 premium_enable_autorenew_button = Enable auto-renewal
 premium_later_button = Later
-premium_autorenew_enabled = <b>Auto-renewal enabled</b> ✅\n\nYou can disable it in Profile
-premium_autorenew_later_info = You can enable auto-renewal later in Profile → Premium
+premium_autorenew_enabled = <b>Auto-renewal enabled</b> ✅\n\nYou can disable it in Settings
+premium_autorenew_later_info = You can enable auto-renewal later in Settings → Premium
 
 # Auto-renewal confirmation
 premium_autorenew_confirm_enable = 🔄 Enable auto-renewal?
@@ -72,7 +72,7 @@ premium_extend_confirm_no = 🚫 Cancel
 premium_extend_success = <b>✅ Renewal successful!</b>\n\n📅 Subscription end date: {$end_date}
 # Menu buttons
 help_button = 🛟 Help
-profile_button = 🪪 Profile
+profile_button = ⚙️ Settings
 model_selection_button = 🧠 Model Selection
 profile_change_plan_button = Change plan
 profile_language_button = 🌍 Language
@@ -81,7 +81,7 @@ profile_language_button = 🌍 Language
 start_command = Start the bot
 help_command = Show help
 model_command = Select model
-profile_command = Show your profile
+profile_command = Open settings
 language_command = Choose interface language
 clear_command = Clear chat history
 
@@ -91,7 +91,7 @@ help_commands_title = Commands:
 help_start = /start — main menu
 help_help = /help — this help
 help_model = /model — select model
-help_profile = /profile — user profile
+help_profile = /profile — settings
 help_language = /language — interface language
 help_clear = /clear — clear context
 
@@ -112,7 +112,7 @@ onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant
 onboarding_choose_model_button = 🚀 Choose model
 
 # Profile
-profile_coming_soon =  👤 Profile: coming soon.
+profile_coming_soon =  ⚙️ Settings: coming soon.
 
 # Language
 choose_language = Choose language:
@@ -230,7 +230,7 @@ file_analysis_request = Please analyze this file and answer the user's question.
 bot_command_start = Start the bot
 bot_command_help = Show help
 bot_command_model = Select model
-bot_command_profile = Show profile
+bot_command_profile = Open settings
 bot_command_language = Choose language
 bot_command_clear = Clear history
 

@@ -8,7 +8,7 @@ current_plan =  📦 Paket: {$plan}
 current_limits =  ⚡ Limits: {$limits}
 
 # Profil (neue Schlüssel)
-profile_title = Profil
+profile_title = Einstellungen
 profile_balance = Guthaben: {$balance} SP
 profile_premium = Premium: {$status}
 yes = Ja
@@ -47,8 +47,8 @@ premium_insufficient_sp = ⚠️ <b>Nicht genügend SP</b>
 premium_activated_success = Premium aktiviert! Viel Erfolg ✨
 premium_enable_autorenew_button = Automatische Verlängerung aktivieren
 premium_later_button = Später
-premium_autorenew_enabled = <b>Automatische Verlängerung aktiviert</b> ✅\n\nSie können es im Profil deaktivieren
-premium_autorenew_later_info = Sie können die automatische Verlängerung später in Profil → Premium aktivieren
+premium_autorenew_enabled = <b>Automatische Verlängerung aktiviert</b> ✅\n\nSie können es in den Einstellungen deaktivieren
+premium_autorenew_later_info = Sie können die automatische Verlängerung später in Einstellungen → Premium aktivieren
 
 # Bestätigung für automatische Verlängerung
 premium_autorenew_confirm_enable = 🔄 Automatische Verlängerung aktivieren?
@@ -74,7 +74,7 @@ switch_on = EIN
 switch_off = AUS
 # Menü-Buttons
 help_button = 🛟 Hilfe
-profile_button = 🪪 Profil
+profile_button = ⚙️ Einstellungen
 model_selection_button = 🧠 Modell auswählen
 profile_language_button = 🌍 Sprache
 topup_sp_button = 💳 SP aufladen
@@ -84,7 +84,7 @@ profile_change_plan_button = Tarif ändern
 start_command = Bot starten
 help_command = Hilfe anzeigen
 model_command = Modell auswählen
-profile_command = Dein Profil anzeigen
+profile_command = Einstellungen öffnen
 language_command = Interface-Sprache auswählen
 clear_command = Chat-Verlauf löschen
 
@@ -94,7 +94,7 @@ help_commands_title = Befehle:
 help_start = /start — Hauptmenü
 help_help = /help — diese Hilfe
 help_model = /model — Modell auswählen
-help_profile = /profile — Benutzerprofil
+help_profile = /profile — Einstellungen
 help_language = /language — Interface-Sprache
 help_clear = /clear — Kontext löschen
 
@@ -111,7 +111,7 @@ support_unavailable = Der Support-Link ist derzeit nicht verfügbar. Bitte spät
 
 
 # Profil
-profile_coming_soon =  👤 Profil: bald verfügbar.
+profile_coming_soon =  ⚙️ Einstellungen: bald verfügbar.
 
 # Sprache
 choose_language = Wähle die Sprache:
@@ -230,7 +230,7 @@ file_analysis_request = Bitte analysiere diese Datei und beantworte die Frage de
 bot_command_start = Bot starten
 bot_command_help = Hilfe anzeigen
 bot_command_model = Modell auswählen
-bot_command_profile = Profil anzeigen
+bot_command_profile = Einstellungen öffnen
 bot_command_language = Sprache wählen
 bot_command_clear = Verlauf löschen
 
