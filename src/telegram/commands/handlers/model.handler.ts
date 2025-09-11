@@ -38,11 +38,10 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
       });
       return;
     }
-    if (data === 'model:close') {
+    if (data === 'model:back') {
       await safeAnswerCallbackQuery(ctx);
-      try {
-        await ctx.deleteMessage();
-      } catch { }
+      const { text, keyboard, parse_mode } = await modelScreen.buildSelectionKeyboard(ctx);
+      await ctx.reply(text, { reply_markup: keyboard, parse_mode });
       return;
     }
     if (data === 'menu_model') {

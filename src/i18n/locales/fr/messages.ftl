@@ -87,7 +87,15 @@ language_command = Sélectionner la langue de l'interface
 clear_command = Effacer l'historique du chat
 
 # Aide
-help_usage = Comment utiliser : envoyez du texte/voix/image/document ou un lien vidéo — je m’en charge et je réponds
+help_usage =
+    <b>Comment utiliser</b> : envoyez <b>texte/voix/image/document</b> ou un lien vidéo — je m’en charge et je réponds
+    ℹ️ Lors du choix d’un modèle, appuyez dessus pour en savoir plus sur ses capacités et son usage
+    <b>⭐ Le Premium s’applique à tous les modèles de l’assistant et offre des fonctionnalités étendues :</b>
+    • Réduction sur les requêtes payantes
+    • Priorité dans la file (réponses plus rapides)
+    • Limites augmentées et accès aux modèles puissants
+    • Fenêtre de contexte étendue (plus d’historique conservé)
+    • Stabilité garantie même en période de forte charge
 help_commands_title = Commandes :
 help_start = /start — menu principal
 help_help = /help — cette aide
@@ -97,9 +105,9 @@ help_language = /language — langue de l'interface
 help_clear = /clear — effacer le contexte
 
 
-help_files = Fichiers supportés (jusqu'à 15 Mo) : PDF, DOCX, PPTX, CSV, texte.
-help_photos = Photos prises en charge : JPG, JPEG, PNG, WEBP.
-help_content_rules = Restrictions de contenu : interdits matériaux illégaux, malveillants, offensants.
+help_files = 📂 <b>Fichiers supportés (jusqu'à 15 Mo)</b> : PDF, DOCX, PPTX, CSV, texte.
+help_photos = 🖼 <b>Photos prises en charge</b> : JPG, JPEG, PNG, WEBP.
+help_content_rules = 🚫 <b>Restrictions de contenu</b> : interdits matériaux illégaux, malveillants, offensants.
 
 # Support
 help_contact_support_button = 🆘 Contacter le support
@@ -112,7 +120,7 @@ topup_sp_button = 💳 Recharger des SP
 
 
 # Onboarding après la sélection de la langue
-onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant IA SETUP.**\n\n**Texte, photo ou voix** — j’analyse et je transforme en résultats : des idées et plans jusqu’à l’analyse et des documents prêts à l’usage.\n\n🎙 **Voix** → transcription, résumés, idées structurées\n📸 **Photo** → analyse de contenu, description, extraction de données\n🧑‍💻 **Code** → conseils, débogage, optimisation\n✉️ **Textes business** → emails, offres, landing pages, scripts de vente\n🧭 **Structure** → brief → cahier des charges → plan/checklist en quelques minutes\n🔎 **Analytique** → faits, risques, conclusions, next steps\n🧩 **Personnalisation à grande échelle** → 50–500 variantes par modèle\n🧪 **A/B test** → titres, premiers paragraphes, CTAs\n📊 **Données** → analyse et traitement → (CSV, PDF, etc.)\n🌍 **Langues et ton** → RU / EN / ES / PT / FR / DE, une seule voix de marque\n\n✨ **Des modèles gratuits sont disponibles pour commencer.**\n🔥 **Pour les tâches sérieuses — IA payantes :** plus rapide, plus intelligent, et avec le Premium — moins cher et prioritaire.\n\n👉 Appuyez sur **« Choisir le modèle »** — c’est parti 🚀
+onboarding_promo = **Bonjour, {$first_name} !** 👋\n\n**Je suis l’assistant IA SETUP.**\n\n**Texte, photo ou voix** — j’analyse et je transforme en résultats : des idées et plans jusqu’à l’analyse et des documents prêts à l’usage.\n\n🎙 **Voix** → transcription, résumés, idées structurées\n📸 **Photo** → analyse de contenu, description, extraction de données\n🧑‍💻 **Code** → conseils, débogage, optimisation\n✉️ **Textes business** → emails, offres, landing pages, scripts de vente\n🧭 **Structure** → brief → cahier des charges → plan/checklist en quelques minutes\n🔎 **Analytique** → faits, risques, conclusions, next steps\n🧩 **Personnalisation à grande échelle** → 50–500 variantes par modèle\n🧪 **A/B test** → titres, premiers paragraphes, CTAs\n📊 **Données** → analyse et traitement → (CSV, PDF, etc.)\n🌍 **Langues et ton** → RU / EN / ES / PT / FR / DE, une seule voix de marque\n\n✨ **Des modèles gratuits sont disponibles pour commencer.**\n⭐ **Le Premium fonctionne immédiatement pour tous les modèles** — réduit le coût et donne la priorité.\n🧠 **Le contexte de conversation est conservé entre tous les modèles** — vous pouvez changer librement sans perdre l’historique\n\n🔥 **Pour les tâches sérieuses — IA payantes :** plus rapide, plus intelligent, et avec le Premium — moins cher et prioritaire.\n\n👉 Appuyez sur **« Choisir le modèle »** — c’est parti 🚀
 onboarding_choose_model_button = 🚀 Choisir le modèle
 
 # Profil
@@ -149,7 +157,7 @@ select_model_legend = <b>0,01 SP</b> — coût par requête
     🔥 — modèle le plus populaire
 model_active = Modèle actif : {$model}. Prix {$price} SP/requête. Le Premium réduit le coût par requête.
 model_buy_premium_button = ⭐ Acheter Premium
-model_close_button = Fermer
+model_back_button = ◀️ Retour
 model_selected =  ✅ Modèle sélectionné : **{$model}**
 invalid_model = Modèle invalide
 
@@ -162,10 +170,18 @@ capability_voice = Messages vocaux
 
 # Bloc de confirmation de sélection du modèle
 model_connected_title = 🚀 Vous avez connecté le modèle : <b>{$model}</b> !
-model_price_line_with_premium = 🔹 <b>Prix : <s>{$price_without} SP</s> → {$price_with} SP / requête avec Premium ⭐</b>
-model_price_line_without_premium =
-    🔹 <b>Prix : {$price_without} SP</b>
-    🔹 <b>Avec Premium {$price_with} SP — coûts plus bas et priorité plus élevée ⭐</b>
+model_about_title = ℹ️ <b>À propos du modèle :</b>
+model_about_gpt5 = GPT-5 🧠🔥 — fleuron avec précision maximale et raisonnement profond. Universel pour les tâches sérieuses : analytique, stratégie, rédaction longue et requêtes complexes.
+model_about_nano = Nano 🍌 ⚡🖼 — optimal pour les photos, notamment les portraits. Rapide et abordable : fournit des descriptions claires et des résultats rapides. Pour une meilleure qualité, décrivez la tâche de façon précise et détaillée.
+model_about_claude37_sonnet = <b>Claude 3.7 Sonnet ✍️📚</b> — excellent sur les textes. Produit des réponses structurées et créatives ; idéal pour emails, scripts et idées.
+model_about_grok4 = <b>Grok 4 (Vision) 👀🖼</b> — comprend images et texte. Utile pour analyser photos, infographies, documents et requêtes mixtes.
+model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — IA multimodale de Google. Équilibre texte, images et données. Pratique pour l’analytique et les tâches multilingues.
+model_about_deepseek = <b>DeepSeek ⚡🧪</b> — allie vitesse et intelligence. Adapté aux requêtes en masse, A/B tests, marketing et génération d’idées.
+model_about_qwen25 = <b>Qwen2.5 💡💸</b> — modèle basique et économique. Convient pour questions rapides, brouillons et textes simples.
+model_about_gpt4o_mini = <b>GPT-4o — mini 🎯🆓</b> — modèle gratuit d’entrée de gamme. Bien pour débuter et les tâches légères.
+model_price_base_line = 🔹 <b>Prix : {$price_without} SP</b>
+model_price_with_premium_line = ⭐ <b>Avec Premium {$price_with} SP</b> — coûts plus bas et priorité plus élevée.
+model_premium_applies_all = ⭐ Le Premium s’applique à tous les modèles.
 model_price_line_free = 🔹 <b>Prix : gratuit</b>
 price_free_short = gratuit
 attachments_double_cost_note = 📎 Les pièces jointes (photos/audio/fichiers) doublent le coût de la requête.

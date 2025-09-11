@@ -93,7 +93,15 @@ language_command = Chọn ngôn ngữ giao diện
 clear_command = Xoá lịch sử chat
 
 # Trợ giúp
-help_usage = Cách dùng: gửi văn bản/giọng nói/hình ảnh/tài liệu hoặc liên kết video — tôi sẽ phân tích và trả lời
+help_usage =
+    <b>Cách dùng</b>: gửi <b>văn bản/giọng nói/hình ảnh/tài liệu</b> hoặc liên kết video — tôi sẽ xử lý và trả lời
+    ℹ️ Khi chọn mô hình, hãy nhấn vào để biết thêm về khả năng và mục đích
+    <b>⭐ Premium áp dụng cho tất cả các mô hình trợ lý và cung cấp tính năng mở rộng:</b>
+    • Giảm giá cho yêu cầu trả phí
+    • Ưu tiên trong hàng đợi (trả lời nhanh hơn)
+    • Giới hạn cao hơn, truy cập mô hình mạnh
+    • Cửa sổ ngữ cảnh mở rộng (lưu nhiều lịch sử hơn)
+    • Ổn định ngay cả khi tải cao
 help_commands_title = Lệnh:
 help_start = /start — menu chính
 help_help = /help — trợ giúp này
@@ -103,9 +111,9 @@ help_language = /language — ngôn ngữ giao diện
 help_clear = /clear — xoá ngữ cảnh
 
 
-help_files = Tệp được hỗ trợ (tối đa 15 MB): PDF, DOCX, PPTX, CSV, văn bản.
-help_photos = Ảnh được hỗ trợ: JPG, JPEG, PNG, WEBP.
-help_content_rules = Quy tắc nội dung: cấm nội dung bất hợp pháp, gây hại, xúc phạm.
+help_files = 📂 <b>Tệp được hỗ trợ (tối đa 15 MB)</b>: PDF, DOCX, PPTX, CSV, văn bản.
+help_photos = 🖼 <b>Ảnh được hỗ trợ</b>: JPG, JPEG, PNG, WEBP.
+help_content_rules = 🚫 <b>Hạn chế nội dung</b>: cấm nội dung bất hợp pháp, gây hại, xúc phạm.
 
 # Hỗ trợ
 help_contact_support_button = 🆘 Liên hệ hỗ trợ
@@ -115,7 +123,7 @@ support_unavailable = Hiện liên kết hỗ trợ không khả dụng. Vui lò
 
 
 # Onboarding sau khi chọn ngôn ngữ
-onboarding_promo = **Xin chào, {$first_name}!** 👋\n\n**Tôi là trợ lý AI của SETUP.**\n\n**Văn bản, ảnh hay giọng nói** — tôi phân tích và biến thành kết quả: từ ý tưởng, kế hoạch đến phân tích và tài liệu hoàn chỉnh.\n\n🎙 **Giọng nói** → văn bản, tóm tắt, ý tưởng có cấu trúc\n📸 **Ảnh** → phân tích nội dung, mô tả, trích xuất dữ liệu\n🧑‍💻 **Mã** → gợi ý, phân tích lỗi, tối ưu\n✉️ **Văn bản kinh doanh** → email, offer, landing, kịch bản bán hàng\n🧭 **Cấu trúc** → brief → spec → kế hoạch/checklist trong vài phút\n🔎 **Phân tích** → sự kiện, rủi ro, kết luận, bước tiếp theo\n🧩 **Cá nhân hoá quy mô lớn** → 50–500 biến thể theo mẫu\n🧪 **A/B test** → tiêu đề, đoạn mở đầu, CTA\n📊 **Dữ liệu** → phân tích và xử lý → (CSV, PDF, v.v.)\n🌍 **Ngôn ngữ & giọng điệu** → RU / EN / ES / PT / FR / DE, một giọng thương hiệu thống nhất\n\n✨ **Có mô hình miễn phí để bắt đầu.**\n🔥 **Cho tác vụ nghiêm túc — AI trả phí:** nhanh hơn, thông minh hơn, với Premium còn rẻ hơn và ưu tiên cao hơn.\n\n👉 Nhấn **“Chọn mô hình”** — bắt đầu thôi 🚀
+onboarding_promo = **Xin chào, {$first_name}!** 👋\n\n**Tôi là trợ lý AI của SETUP.**\n\n**Văn bản, ảnh hay giọng nói** — tôi phân tích và biến thành kết quả: từ ý tưởng, kế hoạch đến phân tích và tài liệu hoàn chỉnh.\n\n🎙 **Giọng nói** → văn bản, tóm tắt, ý tưởng có cấu trúc\n📸 **Ảnh** → phân tích nội dung, mô tả, trích xuất dữ liệu\n🧑‍💻 **Mã** → gợi ý, phân tích lỗi, tối ưu\n✉️ **Văn bản kinh doanh** → email, offer, landing, kịch bản bán hàng\n🧭 **Cấu trúc** → brief → spec → kế hoạch/checklist trong vài phút\n🔎 **Phân tích** → sự kiện, rủi ro, kết luận, bước tiếp theo\n🧩 **Cá nhân hoá quy mô lớn** → 50–500 biến thể theo mẫu\n🧪 **A/B test** → tiêu đề, đoạn mở đầu, CTA\n📊 **Dữ liệu** → phân tích và xử lý → (CSV, PDF, v.v.)\n🌍 **Ngôn ngữ & giọng điệu** → RU / EN / ES / PT / FR / DE, một giọng thương hiệu thống nhất\n\n✨ **Có mô hình miễn phí để bắt đầu.**\n⭐ **Premium hoạt động ngay với mọi mô hình** — giảm chi phí và tăng ưu tiên.\n🧠 **Ngữ cảnh cuộc trò chuyện được giữ giữa tất cả các mô hình** — bạn có thể chuyển đổi tự do mà không mất lịch sử\n\n🔥 **Cho tác vụ nghiêm túc — AI trả phí:** nhanh hơn, thông minh hơn, với Premium còn rẻ hơn và ưu tiên cao hơn.\n\n👉 Nhấn **“Chọn mô hình”** — bắt đầu thôi 🚀
 onboarding_choose_model_button = 🚀 Chọn mô hình
 
 # Menu Setup.app
@@ -158,7 +166,7 @@ select_model_legend = <b>0.01 SP</b> — giá mỗi yêu cầu
 model_selected =  ✅ Đã chọn mô hình: {$model}
 model_active = Mô hình đang hoạt động: {$model}. Giá {$price} SP/yêu cầu. Premium giảm chi phí.
 model_buy_premium_button = ⭐ Mua Premium
-model_close_button = Đóng
+model_back_button = ◀️ Quay lại
 invalid_model = Mô hình không hợp lệ
 
 # Khả năng mô hình
@@ -170,10 +178,18 @@ capability_voice = Tin nhắn thoại
 
 # Khối xác nhận chọn mô hình
 model_connected_title = 🚀 Bạn đã kết nối mô hình: <b>{$model}</b>!
-model_price_line_with_premium = 🔹 <b>Giá: <s>{$price_without} SP</s> → {$price_with} SP / yêu cầu với Premium ⭐</b>
-model_price_line_without_premium =
-    🔹 <b>Giá: {$price_without} SP</b>
-    🔹 <b>Với Premium {$price_with} SP — chi phí thấp hơn, ưu tiên cao hơn ⭐</b>
+model_about_title = ℹ️ <b>Về mô hình:</b>
+model_about_gpt5 = <b>GPT-5 🧠🔥</b> — hàng đầu với độ chính xác cao và khả năng suy luận sâu. Phù hợp cho tác vụ nghiêm túc: phân tích, chiến lược, văn bản dài và yêu cầu phức tạp.
+model_about_nano = <b>Nano 🍌 ⚡🖼</b> — tối ưu cho ảnh, đặc biệt là chân dung. Nhanh và tiết kiệm: cho mô tả rõ ràng và kết quả nhanh. Để ảnh đẹp, hãy mô tả yêu cầu thật chi tiết.
+model_about_claude37_sonnet = <b>Claude 3.7 Sonnet ✍️📚</b> — mạnh về văn bản. Trả lời có cấu trúc và sáng tạo; phù hợp cho email, kịch bản và ý tưởng.
+model_about_grok4 = <b>Grok 4 (Vision) 👀🖼</b> — hiểu ảnh và văn bản. Tốt cho phân tích ảnh, đồ hoạ thông tin, tài liệu và yêu cầu kết hợp.
+model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — AI đa phương thức của Google. Cân bằng văn bản, ảnh và dữ liệu. Thuận tiện cho phân tích và tác vụ đa ngôn ngữ.
+model_about_deepseek = <b>DeepSeek ⚡🧪</b> — kết hợp tốc độ và trí tuệ. Phù hợp cho yêu cầu số lượng lớn, A/B test, marketing và phát sinh ý tưởng.
+model_about_qwen25 = <b>Qwen2.5 💡💸</b> — mô hình cơ bản và kinh tế. Tốt cho câu hỏi nhanh, bản nháp và văn bản đơn giản.
+model_about_gpt4o_mini = <b>GPT-4o — mini 🎯🆓</b> — mô hình miễn phí khởi đầu. Phù hợp để bắt đầu và các tác vụ nhẹ.
+model_price_base_line = 🔹 <b>Giá: {$price_without} SP</b>
+model_price_with_premium_line = ⭐ <b>Với Premium {$price_with} SP</b> — chi phí thấp hơn, ưu tiên cao hơn.
+model_premium_applies_all = ⭐ Premium áp dụng cho tất cả các mô hình.
 model_price_line_free = 🔹 <b>Giá: miễn phí</b>
 price_free_short = miễn phí
 attachments_double_cost_note = 📎 Đính kèm (ảnh/âm thanh/tệp) nhân đôi chi phí yêu cầu.

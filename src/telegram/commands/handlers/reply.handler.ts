@@ -30,7 +30,7 @@ export function registerReplyHandlers(bot: Bot<BotContext>, deps: RegisterComman
         t(ctx, 'help_contact_support_button'),
         'https://t.me/setupmultisupport_bot',
       );
-      await ctx.reply(buildHelpText(ctx, t), { reply_markup: keyboard });
+      await ctx.reply(buildHelpText(ctx, t), { reply_markup: keyboard, parse_mode: 'HTML' });
       return;
     }
     if (action === 'profile') {

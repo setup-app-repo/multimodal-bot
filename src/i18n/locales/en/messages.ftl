@@ -85,7 +85,15 @@ language_command = Choose interface language
 clear_command = Clear chat history
 
 # Help
-help_usage = How to use: send text/voice/image/document or a video link — I’ll handle it and reply
+help_usage =
+    <b>How to use</b>: send <b>text/voice/image/document</b> or a video link — I’ll handle it and reply
+    ℹ️ When choosing a model, tap it to learn more about its capabilities and purpose
+    <b>⭐ Premium applies to all assistant models and provides extended features:</b>
+    • Discount on paid requests
+    • Priority in the queue (faster responses)
+    • Higher limits and access to powerful models
+    • Extended context window (more conversation history is saved)
+    • Guaranteed stability even during peak load
 help_commands_title = Commands:
 help_start = /start — main menu
 help_help = /help — this help
@@ -95,9 +103,9 @@ help_language = /language — interface language
 help_clear = /clear — clear context
 
 
-help_files = Supported files (up to 15 MB): PDF, DOCX, PPTX, CSV, text.
-help_photos = Supported photos: JPG, JPEG, PNG, WEBP.
-help_content_rules = Content restrictions: illegal, harmful, offensive materials are prohibited.
+help_files = 📂 <b>Supported files (up to 15 MB)</b>: PDF, DOCX, PPTX, CSV, text.
+help_photos = 🖼 <b>Supported photos</b>: JPG, JPEG, PNG, WEBP.
+help_content_rules = 🚫 <b>Content restrictions</b>: illegal, harmful, offensive materials are prohibited.
 
 # Support
 help_contact_support_button = 🆘 Contact support
@@ -107,7 +115,7 @@ support_unavailable = Support link is unavailable right now. Please try again la
 
 
 # Onboarding after language selection
-onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant.**\n\n**Text, photo, or voice** — I analyze and turn it into results: from ideas and plans to analysis and finished documents.\n\n🎙 **Voice** → transcription, summaries, structured ideas\n📸 **Photo** → content analysis, description, data extraction\n🧑‍💻 **Code** → tips, debugging, optimization\n✉️ **Business writing** → emails, offers, landing pages, sales scripts\n🧭 **Structure** → brief → spec → plan/checklist in minutes\n🔎 **Analytics** → facts, risks, conclusions, next steps\n🧩 **Personalization at scale** → 50–500 variations by template\n🧪 **A/B testing** → headlines, first paragraphs, CTAs\n📊 **Data** → analysis and processing → (CSV, PDF, etc.)\n🌍 **Languages & tone** → RU / EN / ES / PT / FR / DE, one brand voice\n\n✨ **Free models available to start.**\n🔥 **For serious tasks — paid AIs:** faster, smarter, and with Premium — cheaper and prioritized.\n\n👉 Tap **“Choose model”** to begin 🚀
+onboarding_promo = **Hi, {$first_name}!** 👋\n\n**I’m the SETUP AI Assistant.**\n\n**Text, photo, or voice** — I analyze and turn it into results: from ideas and plans to analysis and finished documents.\n\n🎙 **Voice** → transcription, summaries, structured ideas\n📸 **Photo** → content analysis, description, data extraction\n🧑‍💻 **Code** → tips, debugging, optimization\n✉️ **Business writing** → emails, offers, landing pages, sales scripts\n🧭 **Structure** → brief → spec → plan/checklist in minutes\n🔎 **Analytics** → facts, risks, conclusions, next steps\n🧩 **Personalization at scale** → 50–500 variations by template\n🧪 **A/B testing** → headlines, first paragraphs, CTAs\n📊 **Data** → analysis and processing → (CSV, PDF, etc.)\n🌍 **Languages & tone** → RU / EN / ES / PT / FR / DE, one brand voice\n\n✨ **Free models available to start.**\n⭐ **Premium works immediately for all models** — lowers cost and gives priority.\n🧠 **Conversation context is preserved across all models** — you can switch freely without losing history\n\n🔥 **For serious tasks — paid AIs:** faster, smarter, and with Premium — cheaper and prioritized.\n\n👉 Tap **“Choose model”** to begin 🚀
 onboarding_choose_model_button = 🚀 Choose model
 
 # Profile
@@ -143,7 +151,7 @@ select_model_legend = <b>0.01 SP</b> — cost per request
     🔥 — top model by popularity
 model_active = Model active: {$model}. Price {$price} SP/request. Premium reduces the cost per request.
 model_buy_premium_button = ⭐ Buy Premium
-model_close_button = Close
+model_back_button = ◀️ Back
 model_selected =  ✅ Selected model: {$model}
 invalid_model = Invalid model
 
@@ -156,10 +164,18 @@ capability_voice = Voice messages
 
 # Model selection confirmation block
 model_connected_title = 🚀 You connected the model: <b>{$model}</b>!
-model_price_line_with_premium = 🔹 <b>Price: <s>{$price_without} SP</s> → {$price_with} SP / request with Premium ⭐</b>
-model_price_line_without_premium =
-    🔹 <b>Price: {$price_without} SP</b>
-    🔹 <b>With Premium {$price_with} SP — lower cost and higher priority ⭐</b>
+model_about_title = ℹ️ <b>About the model:</b>
+model_about_gpt5 = <b>GPT-5 🧠🔥</b> — flagship with maximum accuracy and deep reasoning. Universal for serious tasks: analytics, strategy, long-form writing and complex queries.
+model_about_nano = <b>Nano 🍌 ⚡🖼</b> — optimal for working with photos, especially portraits. Fast and affordable: gives clear descriptions and quick results. For best image quality, describe the task as precisely and richly as possible.
+model_about_claude37_sonnet = <b>Claude 3.7 Sonnet ✍️📚</b> — excels at text work. Produces structured and creative outputs; great for emails, scripts, and ideation.
+model_about_grok4 = <b>Grok 4 (Vision) 👀🖼</b> — understands images and text. Good for analyzing photos, infographics, documents, and mixed queries.
+model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — Google’s multimodal AI. Balances text, images, and data work. Convenient for analytics and cross‑lingual tasks.
+model_about_deepseek = <b>DeepSeek ⚡🧪</b> — combines speed and intelligence. Suitable for bulk requests, A/B testing, marketing, and idea generation.
+model_about_qwen25 = <b>Qwen2.5 💡💸</b> — basic and economical model. Good for quick questions, drafts, and simple texts.
+model_about_gpt4o_mini = <b>GPT-4o — mini 🎯🆓</b> — entry‑level free model. Great for getting started and handling light tasks.
+model_price_base_line = 🔹 <b>Price: {$price_without} SP</b>
+model_price_with_premium_line = ⭐ <b>With Premium {$price_with} SP</b> — lower cost and higher priority.
+model_premium_applies_all = ⭐ Premium applies to all models.
 model_price_line_free = 🔹 <b>Price: Free</b>
 price_free_short = free
 attachments_double_cost_note = 📎 Attachments (photos/audio/files) double the cost of the request.

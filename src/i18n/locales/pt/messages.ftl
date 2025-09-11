@@ -88,7 +88,15 @@ language_command = Selecionar idioma da interface
 clear_command = Limpar histórico do chat
 
 # Ajuda
-help_usage = Como usar: envie texto/voz/imagem/documento ou um link de vídeo — eu resolvo e respondo
+help_usage =
+    <b>Como usar</b>: envie <b>texto/voz/imagem/documento</b> ou um link de vídeo — eu resolvo e respondo
+    ℹ️ Ao escolher um modelo, toque nele para saber mais sobre suas capacidades e finalidade
+    <b>⭐ O Premium se aplica a todos os modelos do assistente e oferece recursos avançados:</b>
+    • Desconto em solicitações pagas
+    • Prioridade na fila (respostas mais rápidas)
+    • Limites aumentados e acesso a modelos poderosos
+    • Janela de contexto estendida (mais histórico de conversa salvo)
+    • Estabilidade garantida mesmo em picos de carga
 help_commands_title = Comandos:
 help_start = /start — menu principal
 help_help = /help — esta ajuda
@@ -98,9 +106,9 @@ help_language = /language — idioma da interface
 help_clear = /clear — limpar contexto
 
 
-help_files = Arquivos suportados (até 15 MB): PDF, DOCX, PPTX, CSV, texto.
-help_photos = Fotos suportadas: JPG, JPEG, PNG, WEBP.
-help_content_rules = Restrições de conteúdo: proibidos materiais ilegais, maliciosos, ofensivos.
+help_files = 📂 <b>Arquivos suportados (até 15 MB)</b>: PDF, DOCX, PPTX, CSV, texto.
+help_photos = 🖼 <b>Fotos suportadas</b>: JPG, JPEG, PNG, WEBP.
+help_content_rules = 🚫 <b>Restrições de conteúdo</b>: proibidos materiais ilegais, maliciosos, ofensivos.
 
 # Suporte
 help_contact_support_button = 🆘 Contatar suporte
@@ -110,7 +118,7 @@ support_unavailable = O link de suporte está indisponível no momento. Tente no
 
 
 # Onboarding após seleção de idioma
-onboarding_promo = **Oi, {$first_name}!** 👋\n\n**Sou o assistente de IA SETUP.**\n\n**Texto, foto ou voz** — analiso e transformo em resultados: de ideias e planos a análises e documentos prontos.\n\n🎙 **Voz** → transcrição, resumos, ideias estruturadas\n📸 **Foto** → análise de conteúdo, descrição, extração de dados\n🧑‍💻 **Código** → dicas, depuração, otimização\n✉️ **Textos de negócios** → emails, ofertas, landing pages, roteiros de vendas\n🧭 **Estrutura** → briefing → especificação → plano/checklist em minutos\n🔎 **Análise** → fatos, riscos, conclusões, próximos passos\n🧩 **Personalização em escala** → 50–500 variações por template\n🧪 **Teste A/B** → títulos, primeiros parágrafos, CTAs\n📊 **Dados** → análise e processamento → (CSV, PDF, etc.)\n🌍 **Idiomas e tom** → RU / EN / ES / PT / FR / DE, uma única voz de marca\n\n✨ **Modelos gratuitos disponíveis para começar.**\n🔥 **Para tarefas sérias — IAs pagas:** mais rápido, mais inteligente e com Premium — ainda mais barato e prioritário.\n\n👉 Toque em **“Escolher modelo”** e vamos 🚀
+onboarding_promo = **Oi, {$first_name}!** 👋\n\n**Sou o assistente de IA SETUP.**\n\n**Texto, foto ou voz** — analiso e transformo em resultados: de ideias e planos a análises e documentos prontos.\n\n🎙 **Voz** → transcrição, resumos, ideias estruturadas\n📸 **Foto** → análise de conteúdo, descrição, extração de dados\n🧑‍💻 **Código** → dicas, depuração, otimização\n✉️ **Textos de negócios** → emails, ofertas, landing pages, roteiros de vendas\n🧭 **Estrutura** → briefing → especificação → plano/checklist em minutos\n🔎 **Análise** → fatos, riscos, conclusões, próximos passos\n🧩 **Personalização em escala** → 50–500 variações por template\n🧪 **Teste A/B** → títulos, primeiros parágrafos, CTAs\n📊 **Dados** → análise e processamento → (CSV, PDF, etc.)\n🌍 **Idiomas e tom** → RU / EN / ES / PT / FR / DE, uma única voz de marca\n\n✨ **Modelos gratuitos disponíveis para começar.**\n⭐ **Premium funciona imediatamente para todos os modelos** — reduz o custo e dá prioridade.\n🧠 **O contexto da conversa é preservado entre todos os modelos** — você pode alternar livremente sem perder o histórico\n\n🔥 **Para tarefas sérias — IAs pagas:** mais rápido, mais inteligente e com Premium — ainda mais barato e prioritário.\n\n👉 Toque em **“Escolher modelo”** e vamos 🚀
 onboarding_choose_model_button = 🚀 Escolher modelo
 
 # Perfil
@@ -147,7 +155,7 @@ select_model_legend = <b>0.01 SP</b> — custo por solicitação
     🔥 — modelo popular (top)
 model_active = Modelo ativo: {$model}. Preço {$price} SP/solicitação. O Premium reduz o custo por solicitação.
 model_buy_premium_button = ⭐ Comprar Premium
-model_close_button = Fechar
+model_back_button = ◀️ Voltar
 model_selected =  ✅ Modelo selecionado: **{$model}**
 invalid_model = Modelo inválido
 
@@ -160,10 +168,18 @@ capability_voice = Mensagens de voz
 
 # Bloco de confirmação de seleção do modelo
 model_connected_title = 🚀 Você conectou o modelo: <b>{$model}</b>!
-model_price_line_with_premium = 🔹 <b>Preço: <s>{$price_without} SP</s> → {$price_with} SP / solicitação com Premium ⭐</b>
-model_price_line_without_premium =
-    🔹 <b>Preço: {$price_without} SP</b>
-    🔹 <b>Com Premium {$price_with} SP — menor custo e maior prioridade ⭐</b>
+model_about_title = ℹ️ <b>Sobre o modelo:</b>
+model_about_gpt5 = <b>GPT-5 🧠🔥</b> — carro-chefe com máxima precisão e raciocínio profundo. Universal para tarefas sérias: análises, estratégia, textos longos e consultas complexas.
+model_about_nano = <b>Nano 🍌 ⚡🖼</b> — ideal para trabalhar com fotos, especialmente retratos. Rápido e acessível: fornece descrições claras e resultados rápidos. Para melhor qualidade, descreva a tarefa com o máximo de detalhes.
+model_about_claude37_sonnet = <b>Claude 3.7 Sonnet ✍️📚</b> — forte em trabalhos de texto. Gera respostas estruturadas e criativas; ótimo para emails, roteiros e ideias.
+model_about_grok4 = <b>Grok 4 (Vision) 👀🖼</b> — entende imagens e texto. Bom para análise de fotos, infográficos, documentos e consultas mistas.
+model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — IA multimodal do Google. Equilibra textos, fotos e dados. Útil para análises e tarefas multilíngues.
+model_about_deepseek = <b>DeepSeek ⚡🧪</b> — combina velocidade e inteligência. Indicado para demandas em massa, testes A/B, marketing e geração de ideias.
+model_about_qwen25 = <b>Qwen2.5 💡💸</b> — modelo básico e econômico. Bom para perguntas rápidas, rascunhos e textos simples.
+model_about_gpt4o_mini = <b>GPT-4o — mini 🎯🆓</b> — modelo gratuito de entrada. Ótimo para começar e lidar com tarefas leves.
+model_price_base_line = 🔹 <b>Preço: {$price_without} SP</b>
+model_price_with_premium_line = ⭐ <b>Com Premium {$price_with} SP</b> — menor custo e maior prioridade.
+model_premium_applies_all = ⭐ Premium se aplica a todos os modelos.
 model_price_line_free = 🔹 <b>Preço: grátis</b>
 price_free_short = grátis
 attachments_double_cost_note = 📎 Anexos (fotos/áudio/arquivos) dobram o custo da solicitação.

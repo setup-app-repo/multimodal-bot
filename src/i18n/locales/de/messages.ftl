@@ -88,7 +88,15 @@ language_command = Interface-Sprache auswählen
 clear_command = Chat-Verlauf löschen
 
 # Hilfe
-help_usage = So verwenden Sie es: Senden Sie Text/Sprach-/Bild-/Dokumente oder einen Videolink — ich kümmere mich darum und antworte
+help_usage =
+    <b>So verwenden Sie es</b>: senden Sie <b>Text/Sprach-/Bild-/Dokumente</b> oder einen Videolink — ich kümmere mich darum und antworte
+    ℹ️ Bei der Modellauswahl tippen Sie darauf, um mehr über seine Fähigkeiten und den Einsatzzweck zu erfahren
+    <b>⭐ Premium gilt für alle Assistentenmodelle und bietet erweiterte Funktionen:</b>
+    • Rabatt auf bezahlte Anfragen
+    • Priorität in der Warteschlange (schnellere Antworten)
+    • Höhere Limits und Zugang zu leistungsstarken Modellen
+    • Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)
+    • Garantierte Stabilität auch bei Spitzenlast
 help_commands_title = Befehle:
 help_start = /start — Hauptmenü
 help_help = /help — diese Hilfe
@@ -98,9 +106,9 @@ help_language = /language — Interface-Sprache
 help_clear = /clear — Kontext löschen
 
 
-help_files = Unterstützte Dateien (bis 15 MB): PDF, DOCX, PPTX, CSV, Text.
-help_photos = Unterstützte Fotos: JPG, JPEG, PNG, WEBP.
-help_content_rules = Inhaltsbeschränkungen: illegale, schädliche, beleidigende Materialien verboten.
+help_files = 📂 <b>Unterstützte Dateien (bis 15 MB)</b>: PDF, DOCX, PPTX, CSV, Text.
+help_photos = 🖼 <b>Unterstützte Fotos</b>: JPG, JPEG, PNG, WEBP.
+help_content_rules = 🚫 <b>Inhaltsbeschränkungen</b>: illegale, schädliche, beleidigende Materialien verboten.
 
 # Support
 help_contact_support_button = 🆘 Support kontaktieren
@@ -144,7 +152,7 @@ select_model_legend = <b>0.01 SP</b> — Kosten pro Anfrage
     🔥 — Top-Modell nach Beliebtheit
 model_active = Modell aktiv: {$model}. Preis {$price} SP/Anfrage. Premium senkt die Kosten pro Anfrage.
 model_buy_premium_button = ⭐ Premium kaufen
-model_close_button = Schließen
+model_back_button = ◀️ Zurück
 model_selected =  ✅ Modell ausgewählt: **{$model}**
 invalid_model = Ungültiges Modell
 
@@ -157,10 +165,18 @@ capability_voice = Sprachnachrichten
 
 # Bestätigungsblock der Modellauswahl
 model_connected_title = 🚀 Du hast das Modell verbunden: <b>{$model}</b>!
-model_price_line_with_premium = 🔹 <b>Preis: <s>{$price_without} SP</s> → {$price_with} SP / Anfrage mit Premium ⭐</b>
-model_price_line_without_premium =
-    🔹 <b>Preis: {$price_without} SP</b>
-    🔹 <b>Mit Premium {$price_with} SP — geringere Kosten und höhere Priorität ⭐</b>
+model_about_title = ℹ️ <b>Über das Modell:</b>
+model_about_gpt5 = <b>GPT-5 🧠🔥</b> — Flaggschiff mit maximaler Genauigkeit und tiefem Reasoning. Universell für anspruchsvolle Aufgaben: Analytik, Strategie, Longform-Texte und komplexe Anfragen.
+model_about_nano = <b>Nano 🍌 ⚡🖼</b> — optimal für Fotos, besonders Porträts. Schnell und günstig: liefert klare Beschreibungen und schnelle Ergebnisse. Für beste Qualität die Aufgabe möglichst präzise und detailliert formulieren.
+model_about_claude37_sonnet = Claude 3.7 Sonnet ✍️📚 — stark bei Texten. Gibt strukturierte und kreative Antworten; ideal für E‑Mails, Skripte und Ideen.
+model_about_grok4 = Grok 4 (Vision) 👀🖼 — versteht Bilder und Text. Gut für die Analyse von Fotos, Infografiken, Dokumenten und gemischten Anfragen.
+model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — Googles multimodale KI. Balanciert Text, Bilder und Daten. Praktisch für Analysen und mehrsprachige Aufgaben.
+model_about_deepseek = DeepSeek ⚡🧪 — vereint Geschwindigkeit und Intelligenz. Geeignet für Massenanfragen, A/B‑Tests, Marketing und Ideengenerierung.
+model_about_qwen25 = Qwen2.5 💡💸 — grundlegendes und wirtschaftliches Modell. Gut für schnelle Fragen, Entwürfe und einfache Texte.
+model_about_gpt4o_mini = GPT-4o — mini 🎯🆓 — kostenlose Einstiegsmodell. Gut zum Einstieg und für leichte Aufgaben.
+model_price_base_line = 🔹 <b>Preis: {$price_without} SP</b>
+model_price_with_premium_line = ⭐ <b>Mit Premium {$price_with} SP</b> — geringere Kosten und höhere Priorität.
+model_premium_applies_all = ⭐ Premium gilt für alle Modelle.
 model_price_line_free = 🔹 <b>Preis: kostenlos</b>
 price_free_short = kostenlos
 attachments_double_cost_note = 📎 Anhänge (Fotos/Audio/Dateien) verdoppeln die Kosten der Anfrage.
@@ -243,7 +259,7 @@ message_part = Teil {$current} von {$total}
 processing_request = ⏳ Verarbeite deine Anfrage...
 
 # Onboarding nach Sprachauswahl
-onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI‑Assistent.**\n\n**Text, Foto oder Stimme** — ich analysiere und verwandle es in Ergebnisse: von Ideen und Plänen bis hin zu Analysen und fertigen Dokumenten.\n\n🎙 **Stimme** → Transkription, Zusammenfassungen, strukturierte Ideen\n📸 **Foto** → Inhaltsanalyse, Beschreibung, Datenauszug\n🧑‍💻 **Code** → Tipps, Fehlersuche, Optimierung\n✉️ **Business‑Texte** → E‑Mails, Angebote, Landingpages, Vertriebsskripte\n🧭 **Struktur** → Briefing → Spezifikation → Plan/Checkliste in Minuten\n🔎 **Analytik** → Fakten, Risiken, Schlussfolgerungen, nächste Schritte\n🧩 **Skalierte Personalisierung** → 50–500 Varianten pro Vorlage\n🧪 **A/B‑Test** → Überschriften, erste Absätze, CTAs\n📊 **Daten** → Analyse und Verarbeitung → (CSV, PDF usw.)\n🌍 **Sprachen & Ton** → RU / EN / ES / PT / FR / DE, eine einheitliche Markenstimme\n\n✨ **Kostenlose Modelle zum Start verfügbar.**\n🔥 **Für ernsthafte Aufgaben — bezahlte KIs:** schneller, smarter, und mit Premium — günstiger und priorisiert.\n\n👉 Tippe **„Modell wählen“** — und los geht’s 🚀
+onboarding_promo = **Hi, {$first_name}!** 👋\n\n**Ich bin der SETUP KI‑Assistent.**\n\n**Text, Foto oder Stimme** — ich analysiere und verwandle es in Ergebnisse: von Ideen und Plänen bis hin zu Analysen und fertigen Dokumenten.\n\n🎙 **Stimme** → Transkription, Zusammenfassungen, strukturierte Ideen\n📸 **Foto** → Inhaltsanalyse, Beschreibung, Datenauszug\n🧑‍💻 **Code** → Tipps, Fehlersuche, Optimierung\n✉️ **Business‑Texte** → E‑Mails, Angebote, Landingpages, Vertriebsskripte\n🧭 **Struktur** → Briefing → Spezifikation → Plan/Checkliste in Minuten\n🔎 **Analytik** → Fakten, Risiken, Schlussfolgerungen, nächste Schritte\n🧩 **Skalierte Personalisierung** → 50–500 Varianten pro Vorlage\n🧪 **A/B‑Test** → Überschriften, erste Absätze, CTAs\n📊 **Daten** → Analyse und Verarbeitung → (CSV, PDF usw.)\n🌍 **Sprachen & Ton** → RU / EN / ES / PT / FR / DE, eine einheitliche Markenstimme\n\n✨ **Kostenlose Modelle zum Start verfügbar.**\n⭐ **Premium funktioniert sofort für alle Modelle** — senkt die Kosten und gibt Priorität.\n🧠 **Der Gesprächskontext bleibt über alle Modelle hinweg erhalten** — du kannst frei wechseln, ohne den Verlauf zu verlieren\n\n🔥 **Für ernsthafte Aufgaben — bezahlte KIs:** schneller, smarter, und mit Premium — günstiger und priorisiert.\n\n👉 Tippe **„Modell wählen“** — und los geht’s 🚀
 
 # Benachrichtigungen
 notification_inactive_recall = {$first_name}, lange nicht gesehen 👋\nSende eine Anfrage — ich helfe!

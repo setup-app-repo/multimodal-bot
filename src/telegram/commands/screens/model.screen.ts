@@ -29,6 +29,20 @@ export class ModelScreen {
     const priceWithSub = getPriceSP(selectedModel, true);
 
     const header = t(ctx, 'model_connected_title', { model: modelDisplayName });
+    const MODEL_TO_ABOUT_KEY: Record<string, string> = {
+      'openai/gpt-5': 'model_about_gpt5',
+      'google/gemini-2.5-flash-image-preview': 'model_about_nano',
+      'anthropic/claude-3.7-sonnet': 'model_about_claude37_sonnet',
+      'x-ai/grok-4': 'model_about_grok4',
+      'google/gemini-2.5-pro': 'model_about_gemini25_pro',
+      'deepseek/deepseek-chat-v3.1': 'model_about_deepseek',
+      'qwen/qwen2.5-vl-32b-instruct': 'model_about_qwen25',
+      'openai/gpt-4o-mini': 'model_about_gpt4o_mini',
+    };
+    const aboutKey = MODEL_TO_ABOUT_KEY[selectedModel];
+    const aboutBlock = aboutKey
+      ? [t(ctx, 'model_about_title'), t(ctx, aboutKey)].join('\n')
+      : '';
     const capabilitiesTitle = t(ctx, 'model_capabilities_title') || `✨ <b>Возможности модели:</b>`;
 
     const capabilityLines: string[] = [];
@@ -46,39 +60,44 @@ export class ModelScreen {
     }
 
     const isFree = priceWithoutSub === 0 && priceWithSub === 0;
-    const priceLine = isFree
-      ? t(ctx, 'model_price_line_free')
-      : isPremium
-        ? t(ctx, 'model_price_line_with_premium', {
-          price_without: priceWithoutSub.toFixed(2),
-          price_with: priceWithSub.toFixed(2),
-        })
-        : t(ctx, 'model_price_line_without_premium', {
-          price_without: priceWithoutSub.toFixed(2),
-          price_with: priceWithSub.toFixed(2),
-        });
+    const priceBlockLines: string[] = [];
+    if (isFree) {
+      priceBlockLines.push(t(ctx, 'model_price_line_free'));
+    } else {
+      priceBlockLines.push(
+        t(ctx, 'model_price_base_line', { price_without: priceWithoutSub.toFixed(2) }),
+      );
+      priceBlockLines.push(
+        t(ctx, 'model_price_with_premium_line', { price_with: priceWithSub.toFixed(2) }),
+      );
+      priceBlockLines.push(t(ctx, 'model_premium_applies_all'));
+    }
 
     const attachmentsNote = t(ctx, 'attachments_double_cost_note');
     const footer = t(ctx, 'chat_start_hint');
 
-    const text = [
-      header,
-      '',
-      capabilitiesTitle,
-      capabilityLines.join('\n'),
-      '',
-      priceLine,
-      '',
-      attachmentsNote,
-      '',
-      footer,
-    ].join('\n');
+    const textParts: string[] = [header];
+    if (aboutBlock) {
+      textParts.push('');
+      textParts.push(aboutBlock);
+    }
+    textParts.push('');
+    textParts.push(capabilitiesTitle);
+    textParts.push(capabilityLines.join('\n'));
+    textParts.push('');
+    textParts.push(priceBlockLines.join('\n'));
+    textParts.push('');
+    textParts.push(attachmentsNote);
+    textParts.push('');
+    textParts.push(footer);
+
+    const text = textParts.join('\n');
 
     const keyboard = new InlineKeyboard();
     if (!isPremium) {
       keyboard.text(t(ctx, 'model_buy_premium_button'), 'profile:premium').row();
     }
-    keyboard.text(t(ctx, 'model_close_button'), 'model:close');
+    keyboard.text(t(ctx, 'model_back_button'), 'model:back');
 
     return { text, keyboard, parse_mode: 'HTML' };
   }
