@@ -5,7 +5,7 @@ import { BotContext } from '../../interfaces';
 import { RegisterCommandsDeps, KeyboardBuilder, buildHelpText } from '../utils';
 
 export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
-  const { t, i18n, setupAppService, userService, redisService, subscriptionService, logger } = deps;
+  const { t, i18n, setupAppService, userService, redisService, logger } = deps;
 
   bot.command('help', async (ctx) => {
     const keyboard = new InlineKeyboard().url(
