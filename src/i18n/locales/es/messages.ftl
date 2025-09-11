@@ -34,7 +34,6 @@ premium_confirm_benefit_1 = <code>📉 Descuento en solicitudes de pago</code>
 premium_confirm_benefit_2 = <code>⚡ Prioridad en la cola</code>
 premium_confirm_benefit_3 = <code>📈 Límites aumentados y acceso a modelos potentes</code>
 premium_confirm_benefit_4 = <code>🧠 Ventana de contexto ampliada</code>
-premium_confirm_benefit_5 = <code>👤 Soporte 24/7</code>
 premium_confirm_benefit_6 = <code>🔒 Estabilidad incluso en picos de carga</code>
 premium_confirm_footer = <b>⬇️ Confirma la compra de Premium por 10 SP.</b>
 premium_confirm_yes = ✅ Confirmar compra
@@ -66,7 +65,7 @@ premium_extend_success = <b>✅ ¡Renovación realizada con éxito!</b>\n\n📅 
 
 # Premium — estado activo
 premium_active_title = ⭐ <b>Premium activo</b>
-premium_active_text = \n📅 <b>Válido hasta:</b> {$expires_at}\n⏳ <b>Restan:</b> {$days_left} días\n🔄 <b>Renovación automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Beneficios:</b>\n• Descuento en solicitudes de pago\n• Prioridad en la cola (respuestas más rápidas)\n• Límites aumentados y acceso a modelos potentes\n• Ventana de contexto ampliada (se guarda más historial de conversación)\n• Soporte 24/7\n• Estabilidad garantizada incluso en picos de carga
+premium_active_text = \n📅 <b>Válido hasta:</b> {$expires_at}\n⏳ <b>Restan:</b> {$days_left} días\n🔄 <b>Renovación automática:</b> <b>{$autorenew}</b>\n💰 <b>Saldo:</b> {$balance} SP\n\n<b>Beneficios:</b>\n• Descuento en solicitudes de pago\n• Prioridad en la cola (respuestas más rápidas)\n• Límites aumentados y acceso a modelos potentes\n• Ventana de contexto ampliada (se guarda más historial de conversación)\n• Estabilidad garantizada incluso en picos de carga
 premium_extend_30_button = 🔄 Extender 30 días — 10 SP
 premium_autorenew_toggle_button_on = ⚙️ Renovación automática: {$on}
 premium_autorenew_toggle_button_off = ⚙️ Renovación automática: {$off}

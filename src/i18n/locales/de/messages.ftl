@@ -34,7 +34,6 @@ premium_confirm_benefit_1 = <code>📉 Rabatt auf kostenpflichtige Anfragen</cod
 premium_confirm_benefit_2 = <code>⚡ Priorität in der Warteschlange</code>
 premium_confirm_benefit_3 = <code>📈 Höhere Limits und Zugang zu leistungsstarken Modellen</code>
 premium_confirm_benefit_4 = <code>🧠 Erweitertes Kontextfenster</code>
-premium_confirm_benefit_5 = <code>👤 24/7 Support</code>
 premium_confirm_benefit_6 = <code>🔒 Stabilität auch bei Spitzenlast</code>
 premium_confirm_footer = <b>⬇️ Bestätigen Sie den Premium-Kauf für 10 SP.</b>
 premium_confirm_yes = ✅ Kauf bestätigen
@@ -66,7 +65,7 @@ premium_extend_success = <b>✅ Verlängerung erfolgreich!</b>\n\n📅 Ablaufdat
 
 # Premium — aktiver Status
 premium_active_title = ⭐ <b>Premium aktiv</b>
-premium_active_text = \n📅 <b>Gültig bis:</b> {$expires_at}\n⏳ <b>Verbleibend:</b> {$days_left} Tage\n🔄 <b>Automatische Verlängerung:</b> <b>{$autorenew}</b>\n💰 <b>Guthaben:</b> {$balance} SP\n\n<b>Vorteile:</b>\n• Rabatt auf kostenpflichtige Anfragen\n• Priorität in der Warteschlange (schnellere Antworten)\n• Höhere Limits und Zugang zu leistungsstarken Modellen\n• Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)\n• 24/7 Support\n• Garantierte Stabilität auch bei Spitzenlast
+premium_active_text = \n📅 <b>Gültig bis:</b> {$expires_at}\n⏳ <b>Verbleibend:</b> {$days_left} Tage\n🔄 <b>Automatische Verlängerung:</b> <b>{$autorenew}</b>\n💰 <b>Guthaben:</b> {$balance} SP\n\n<b>Vorteile:</b>\n• Rabatt auf kostenpflichtige Anfragen\n• Priorität in der Warteschlange (schnellere Antworten)\n• Höhere Limits und Zugang zu leistungsstarken Modellen\n• Erweitertes Kontextfenster (mehr Gesprächsverlauf wird gespeichert)\n• Garantierte Stabilität auch bei Spitzenlast
 premium_extend_30_button = 🔄 Um 30 Tage verlängern — 10 SP
 premium_autorenew_toggle_button_on = ⚙️ Automatische Verlängerung: {$on}
 premium_autorenew_toggle_button_off = ⚙️ Automatische Verlängerung: {$off}

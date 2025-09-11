@@ -21,7 +21,6 @@ export class PremiumScreen {
       `${t(ctx, 'premium_confirm_benefit_2')}\n` +
       `${t(ctx, 'premium_confirm_benefit_3')}\n` +
       `${t(ctx, 'premium_confirm_benefit_4')}\n` +
-      `${t(ctx, 'premium_confirm_benefit_5')}\n` +
       `${t(ctx, 'premium_confirm_benefit_6')}\n\n` +
       `${t(ctx, 'premium_confirm_footer')}`;
     const keyboard = new InlineKeyboard()

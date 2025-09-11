@@ -34,7 +34,6 @@ premium_confirm_benefit_1 = <code>📉 Discount on paid requests</code>
 premium_confirm_benefit_2 = <code>⚡ Priority in the queue</code>
 premium_confirm_benefit_3 = <code>📈 Higher limits and access to powerful models</code>
 premium_confirm_benefit_4 = <code>🧠 Extended context window</code>
-premium_confirm_benefit_5 = <code>👤 24/7 support</code>
 premium_confirm_benefit_6 = <code>🔒 Stability even at peak loads</code>
 premium_confirm_footer = <b>⬇️ Confirm Premium purchase for 10 SP.</b>
 premium_confirm_yes = ✅ Confirm purchase
@@ -58,7 +57,7 @@ premium_autorenew_confirm_no = ❌ Cancel
 
 # Premium — active status
 premium_active_title = ⭐ <b>Premium is active</b>
-premium_active_text = \n📅 <b>Valid until:</b> {$expires_at}\n⏳ <b>Time left:</b> {$days_left} days\n🔄 <b>Auto-renewal:</b> <b>{$autorenew}</b>\n💰 <b>Balance:</b> {$balance} SP\n\n<b>Benefits:</b>\n• Discount on paid requests\n• Priority in the queue (faster responses)\n• Higher limits and access to powerful models\n• Extended context window (more conversation history is saved)\n• 24/7 support\n• Guaranteed stability even during peak load
+premium_active_text = \n📅 <b>Valid until:</b> {$expires_at}\n⏳ <b>Time left:</b> {$days_left} days\n🔄 <b>Auto-renewal:</b> <b>{$autorenew}</b>\n💰 <b>Balance:</b> {$balance} SP\n\n<b>Benefits:</b>\n• Discount on paid requests\n• Priority in the queue (faster responses)\n• Higher limits and access to powerful models\n• Extended context window (more conversation history is saved)\n• Guaranteed stability even during peak load
 premium_extend_30_button = 🔄 Extend for 30 days — 10 SP
 premium_autorenew_toggle_button_on = ⚙️ Auto-renewal: {$on}
 premium_autorenew_toggle_button_off = ⚙️ Auto-renewal: {$off}

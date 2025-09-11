@@ -34,7 +34,6 @@ premium_confirm_benefit_1 = <code>📉 Réduction sur les requêtes payantes</co
 premium_confirm_benefit_2 = <code>⚡ Priorité dans la file d'attente</code>
 premium_confirm_benefit_3 = <code>📈 Limites augmentées et accès aux modèles puissants</code>
 premium_confirm_benefit_4 = <code>🧠 Fenêtre de contexte étendue</code>
-premium_confirm_benefit_5 = <code>👤 Support 24/7</code>
 premium_confirm_benefit_6 = <code>🔒 Stabilité même en période de forte charge</code>
 premium_confirm_footer = <b>⬇️ Confirmez l'achat Premium pour 10 SP.</b>
 premium_confirm_yes = ✅ Confirmer l'achat
@@ -66,7 +65,7 @@ premium_extend_success = <b>✅ Renouvellement effectué avec succès !</b>\n\n�
 
 # Premium — statut actif
 premium_active_title = ⭐ <b>Premium actif</b>
-premium_active_text = \n📅 <b>Valable jusqu’au :</b> {$expires_at}\n⏳ <b>Restant :</b> {$days_left} jours\n🔄 <b>Renouvellement auto :</b> <b>{$autorenew}</b>\n💰 <b>Solde :</b> {$balance} SP\n\n<b>Avantages :</b>\n• Réduction sur les requêtes payantes\n• Priorité dans la file (réponses plus rapides)\n• Limites augmentées et accès aux modèles puissants\n• Fenêtre de contexte étendue (plus d’historique conservé)\n• Support 24/7\n• Stabilité garantie même en période de forte charge
+premium_active_text = \n📅 <b>Valable jusqu’au :</b> {$expires_at}\n⏳ <b>Restant :</b> {$days_left} jours\n🔄 <b>Renouvellement auto :</b> <b>{$autorenew}</b>\n💰 <b>Solde :</b> {$balance} SP\n\n<b>Avantages :</b>\n• Réduction sur les requêtes payantes\n• Priorité dans la file (réponses plus rapides)\n• Limites augmentées et accès aux modèles puissants\n• Fenêtre de contexte étendue (plus d’historique conservé)\n• Stabilité garantie même en période de forte charge
 premium_extend_30_button = 🔄 Prolonger de 30 jours — 10 SP
 premium_autorenew_toggle_button_on = ⚙️ Renouvellement auto : {$on}
 premium_autorenew_toggle_button_off = ⚙️ Renouvellement auto : {$off}

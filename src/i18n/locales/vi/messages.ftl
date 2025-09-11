@@ -37,7 +37,6 @@ premium_confirm_benefit_1 = <code>📉 Giảm giá cho yêu cầu trả phí</co
 premium_confirm_benefit_2 = <code>⚡ Ưu tiên trong hàng đợi</code>
 premium_confirm_benefit_3 = <code>📈 Giới hạn cao hơn, truy cập mô hình mạnh</code>
 premium_confirm_benefit_4 = <code>🧠 Cửa sổ ngữ cảnh mở rộng</code>
-premium_confirm_benefit_5 = <code>👤 Hỗ trợ 24/7</code>
 premium_confirm_benefit_6 = <code>🔒 Ổn định khi tải cao</code>
 premium_confirm_footer = <b>⬇️ Xác nhận mua Premium với 10 SP.</b>
 premium_confirm_yes = ✅ Xác nhận mua
@@ -64,7 +63,7 @@ premium_autorenew_confirm_no = ❌ Huỷ
 
 # Premium — trạng thái hoạt động
 premium_active_title = ⭐ <b>Premium đang hoạt động</b>
-premium_active_text = \n📅 <b>Hiệu lực đến:</b> {$expires_at}\n⏳ <b>Còn lại:</b> {$days_left} ngày\n🔄 <b>Tự gia hạn:</b> <b>{$autorenew}</b>\n💰 <b>Số dư:</b> {$balance} SP\n\n<b>Quyền lợi:</b>\n• Giảm giá yêu cầu trả phí\n• Ưu tiên hàng đợi (trả lời nhanh hơn)\n• Giới hạn cao hơn, truy cập mô hình mạnh\n• Cửa sổ ngữ cảnh mở rộng\n• Hỗ trợ 24/7\n• Ổn định khi tải cao
+premium_active_text = \n📅 <b>Hiệu lực đến:</b> {$expires_at}\n⏳ <b>Còn lại:</b> {$days_left} ngày\n🔄 <b>Tự gia hạn:</b> <b>{$autorenew}</b>\n💰 <b>Số dư:</b> {$balance} SP\n\n<b>Quyền lợi:</b>\n• Giảm giá yêu cầu trả phí\n• Ưu tiên hàng đợi (trả lời nhanh hơn)\n• Giới hạn cao hơn, truy cập mô hình mạnh\n• Cửa sổ ngữ cảnh mở rộng\n• Ổn định khi tải cao
 premium_extend_30_button = 🔄 Gia hạn 30 ngày — 10 SP
 premium_autorenew_toggle_button_on = ⚙️ Tự gia hạn: {$on}
 premium_autorenew_toggle_button_off = ⚙️ Tự gia hạn: {$off}

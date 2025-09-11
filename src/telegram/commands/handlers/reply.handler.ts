@@ -26,14 +26,10 @@ export function registerReplyHandlers(bot: Bot<BotContext>, deps: RegisterComman
     const action = detectReplyAction(text);
 
     if (action === 'help') {
-      const userId = String(ctx.from?.id);
-      const hasActive = await subscriptionService.hasActiveSubscription(userId);
-      const keyboard = new InlineKeyboard();
-      if (hasActive) {
-        keyboard.url(t(ctx, 'help_contact_support_button'), 'https://t.me/setupmultisupport_bot');
-      } else {
-        keyboard.text(t(ctx, 'help_contact_support_button'), 'help:support');
-      }
+      const keyboard = new InlineKeyboard().url(
+        t(ctx, 'help_contact_support_button'),
+        'https://t.me/setupmultisupport_bot',
+      );
       await ctx.reply(buildHelpText(ctx, t), { reply_markup: keyboard });
       return;
     }
