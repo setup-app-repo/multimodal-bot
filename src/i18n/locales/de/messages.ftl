@@ -153,6 +153,7 @@ select_model_legend = <b>0.01 SP</b> — Kosten pro Anfrage
 model_active = Modell aktiv: {$model}. Preis {$price} SP/Anfrage. Premium senkt die Kosten pro Anfrage.
 model_buy_premium_button = ⭐ Premium kaufen
 model_back_button = ◀️ Zurück
+model_close_button = ❌ Schließen
 model_selected =  ✅ Modell ausgewählt: **{$model}**
 invalid_model = Ungültiges Modell
 

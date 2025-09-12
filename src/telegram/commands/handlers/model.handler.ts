@@ -50,6 +50,15 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
       await ctx.reply(text, { reply_markup: keyboard, parse_mode });
       return;
     }
+    if (data === 'model:close') {
+      await safeAnswerCallbackQuery(ctx);
+      try {
+        await ctx.deleteMessage();
+      } catch {
+        try { await ctx.editMessageReplyMarkup(); } catch { }
+      }
+      return;
+    }
     return next();
   });
 }

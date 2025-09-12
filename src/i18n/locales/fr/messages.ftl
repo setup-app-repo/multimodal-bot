@@ -158,6 +158,7 @@ select_model_legend = <b>0,01 SP</b> — coût par requête
 model_active = Modèle actif : {$model}. Prix {$price} SP/requête. Le Premium réduit le coût par requête.
 model_buy_premium_button = ⭐ Acheter Premium
 model_back_button = ◀️ Retour
+model_close_button = ❌ Fermer
 model_selected =  ✅ Modèle sélectionné : **{$model}**
 invalid_model = Modèle invalide
 

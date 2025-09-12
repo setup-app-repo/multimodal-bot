@@ -167,6 +167,7 @@ model_selected =  ✅ Đã chọn mô hình: {$model}
 model_active = Mô hình đang hoạt động: {$model}. Giá {$price} SP/yêu cầu. Premium giảm chi phí.
 model_buy_premium_button = ⭐ Mua Premium
 model_back_button = ◀️ Quay lại
+model_close_button = ❌ Đóng
 invalid_model = Mô hình không hợp lệ
 
 # Khả năng mô hình

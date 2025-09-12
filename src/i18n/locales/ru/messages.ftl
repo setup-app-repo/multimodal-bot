@@ -167,6 +167,7 @@ model_selected =  ✅ Выбрана модель: {$model}
 model_active = Модель активна: {$model}. Цена {$price} SP/запрос. Премиум снижает стоимость запроса.
 model_buy_premium_button = ⭐ Купить Премиум
 model_back_button = ◀️ Назад
+model_close_button = ❌ Закрыть
 invalid_model = Недопустимая модель
 
 # Возможности модели
