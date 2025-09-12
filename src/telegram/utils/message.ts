@@ -2,6 +2,7 @@
 // Экспорт: escapeMarkdown, splitLong, sendLongMessage(ctx, t, message, opts)
 
 import { BotContext } from '../interfaces';
+import { sendMessageWithRetry } from './send-with-retry';
 
 /**
  * Экранирует специальные символы Telegram Markdown (v1) в произвольном тексте,
@@ -190,12 +191,12 @@ export async function sendLongMessage(
     if (parts.length > 1) {
       const partIndicator = `\n\n📄 ${t('message_part', { current: i + 1, total: parts.length })}`;
       if (part.length + partIndicator.length <= 4096) {
-        await ctx.reply(part + partIndicator, partOptions);
+        await sendMessageWithRetry((ctx as any).api, (ctx as any).chat.id, part + partIndicator, partOptions);
       } else {
-        await ctx.reply(part, partOptions);
+        await sendMessageWithRetry((ctx as any).api, (ctx as any).chat.id, part, partOptions);
       }
     } else {
-      await ctx.reply(part, partOptions);
+      await sendMessageWithRetry((ctx as any).api, (ctx as any).chat.id, part, partOptions);
     }
 
     if (i < parts.length - 1) {

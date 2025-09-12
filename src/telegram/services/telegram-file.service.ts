@@ -4,6 +4,7 @@ import { OpenRouterService } from 'src/openrouter/openrouter.service';
 import { RedisService } from 'src/redis/redis.service';
 
 import { BotContext } from '../interfaces';
+import { getFileWithRetry } from '../utils';
 import { WinstonLoggerService } from 'src/logger/winston-logger.service';
 
 @Injectable()
@@ -79,7 +80,7 @@ export class TelegramFileService {
         TelegramFileService.name,
       );
 
-      const file = await ctx.api.getFile(fileId);
+      const file = await getFileWithRetry(ctx.api as any, fileId, this.logger);
       if (!file?.file_path) return undefined;
 
       const token = this.configService.get<string>('BOT_TOKEN');
@@ -131,7 +132,7 @@ export class TelegramFileService {
           fileName?: string;
           mimeType: string;
         };
-        const file = await ctx.api.getFile(fileInfo.fileId);
+        const file = await getFileWithRetry(ctx.api as any, fileInfo.fileId, this.logger);
         if (!file?.file_path) continue;
         const token = this.configService.get<string>('BOT_TOKEN');
         const fileUrl = `https://api.telegram.org/file/bot${token}/${file.file_path}`;

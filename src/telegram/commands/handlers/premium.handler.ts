@@ -11,6 +11,7 @@ import {
   getLocaleCode,
   ensurePremiumDefaults,
 } from '../utils';
+import { editMessageReplyMarkupWithRetry, editMessageTextWithRetry } from 'src/telegram/utils';
 
 export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const premiumScreen = new PremiumScreen(deps);
@@ -57,7 +58,9 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
           .row()
           .text(t(ctx, 'premium_confirm_no'), 'premium:cancel_buy');
         try {
-          await ctx.editMessageReplyMarkup({ reply_markup: keyboard });
+          const chatId = (ctx as any)?.chat?.id || (ctx as any)?.callbackQuery?.message?.chat?.id;
+          const messageId = (ctx as any)?.callbackQuery?.message?.message_id || (ctx as any)?.msg?.message_id;
+          await editMessageReplyMarkupWithRetry((ctx as any).api, chatId, messageId, { reply_markup: keyboard } as any);
         } catch {
           try {
             await ctx.deleteMessage();
@@ -174,7 +177,9 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
         expires_at: expiresAt,
       }).replace(/\\n/g, '\n');
       try {
-        await ctx.editMessageText(msg, { parse_mode: 'HTML' });
+        const chatId = (ctx as any)?.chat?.id || (ctx as any)?.callbackQuery?.message?.chat?.id;
+        const messageId = (ctx as any)?.callbackQuery?.message?.message_id || (ctx as any)?.msg?.message_id;
+        await editMessageTextWithRetry((ctx as any).api, chatId, messageId, msg, { parse_mode: 'HTML' } as any);
       } catch {
         try {
           await ctx.deleteMessage();
@@ -228,10 +233,9 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       await subscriptionService.setAutoRenew(telegramId, true);
       const { text, keyboard } = await premiumScreen.buildActive(ctx);
       try {
-        await ctx.editMessageText(text, {
-          reply_markup: keyboard,
-          parse_mode: 'HTML',
-        });
+        const chatId = (ctx as any)?.chat?.id || (ctx as any)?.callbackQuery?.message?.chat?.id;
+        const messageId = (ctx as any)?.callbackQuery?.message?.message_id || (ctx as any)?.msg?.message_id;
+        await editMessageTextWithRetry((ctx as any).api, chatId, messageId, text, { reply_markup: keyboard, parse_mode: 'HTML' } as any);
       } catch {
         try {
           await ctx.deleteMessage();
@@ -247,10 +251,9 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       await subscriptionService.setAutoRenew(telegramId, false);
       const { text, keyboard } = await premiumScreen.buildActive(ctx);
       try {
-        await ctx.editMessageText(text, {
-          reply_markup: keyboard,
-          parse_mode: 'HTML',
-        });
+        const chatId = (ctx as any)?.chat?.id || (ctx as any)?.callbackQuery?.message?.chat?.id;
+        const messageId = (ctx as any)?.callbackQuery?.message?.message_id || (ctx as any)?.msg?.message_id;
+        await editMessageTextWithRetry((ctx as any).api, chatId, messageId, text, { reply_markup: keyboard, parse_mode: 'HTML' } as any);
       } catch {
         try {
           await ctx.deleteMessage();
@@ -264,10 +267,9 @@ export function registerPremiumHandlers(bot: Bot<BotContext>, deps: RegisterComm
       await safeAnswerCallbackQuery(ctx);
       const { text, keyboard } = await premiumScreen.buildActive(ctx);
       try {
-        await ctx.editMessageText(text, {
-          reply_markup: keyboard,
-          parse_mode: 'HTML',
-        });
+        const chatId = (ctx as any)?.chat?.id || (ctx as any)?.callbackQuery?.message?.chat?.id;
+        const messageId = (ctx as any)?.callbackQuery?.message?.message_id || (ctx as any)?.msg?.message_id;
+        await editMessageTextWithRetry((ctx as any).api, chatId, messageId, text, { reply_markup: keyboard, parse_mode: 'HTML' } as any);
       } catch {
         try {
           await ctx.deleteMessage();

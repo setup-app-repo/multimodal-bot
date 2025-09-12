@@ -7,7 +7,7 @@ import { RedisService } from 'src/redis/redis.service';
 
 import { DEFAULT_MODEL, MODELS_SUPPORTING_AUDIO, PROCESSING_STICKER_FILE_ID } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, getFileWithRetry, sendChatActionWithRetry, sendStickerWithRetry, deleteMessageWithRetry } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { AudioConversionService } from './audio-conversion.service';
@@ -55,7 +55,7 @@ export class VoiceHandlerService {
         VoiceHandlerService.name,
       );
 
-      const file = await ctx.api.getFile(voice.file_id);
+      const file = await getFileWithRetry(ctx.api as any, voice.file_id, this.logger);
       if (!file?.file_path) return;
 
       const token = this.configService.get<string>('BOT_TOKEN');
@@ -96,14 +96,11 @@ export class VoiceHandlerService {
 
       const price = accessResult.price;
 
-      await ctx.api.sendChatAction(ctx.chat.id, 'typing');
+      await sendChatActionWithRetry(ctx.api as any, ctx.chat.id, 'typing');
       const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
       let stickerMessageId: number | null = null;
       try {
-        const stickerMessage = await ctx.api.sendSticker(
-          ctx.chat.id,
-          PROCESSING_STICKER_FILE_ID,
-        );
+        const stickerMessage = await sendStickerWithRetry(ctx.api as any, ctx.chat.id, PROCESSING_STICKER_FILE_ID);
         stickerMessageId = (stickerMessage as any)?.message_id ?? null;
       } catch { }
 
@@ -119,9 +116,9 @@ export class VoiceHandlerService {
       );
 
       try {
-        await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id);
+        await deleteMessageWithRetry(ctx.api as any, ctx.chat.id, processingMessage.message_id);
         if (typeof stickerMessageId === 'number') {
-          try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
+          try { await deleteMessageWithRetry(ctx.api as any, ctx.chat.id, stickerMessageId); } catch { }
         }
       } catch { }
 

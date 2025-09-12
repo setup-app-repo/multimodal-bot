@@ -5,6 +5,7 @@ import { BotContext } from '../../interfaces';
 import { ModelScreen } from '../screens/model.screen';
 import { NavigationService } from '../services/navigation.service';
 import { RegisterCommandsDeps, safeAnswerCallbackQuery } from '../utils';
+import { sendMessageWithRetry } from 'src/telegram/utils';
 
 export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const modelScreen = new ModelScreen(deps);
@@ -13,7 +14,7 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
 
   bot.command('model', async (ctx) => {
     const { text, keyboard, parse_mode } = await modelScreen.buildSelectionKeyboard(ctx);
-    await ctx.reply(text, { reply_markup: keyboard, parse_mode });
+    await sendMessageWithRetry(ctx.api as any, ctx.chat!.id, text, { reply_markup: keyboard, parse_mode });
   });
 
   bot.on('callback_query:data', async (ctx, next) => {
@@ -41,13 +42,13 @@ export function registerModelHandlers(bot: Bot<BotContext>, deps: RegisterComman
     if (data === 'model:back') {
       await safeAnswerCallbackQuery(ctx);
       const { text, keyboard, parse_mode } = await modelScreen.buildSelectionKeyboard(ctx);
-      await ctx.reply(text, { reply_markup: keyboard, parse_mode });
+      await sendMessageWithRetry(ctx.api as any, ctx.chat!.id, text, { reply_markup: keyboard, parse_mode });
       return;
     }
     if (data === 'menu_model') {
       await safeAnswerCallbackQuery(ctx);
       const { text, keyboard, parse_mode } = await modelScreen.buildSelectionKeyboard(ctx);
-      await ctx.reply(text, { reply_markup: keyboard, parse_mode });
+      await sendMessageWithRetry(ctx.api as any, ctx.chat!.id, text, { reply_markup: keyboard, parse_mode });
       return;
     }
     if (data === 'model:close') {

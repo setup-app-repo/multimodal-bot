@@ -7,7 +7,7 @@ import { RedisService } from 'src/redis/redis.service';
 
 import { MAX_FILE_SIZE_BYTES, MODELS_SUPPORTING_PHOTOS, DEFAULT_MODEL, PROCESSING_STICKER_FILE_ID, IMAGE_EXTENSIONS, IMAGE_EXTENSION_TO_MIME } from '../constants';
 import { BotContext } from '../interfaces';
-import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang, stripBasicMarkdown } from '../utils';
+import { getModelDisplayName, sendLongMessage, stripCodeFences, escapeHtml, buildImageFooterByLang, stripBasicMarkdown, getFileWithRetry, sendChatActionWithRetry, sendStickerWithRetry, deleteMessageWithRetry, sendPhotoWithRetry } from '../utils';
 
 import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
@@ -63,14 +63,11 @@ export class PhotoHandlerService {
       const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
       let stickerMessageId: number | null = null;
       try {
-        const stickerMessage = await ctx.api.sendSticker(
-          ctx.chat!.id,
-          PROCESSING_STICKER_FILE_ID,
-        );
+        const stickerMessage = await sendStickerWithRetry(ctx.api as any, ctx.chat!.id, PROCESSING_STICKER_FILE_ID);
         stickerMessageId = (stickerMessage as any)?.message_id ?? null;
       } catch { }
 
-      await ctx.api.sendChatAction(ctx.chat!.id, 'typing');
+      await sendChatActionWithRetry(ctx.api as any, ctx.chat!.id, 'typing');
       const history = await this.redisService.getHistory(userId);
 
       if (model === 'google/gemini-2.5-flash-image-preview') {
@@ -97,13 +94,13 @@ export class PhotoHandlerService {
           const finalCaption = parts.join('\n\n').slice(0, 1024);
 
           // Удаляем индикаторы обработки
-          try { await ctx.api.deleteMessage(ctx.chat!.id, processingMessage.message_id); } catch { }
+          try { await deleteMessageWithRetry(ctx.api as any, ctx.chat!.id, processingMessage.message_id); } catch { }
           if (stickerMessageId) {
-            try { await ctx.api.deleteMessage(ctx.chat!.id, stickerMessageId); } catch { }
+            try { await deleteMessageWithRetry(ctx.api as any, ctx.chat!.id, stickerMessageId); } catch { }
           }
 
           const replyTo = (ctx as any)?.message?.message_id ?? (ctx as any)?.msg?.message_id;
-          await ctx.api.sendPhoto(ctx.chat!.id, inputFile, { caption: finalCaption, parse_mode: 'HTML', reply_to_message_id: replyTo });
+          await sendPhotoWithRetry(ctx.api as any, ctx.chat!.id, inputFile, { caption: finalCaption, parse_mode: 'HTML', reply_to_message_id: replyTo });
 
           // Сохраняем последнее сгенерированное изображение для контекста
           const imageDataUrl = `data:${first.mimeType};base64,${first.buffer.toString('base64')}`;
@@ -114,9 +111,9 @@ export class PhotoHandlerService {
         } else if (text && text.trim()) {
           // Fallback: текстовый ответ
           // Удаляем индикаторы обработки
-          try { await ctx.api.deleteMessage(ctx.chat!.id, processingMessage.message_id); } catch { }
+          try { await deleteMessageWithRetry(ctx.api as any, ctx.chat!.id, processingMessage.message_id); } catch { }
           if (stickerMessageId) {
-            try { await ctx.api.deleteMessage(ctx.chat!.id, stickerMessageId); } catch { }
+            try { await deleteMessageWithRetry(ctx.api as any, ctx.chat!.id, stickerMessageId); } catch { }
           }
 
           const modelDisplayName = getModelDisplayName(model);
@@ -152,9 +149,9 @@ export class PhotoHandlerService {
         }
 
         // Удаляем индикаторы обработки
-        try { await ctx.api.deleteMessage(ctx.chat!.id, processingMessage.message_id); } catch { }
+        try { await deleteMessageWithRetry(ctx.api as any, ctx.chat!.id, processingMessage.message_id); } catch { }
         if (stickerMessageId) {
-          try { await ctx.api.deleteMessage(ctx.chat!.id, stickerMessageId); } catch { }
+          try { await deleteMessageWithRetry(ctx.api as any, ctx.chat!.id, stickerMessageId); } catch { }
         }
 
         const modelDisplayName = getModelDisplayName(model);
@@ -227,7 +224,7 @@ export class PhotoHandlerService {
 
         // Скачиваем текущее фото
         const token = this.configService.get<string>('BOT_TOKEN');
-        const file = await ctx.api.getFile(largest.file_id);
+        const file = await getFileWithRetry(ctx.api as any, largest.file_id, this.logger);
         if (!file?.file_path) return;
         const pathLower = file.file_path.toLowerCase();
         const ext = pathLower.split('.').pop() || '';
@@ -271,7 +268,7 @@ export class PhotoHandlerService {
       }
 
       // Скачиваем файл и отправляем в модель напрямую
-      const file = await ctx.api.getFile(largest.file_id);
+      const file = await getFileWithRetry(ctx.api as any, largest.file_id, this.logger);
       if (!file?.file_path) return;
 
       const token = this.configService.get<string>('BOT_TOKEN');
@@ -303,14 +300,11 @@ export class PhotoHandlerService {
       const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
       let stickerMessageId: number | null = null;
       try {
-        const stickerMessage = await ctx.api.sendSticker(
-          ctx.chat.id,
-          PROCESSING_STICKER_FILE_ID,
-        );
+        const stickerMessage = await sendStickerWithRetry(ctx.api as any, ctx.chat.id, PROCESSING_STICKER_FILE_ID);
         stickerMessageId = (stickerMessage as any)?.message_id ?? null;
       } catch { }
 
-      await ctx.api.sendChatAction(ctx.chat.id, 'typing');
+      await sendChatActionWithRetry(ctx.api as any, ctx.chat.id, 'typing');
 
       const history = await this.redisService.getHistory(userId);
 
@@ -386,9 +380,9 @@ export class PhotoHandlerService {
         }
 
         // Удаляем индикаторы обработки при ошибке
-        try { await ctx.api.deleteMessage(ctx.chat.id, processingMessage.message_id); } catch { }
+        try { await deleteMessageWithRetry(ctx.api as any, ctx.chat.id, processingMessage.message_id); } catch { }
         if (stickerMessageId) {
-          try { await ctx.api.deleteMessage(ctx.chat.id, stickerMessageId); } catch { }
+          try { await deleteMessageWithRetry(ctx.api as any, ctx.chat.id, stickerMessageId); } catch { }
         }
 
         await ctx.reply(this.t(ctx, 'unexpected_error'));
