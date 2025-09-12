@@ -29,6 +29,14 @@ services:
       DATABASE_SSL: ${DATABASE_SSL}
       SENTRY_DSN: ${SENTRY_DSN}
       SENTRY_DEBUG: ${SENTRY_DEBUG}
+      LOG_LEVEL: ${LOG_LEVEL}
+      DD_ENABLED: ${DD_ENABLED}
+      DD_SERVICE: ${DD_SERVICE}
+      DD_AGENT_HOST: ${DD_AGENT_HOST}
+      DD_ENV: ${DD_ENV}
+      DD_TRACE_AGENT_PORT: ${DD_TRACE_AGENT_PORT}
+      DD_VERSION: ${DD_VERSION}
+      DD_TRACE_SAMPLE_RATE: ${DD_TRACE_SAMPLE_RATE}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
