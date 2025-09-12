@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Redis } from 'ioredis';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 import { createMikroOrmConfig } from '../mikro-orm.config';
 
@@ -19,6 +20,7 @@ import { TelegramModule } from './telegram/telegram.module';
 import { UserModule } from './user/user.module';
 import { UserLogsModule } from './user-logs/user-logs.module';
 import { LoggerModule } from './logger/logger.module';
+import { DatadogTraceInterceptor } from './interceptors/datadog-trace.interceptor';
 
 @Module({
   imports: [
@@ -55,6 +57,12 @@ import { LoggerModule } from './logger/logger.module';
     LoggerModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: DatadogTraceInterceptor,
+    },
+  ],
 })
 export class AppModule { }

@@ -19,6 +19,9 @@ export class AppConfigService {
       DATABASE_URL: Joi.string()
         .uri({ scheme: [/postgres/, /postgresql/] })
         .required(),
+      DATABASE_SSL: Joi.string()
+        .valid('enabled', 'disabled', 'auto', 'true', 'false')
+        .optional(),
 
       // OpenRouter / site meta
       OPENROUTER_API_KEY: Joi.string().required(),
@@ -40,6 +43,32 @@ export class AppConfigService {
       SENTRY_VERBOSE: Joi.string().valid('true', 'false').optional(),
       SENTRY_TRACES_SAMPLE_RATE: Joi.number().min(0).max(1).optional(),
       SENTRY_PROFILES_SAMPLE_RATE: Joi.number().min(0).max(1).optional(),
+
+      // Datadog
+      DD_ENABLED: Joi.boolean().optional(),
+      DD_SERVICE: Joi.string().optional(),
+      DD_AGENT_HOST: Joi.string().uri().optional(),
+      DD_ENV: Joi.string().optional(),
+      DD_VERSION: Joi.string().optional(),
+      DD_TRACE_AGENT_PORT: Joi.alternatives(Joi.number(), Joi.string()).optional(),
+      DD_TRACE_SAMPLE_RATE: Joi.number().min(0).max(1).optional(),
+
+      // Redis / BullMQ
+      REDIS_URL: Joi.string().uri({ scheme: [/redis/, /rediss/] }).required(),
+
+      // Telegram webhook (опционально, для webhook-режима)
+      TELEGRAM_WEBHOOK_URL: Joi.string().uri().optional(),
+      TELEGRAM_SECRET_KEY: Joi.string().optional(),
+
+      // Setup.app интеграция
+      SETUP_APP_BASE_URL: Joi.string().uri().required(),
+      SETUP_APP_SERVICE_KEY: Joi.string().required(),
+      SETUP_APP_ENABLE_LOGGING: Joi.string().valid('true', 'false').optional(),
+
+      // Логирование
+      LOG_LEVEL: Joi.string()
+        .valid('error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly')
+        .required(),
     });
 
     const { error } = schema.validate(process.env, { allowUnknown: true });
@@ -106,5 +135,32 @@ export class AppConfigService {
   get sentryProfilesSampleRate(): number | undefined {
     const v = this.configService.get<string>('SENTRY_PROFILES_SAMPLE_RATE');
     return typeof v === 'string' ? Number(v) : undefined;
+  }
+
+  get datadogEnabled(): boolean | undefined {
+    const v = this.configService.get<any>('DD_ENABLED');
+    // допускаем строковые значения из env
+    if (typeof v === 'string') return v === 'true';
+    if (typeof v === 'boolean') return v;
+    return undefined;
+  }
+
+  get datadogService(): string | undefined {
+    return this.configService.get<string>('DD_SERVICE') || undefined;
+  }
+
+  get datadogUrl(): string | undefined {
+    return this.configService.get<string>('DD_AGENT_HOST') || undefined;
+  }
+
+  get datadogEnv(): string | undefined {
+    return this.configService.get<string>('DD_ENV') || undefined;
+  }
+
+  get datadogTracesSampleRate(): number | undefined {
+    const v = this.configService.get<any>('DD_TRACE_SAMPLE_RATE');
+    if (typeof v === 'string') return Number(v);
+    if (typeof v === 'number') return v;
+    return undefined;
   }
 }
