@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-echo "🚀 Starting Travel Bot..."
+echo "🚀 Starting Multimodal Bot..."
 
 # Извлекаем параметры из DATABASE_URL для pg_isready
 DB_HOST=$(echo $DATABASE_URL | sed -n 's/.*@\([^/:]*\)[/:].*/\1/p')
