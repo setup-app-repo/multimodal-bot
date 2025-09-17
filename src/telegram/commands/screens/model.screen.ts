@@ -121,6 +121,8 @@ export class ModelScreen {
       const labelCore = `${displayName} • ${priceLabel} • 🧠 ${power}`;
       let iconSuffix = '';
       if (canGenerateImage) iconSuffix += ' • 🖼';
+      // Добавляем индикатор поддержки аудио (голосовых сообщений)
+      if (MODELS_SUPPORTING_AUDIO.has(model)) iconSuffix += ' • 🎙';
       if (isPopular) iconSuffix += ' • 🔥';
       const label = `${prefix}${labelCore}${iconSuffix}`;
       keyboard.text(label, `model_${model}`).row();

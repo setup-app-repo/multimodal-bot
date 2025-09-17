@@ -163,6 +163,7 @@ select_model_legend = <b>0.01 SP</b> — giá mỗi yêu cầu
     🧠 — độ thông minh của mô hình
     🖼 — có thể tạo ảnh
     🔥 — mô hình phổ biến
+    🎙 — có thể xử lý tin nhắn thoại
 model_selected =  ✅ Đã chọn mô hình: {$model}
 model_active = Mô hình đang hoạt động: {$model}. Giá {$price} SP/yêu cầu. Premium giảm chi phí.
 model_buy_premium_button = ⭐ Mua Premium
@@ -184,7 +185,7 @@ model_about_gpt5 = <b>GPT-5 🧠🔥</b> — hàng đầu với độ chính xá
 model_about_nano = <b>Nano 🍌 ⚡🖼</b> — tối ưu cho ảnh, đặc biệt là chân dung. Nhanh và tiết kiệm: cho mô tả rõ ràng và kết quả nhanh. Để ảnh đẹp, hãy mô tả yêu cầu thật chi tiết.
 model_about_claude37_sonnet = <b>Claude 3.7 Sonnet ✍️📚</b> — mạnh về văn bản. Trả lời có cấu trúc và sáng tạo; phù hợp cho email, kịch bản và ý tưởng.
 model_about_grok4 = <b>Grok 4 (Vision) 👀🖼</b> — hiểu ảnh và văn bản. Tốt cho phân tích ảnh, đồ hoạ thông tin, tài liệu và yêu cầu kết hợp.
-model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — AI đa phương thức của Google. Cân bằng văn bản, ảnh và dữ liệu. Thuận tiện cho phân tích và tác vụ đa ngôn ngữ.
+model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — AI đa phương thức của Google. Cân bằng giữa văn bản, hình ảnh và dữ liệu. Phù hợp cho phân tích, nhiệm vụ đa ngôn ngữ và xử lý tin nhắn thoại rất tốt — từ nhận dạng giọng nói đến phân tích và tóm tắt nội dung.
 model_about_deepseek = <b>DeepSeek ⚡🧪</b> — kết hợp tốc độ và trí tuệ. Phù hợp cho yêu cầu số lượng lớn, A/B test, marketing và phát sinh ý tưởng.
 model_about_qwen25 = <b>Qwen2.5 💡💸</b> — mô hình cơ bản và kinh tế. Tốt cho câu hỏi nhanh, bản nháp và văn bản đơn giản.
 model_about_gpt4o_mini = <b>GPT-4o — mini 🎯🆓</b> — mô hình miễn phí khởi đầu. Phù hợp để bắt đầu và các tác vụ nhẹ.

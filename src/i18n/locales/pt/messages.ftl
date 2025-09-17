@@ -153,6 +153,7 @@ select_model_legend = <b>0.01 SP</b> — custo por solicitação
     🧠 — inteligência do modelo (nível de "mente")
     🖼 — pode gerar imagens
     🔥 — modelo popular (top)
+    🎙 — pode processar mensagens de voz
 model_active = Modelo ativo: {$model}. Preço {$price} SP/solicitação. O Premium reduz o custo por solicitação.
 model_buy_premium_button = ⭐ Comprar Premium
 model_back_button = ◀️ Voltar
@@ -174,7 +175,7 @@ model_about_gpt5 = <b>GPT-5 🧠🔥</b> — carro-chefe com máxima precisão e
 model_about_nano = <b>Nano 🍌 ⚡🖼</b> — ideal para trabalhar com fotos, especialmente retratos. Rápido e acessível: fornece descrições claras e resultados rápidos. Para melhor qualidade, descreva a tarefa com o máximo de detalhes.
 model_about_claude37_sonnet = <b>Claude 3.7 Sonnet ✍️📚</b> — forte em trabalhos de texto. Gera respostas estruturadas e criativas; ótimo para emails, roteiros e ideias.
 model_about_grok4 = <b>Grok 4 (Vision) 👀🖼</b> — entende imagens e texto. Bom para análise de fotos, infográficos, documentos e consultas mistas.
-model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — IA multimodal do Google. Equilibra textos, fotos e dados. Útil para análises e tarefas multilíngues.
+model_about_gemini25_pro = <b>Gemini 2.5 Pro 🌐🔬</b> — IA multimodal do Google. Equilibra textos, fotos e dados. Ideal para análises, tarefas multilíngues e se destaca no processamento de mensagens de voz — do reconhecimento de fala à análise e ao resumo do conteúdo.
 model_about_deepseek = <b>DeepSeek ⚡🧪</b> — combina velocidade e inteligência. Indicado para demandas em massa, testes A/B, marketing e geração de ideias.
 model_about_qwen25 = <b>Qwen2.5 💡💸</b> — modelo básico e econômico. Bom para perguntas rápidas, rascunhos e textos simples.
 model_about_gpt4o_mini = <b>GPT-4o — mini 🎯🆓</b> — modelo gratuito de entrada. Ótimo para começar e lidar com tarefas leves.
