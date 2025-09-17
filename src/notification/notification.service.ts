@@ -1,7 +1,7 @@
 import { CreateRequestContext, EntityManager } from '@mikro-orm/core';
-import { SqlEntityManager } from '@mikro-orm/postgresql';
+import { SqlEntityManager, sql } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
-import { Cron } from '@nestjs/schedule';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { I18nService } from 'src/i18n/i18n.service';
 import { Subscription } from 'src/subscription/subscription.entity';
 import { BotMessagingService } from 'src/telegram/services';
@@ -22,7 +22,7 @@ export class NotificationService {
    * Выбираем всех пользователей, у кого наступил кратный 7 дням период неактивности по их локальным суткам,
    * и отправляем напоминание в их локальные 12:00.
    */
-  @Cron('0 * * * *')
+  @Cron(CronExpression.EVERY_HOUR)
   @CreateRequestContext()
   async sendInactiveReminders(): Promise<void> {
     const now = new Date();
@@ -45,7 +45,7 @@ export class NotificationService {
     const rows: InactiveRow[] = await (this.em as unknown as SqlEntityManager)
       .createQueryBuilder(User, 'u')
       .select(['u.telegramId', 'u.firstName', 'u.username', 'u.languageCode', 'u.lastMessageAt'])
-      .addSelect('extract(timezone from u.last_message_at) as "tzOffsetSeconds"')
+      .addSelect(sql`extract(timezone from "u"."last_message_at") as "tzOffsetSeconds"`)
       .where('u.last_message_at is not null')
       .andWhere('u.last_message_at <= ?', [sevenDaysAgoUtc])
       .execute();
@@ -87,7 +87,7 @@ export class NotificationService {
    * ориентируясь на локальные сутки пользователя и шлём в его локальные 12:00.
    * Запуск — один раз в час, без дедупликации.
    */
-  @Cron('0 * * * *')
+  @Cron(CronExpression.EVERY_HOUR)
   @CreateRequestContext()
   async sendSubscriptionExpiryReminders(): Promise<void> {
     const now = new Date();
@@ -107,7 +107,7 @@ export class NotificationService {
       .select(['s.id', 's.periodEnd'])
       .join('s.user', 'u')
       .addSelect(['u.telegramId', 'u.languageCode'])
-      .addSelect('extract(timezone from u.last_message_at) as "tzOffsetSeconds"')
+      .addSelect(sql`extract(timezone from "u"."last_message_at") as "tzOffsetSeconds"`)
       .where({ status: 'active', autoRenew: false })
       .andWhere('s.period_end >= ? and s.period_end <= ?', [now, inThreeDaysUtc])
       .execute();
