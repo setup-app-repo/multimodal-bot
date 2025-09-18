@@ -24,6 +24,7 @@ export const ALLOWED_MIME_TYPES = new Set([
 // Расширения файлов (без точки) для унификации проверок
 export const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp']);
 export const DOC_EXTENSIONS = new Set(['pdf', 'docx', 'pptx', 'csv', 'txt']);
+export const AUDIO_EXTENSIONS = new Set(['mp3', 'ogg', 'oga', 'wav']);
 
 // Маппинг расширений изображений в корректные MIME-типы
 export const IMAGE_EXTENSION_TO_MIME: Record<string, string> = {

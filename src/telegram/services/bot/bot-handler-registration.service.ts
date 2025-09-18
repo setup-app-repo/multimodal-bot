@@ -7,6 +7,7 @@ import { DocumentHandlerService } from 'src/telegram/services/document-handler.s
 import { MessageHandlerService } from 'src/telegram/services/message-handler.service';
 import { PhotoHandlerService } from 'src/telegram/services/photo-handler.service';
 import { VoiceHandlerService } from 'src/telegram/services/voice-handler.service';
+import { AudioHandlerService } from 'src/telegram/services/audio-handler.service';
 import { RegisterCommandsDeps } from 'src/telegram/commands/utils';
 
 @Injectable()
@@ -16,6 +17,7 @@ export class BotHandlerRegistrationService {
         private readonly documentHandler: DocumentHandlerService,
         private readonly photoHandler: PhotoHandlerService,
         private readonly voiceHandler: VoiceHandlerService,
+        private readonly audioHandler: AudioHandlerService,
     ) { }
 
     registerAll(bot: Bot<BotContext>, deps: RegisterCommandsDeps): void {
@@ -25,6 +27,7 @@ export class BotHandlerRegistrationService {
         bot.on('message:document', (ctx) => this.documentHandler.handleDocument(ctx));
         bot.on('message:photo', (ctx) => this.photoHandler.handlePhoto(ctx));
         bot.on('message:voice', (ctx) => this.voiceHandler.handleVoice(ctx));
+        bot.on('message:audio', (ctx) => this.audioHandler.handleAudio(ctx));
         bot.catch((err) => this.messageHandler.handleError(err));
     }
 }
