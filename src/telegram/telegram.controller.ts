@@ -19,7 +19,7 @@ export class TelegramController {
     @Body() update: any,
     @Res() res: Response,
   ): Promise<void> {
-    this.logger.log('Получен webhook update от Telegram', 'TelegramController');
+    this.logger.log(`Получен webhook, userId=${update?.message?.chat?.id ?? 'unknown'}` as any, 'TelegramController');
 
     try {
       const secretKey = this.configService.get<string>('TELEGRAM_SECRET_KEY');
