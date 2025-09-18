@@ -16,10 +16,10 @@ export class TelegramController {
   @Post('webhook/:token')
   async handleWebhook(
     @Param('token') token: string,
-    @Body() update: any,
+    @Body() body: any,
     @Res() res: Response,
   ): Promise<void> {
-    this.logger.log(`Получен webhook, userId=${update?.message?.chat?.id ?? 'unknown'}` as any, 'TelegramController');
+    this.logger.log(`Получен webhook, userId=${body?.message?.chat?.id ?? 'unknown'}` as any, 'TelegramController');
 
     try {
       const secretKey = this.configService.get<string>('TELEGRAM_SECRET_KEY');
@@ -29,7 +29,7 @@ export class TelegramController {
         return;
       }
 
-      await this.botOrchestrator.handleWebhookUpdate(update);
+      await this.botOrchestrator.handleWebhookUpdate(body);
       res.status(HttpStatus.OK).json({ ok: true });
     } catch (error) {
       this.logger.error('Ошибка обработки webhook:', error as any, 'TelegramController');
