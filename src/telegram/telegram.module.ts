@@ -20,7 +20,7 @@ import {
 } from './services';
 import { TelegramController } from './telegram.controller';
 import { TelegramService } from './telegram.service';
-import { BotMainService, BotInstanceService, BotMiddlewareService, BotWebhookService, BotHandlerRegistrationService, BotMessagingService } from './services';
+import { BotMainService, BotInstanceService, BotMiddlewareService, BotWebhookService, BotHandlerRegistrationService, BotMessagingService, RequestBufferService } from './services';
 
 @Module({
   imports: [
@@ -50,6 +50,7 @@ import { BotMainService, BotInstanceService, BotMiddlewareService, BotWebhookSer
     AudioConversionService,
     AccessControlService,
     SubscriptionRenewalProcessor,
+    RequestBufferService,
   ],
   exports: [BotMainService, BotMessagingService],
 })

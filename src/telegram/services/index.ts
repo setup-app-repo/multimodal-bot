@@ -11,3 +11,4 @@ export * from './voice-handler.service';
 export * from './audio-conversion.service';
 export * from './telegram-file.service';
 export * from './access-control.service';
+export * from './request-buffer.service';

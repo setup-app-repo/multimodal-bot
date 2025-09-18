@@ -12,6 +12,7 @@ import { AccessControlService } from './access-control.service';
 import { SetupAppService } from 'src/setup-app/setup-app.service';
 import { TelegramFileService } from './telegram-file.service';
 import { WinstonLoggerService } from 'src/logger/winston-logger.service';
+import { RequestBufferService } from './request-buffer.service';
 
 @Injectable()
 export class MessageHandlerService {
@@ -23,6 +24,7 @@ export class MessageHandlerService {
     private readonly accessControlService: AccessControlService,
     private readonly setupAppService: SetupAppService,
     private readonly logger: WinstonLoggerService,
+    private readonly requestBuffer: RequestBufferService,
   ) { }
 
   private t(ctx: BotContext, key: string, args?: Record<string, any>): string {
@@ -46,30 +48,45 @@ export class MessageHandlerService {
       if ([helpButtonText, profileButtonText, modelSelectionButtonText].includes(text)) return;
 
       const userId = String(ctx.from?.id);
-      const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
 
-      this.logger.log(`Processing text message from user ${userId}, model: ${model}`, MessageHandlerService.name);
-
-      // Модель по умолчанию всегда установлена через DEFAULT_MODEL
-
+      // Немедленный индикатор набора, чтобы дать пользователю фидбек
       await sendChatActionWithRetry(ctx.api as any, ctx.chat.id, 'typing');
 
+      // Кладём фрагмент в буфер; через 3 секунды тишины произойдёт единый запрос
+      this.requestBuffer.enqueue(userId, ctx as any, text, async (flushCtx, combinedText) => {
+        await this.processBufferedText(flushCtx, combinedText);
+      });
+    } catch (error) {
+      this.logger.error(`Error buffering message from user ${String(ctx.from?.id)}:`, error as any, MessageHandlerService.name);
+      try {
+        await ctx.reply(this.t(ctx, 'error_processing_message'));
+      } catch { }
+    }
+  }
+
+  private async processBufferedText(ctx: BotContext, text: string): Promise<void> {
+    const userId = String((ctx as any)?.from?.id);
+    try {
+      const model = (await this.redisService.get<string>(`chat:${userId}:model`)) || DEFAULT_MODEL;
+
+      this.logger.log(`Processing combined text for user ${userId}, model: ${model}, length: ${text.length}`, MessageHandlerService.name);
+
+      // Сохраняем комбинированный запрос в историю и получаем историю (включая этот запрос)
       await this.redisService.saveMessage(userId, 'user', text);
       const history = await this.redisService.getHistory(userId);
 
       let fileContent: string | undefined;
       let analyzingMessageId: number | null = null;
       const hasPendingFile = await this.telegramFileService.hasPendingFile(userId);
-      // Сообщение об анализе отправляем заранее и удаляем после завершения анализа
       try {
         if (hasPendingFile) {
           try {
-            const msg = await ctx.reply(this.t(ctx, 'file_analyzing'));
+            const msg = await (ctx as any).reply(this.t(ctx as any, 'file_analyzing'));
             analyzingMessageId = msg.message_id;
           } catch { }
         }
 
-        const processed = await this.telegramFileService.consumeAllPendingFilesAndProcess(userId, ctx);
+        const processed = await this.telegramFileService.consumeAllPendingFilesAndProcess(userId, ctx as any);
         if (processed.combinedContent) {
           fileContent = processed.combinedContent;
           this.logger.log(
@@ -79,15 +96,13 @@ export class MessageHandlerService {
         }
       } catch (fileError) {
         this.logger.error(`Error processing file for user ${userId}:`, fileError as any, MessageHandlerService.name);
-        try {
-          await ctx.reply(this.t(ctx, 'error_processing_file_retry'));
-        } catch { }
+        try { await (ctx as any).reply(this.t(ctx as any, 'error_processing_file_retry')); } catch { }
       } finally {
         if (analyzingMessageId) {
           try {
             const chatId = (ctx as any)?.chat?.id ?? (ctx as any)?.msg?.chat?.id;
             if (chatId) {
-              await deleteMessageWithRetry(ctx.api as any, chatId, analyzingMessageId);
+              await deleteMessageWithRetry((ctx as any).api, chatId, analyzingMessageId);
             }
           } catch { }
         }
@@ -99,18 +114,15 @@ export class MessageHandlerService {
       );
 
       const isFilePresent = !!fileContent && fileContent.length > 0;
-      const priceMultiplier = isFilePresent ? 2 : 1; // Удваиваем стоимость, если есть файл
+      const priceMultiplier = isFilePresent ? 2 : 1;
 
-      // Проверка доступа и лимитов через AccessControlService
       const accessResult = await this.accessControlService.checkAccess(
-        ctx,
+        ctx as any,
         userId,
         model,
         priceMultiplier,
       );
-      if (!accessResult.canProceed) {
-        return;
-      }
+      if (!accessResult.canProceed) return;
 
       const price = accessResult.price;
       this.logger.log(
@@ -118,18 +130,15 @@ export class MessageHandlerService {
         MessageHandlerService.name,
       );
 
-      // Отправляем индикатор обработки перед запросом к модели
-      const processingMessage = await ctx.reply(this.t(ctx, 'processing_request'));
+      const processingMessage = await (ctx as any).reply(this.t(ctx as any, 'processing_request'));
       let stickerMessageId: number | null = null;
       try {
-        const stickerMessage = await sendStickerWithRetry(ctx.api as any, ctx.chat.id, PROCESSING_STICKER_FILE_ID);
+        const stickerMessage = await sendStickerWithRetry((ctx as any).api, (ctx as any).chat.id, PROCESSING_STICKER_FILE_ID);
         stickerMessageId = (stickerMessage as any)?.message_id ?? null;
       } catch { }
 
-      // Если выбрана модель генерации изображений Gemini 2.5 Flash (Image Preview) — генерируем картинку
       if (model === 'google/gemini-2.5-flash-image-preview') {
-        // Фоновая обработка генерации изображения
-        void this.processImageGenerationRequest(ctx, {
+        void this.processImageGenerationRequest(ctx as any, {
           userId,
           model,
           prompt: text,
@@ -140,8 +149,7 @@ export class MessageHandlerService {
         return;
       }
 
-      // Иначе — обычный LLM ответ текстом
-      void this.processLlmRequest(ctx, {
+      void this.processLlmRequest(ctx as any, {
         userId,
         model,
         history,
@@ -151,12 +159,9 @@ export class MessageHandlerService {
         processingMessageId: processingMessage.message_id,
         stickerMessageId: stickerMessageId ?? undefined,
       });
-      return; // немедленно выходим из хэндлера
     } catch (error) {
-      this.logger.error(`Error processing message from user ${String(ctx.from?.id)}:`, error as any, MessageHandlerService.name);
-      try {
-        await ctx.reply(this.t(ctx, 'error_processing_message'));
-      } catch { }
+      this.logger.error(`Error processing combined message from user ${userId}:`, error as any, MessageHandlerService.name);
+      try { await (ctx as any).reply(this.t(ctx as any, 'error_processing_message')); } catch { }
     }
   }
 
