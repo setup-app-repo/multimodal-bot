@@ -22,6 +22,9 @@ export class User {
   @Property({ type: 'boolean' })
   isPremium: boolean = false;
 
+  @Property({ type: 'boolean', default: false })
+  blocked: boolean = false;
+
   @Property({ type: 'json', nullable: true })
   settings?: Record<string, any>;
 

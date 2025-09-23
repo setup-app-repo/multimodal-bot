@@ -42,6 +42,7 @@ export class UserService {
       username: userData.username,
       languageCode: userData.languageCode,
       isPremium: userData.isPremium || false,
+      blocked: false,
       lastMessageAt: new Date(),
       // Явно указываем значения по умолчанию
       createdAt: new Date(),
@@ -60,5 +61,14 @@ export class UserService {
   @CreateRequestContext()
   async updateUser(telegramId: string): Promise<void> {
     await this.em.nativeUpdate(User, { telegramId }, { lastMessageAt: new Date() });
+  }
+
+  /**
+   * Быстрая проверка флага блокировки без загрузки всей сущности
+   */
+  @CreateRequestContext()
+  async isBlocked(telegramId: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({ telegramId }, { fields: ['blocked'] as any });
+    return Boolean(user?.blocked);
   }
 }
