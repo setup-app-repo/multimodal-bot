@@ -1,5 +1,7 @@
 import { AppType } from '@setup-app-repo/setup.app-sdk';
-import { Bot, InlineKeyboard } from 'grammy';
+import { Bot, InlineKeyboard, InputFile } from 'grammy';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import { BotContext } from '../../interfaces';
 import { RegisterCommandsDeps, KeyboardBuilder, buildHelpText } from '../utils';
@@ -97,6 +99,25 @@ export function registerBasicHandlers(bot: Bot<BotContext>, deps: RegisterComman
         });
       }
     } catch { }
+
+    // Send onboarding with photo
+    const picturePath = path.resolve(process.cwd(), 'src', 'telegram', 'commands', 'handlers', 'greeting.jpg');
+    if (fs.existsSync(picturePath) && ctx.chat?.id) {
+      try {
+        await ctx.api.sendPhoto(
+          ctx.chat.id,
+          new InputFile(fs.createReadStream(picturePath)),
+          {
+            caption: promoTextStartMd,
+            parse_mode: 'Markdown',
+            reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),
+          },
+        );
+        return;
+      } catch (photoError) {
+        logger.error(`Start onboarding photo send failed: ${String(photoError)}`, 'BasicHandler');
+      }
+    }
 
     await ctx.reply(promoTextStartMd, {
       reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),

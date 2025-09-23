@@ -1,4 +1,6 @@
-import { Bot, InlineKeyboard } from 'grammy';
+import { Bot, InlineKeyboard, InputFile } from 'grammy';
+import * as fs from 'fs';
+import * as path from 'path';
 import { AppType } from '@setup-app-repo/setup.app-sdk';
 
 import { BotContext } from '../../interfaces';
@@ -9,7 +11,7 @@ import { RegisterCommandsDeps, KeyboardBuilder, safeAnswerCallbackQuery } from '
 export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterCommandsDeps) {
   const profileScreen = new ProfileScreen(deps);
   const navigation = new NavigationService(deps);
-  const { t } = deps;
+  const { t, logger } = deps;
 
   bot.command('profile', async (ctx) => {
     const screen = await profileScreen.build(ctx);
@@ -74,6 +76,11 @@ export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterComm
       const languageLabel = deps.i18n.t(languageKeyByCode[locale] || 'language_english', ctx.session.lang);
       await safeAnswerCallbackQuery(ctx, { text: t(ctx, 'language_switched', { language: languageLabel }) });
 
+      // Clean up the language selection message first
+      try {
+        await ctx.deleteMessage();
+      } catch { }
+
       // Also send a regular message to refresh reply keyboard (localized)
       try {
         const switchedText = t(ctx, 'language_switched', { language: languageLabel });
@@ -86,6 +93,27 @@ export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterComm
             first_name: ctx.from?.first_name || ctx.from?.username || '',
           });
           const promoTextMd = promoText.replace(/\*\*(.+?)\*\*/g, '*$1*').replace(/\\n/g, '\n');
+
+          const picturePath = path.resolve(process.cwd(), 'src', 'telegram', 'commands', 'handlers', 'greeting.jpg');
+          if (!fs.existsSync(picturePath)) return;
+
+          if (picturePath && ctx.chat?.id) {
+            try {
+              await ctx.api.sendPhoto(
+                ctx.chat.id,
+                new InputFile(fs.createReadStream(picturePath)),
+                {
+                  caption: promoTextMd,
+                  parse_mode: 'Markdown',
+                  reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),
+                },
+              );
+              return;
+            } catch (photoError) {
+              logger.error(`Onboarding: photo send failed: ${String(photoError)}`, 'ProfileHandler');
+            }
+          }
+
           await ctx.reply(promoTextMd, {
             reply_markup: KeyboardBuilder.buildMainReplyKeyboard(ctx, t),
             parse_mode: 'Markdown',
@@ -93,10 +121,7 @@ export function registerProfileHandlers(bot: Bot<BotContext>, deps: RegisterComm
         }
       } catch { }
 
-      // Do not navigate back to profile; just clean up the language selection message
-      try {
-        await ctx.deleteMessage();
-      } catch { }
+      // Do not navigate back to profile
       return;
     }
     if (data === 'profile_language') {
