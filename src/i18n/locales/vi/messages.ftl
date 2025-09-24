@@ -278,11 +278,22 @@ message_part = Phần {$current} / {$total}
 processing_request = ⏳ Đang xử lý yêu cầu...
 
 # Thông báo
-notification_inactive_recall = {$first_name}, lâu rồi không gặp 👋\nHãy gửi bất kỳ yêu cầu nào — tôi sẽ giúp!
+notification_inactive_recall =
+    {$first_name}, lâu rồi không gặp 👋
+    
+    Hãy gửi bất kỳ yêu cầu nào — tôi sẽ giúp!
 subscription_expiring_3_days = Premium ⭐ sẽ hết hạn sau 3 ngày — {$premium_expires_at}. Gia hạn để giữ ưu đãi và ưu tiên.
 subscription_expiring_1_day = Premium ⏳ sẽ hết hạn vào ngày mai — {$premium_expires_at}. Gia hạn 30 ngày với 10 SP.
 premium_renew_button = 🔁 Gia hạn
-autorenew_failed_insufficient_sp = <b>⚠️ Không thể tự gia hạn Premium</b>\n\n🔹 Cần: <b>{$required} SP</b>\n🔹 Số dư hiện tại: <b>{$balance} SP</b>
-autorenew_success = <b>✅ Tự gia hạn thành công</b>\n\n🔹 Hạn mới: <b>đến {$premium_expires_at}</b>\n🔹 Số dư hiện tại: <b>{$balance} SP</b>
+autorenew_failed_insufficient_sp =
+    <b>⚠️ Không thể tự gia hạn Premium</b>
+    
+    🔹 Cần: <b>{$required} SP</b>
+    🔹 Số dư hiện tại: <b>{$balance} SP</b>
+autorenew_success =
+    <b>✅ Tự gia hạn thành công</b>
+    
+    🔹 Hạn mới: <b>đến {$premium_expires_at}</b>
+    🔹 Số dư hiện tại: <b>{$balance} SP</b>
 
 

@@ -261,9 +261,20 @@ message_part = Part {$current} of {$total}
 processing_request = ⏳ Processing your request...
 
 # Notifications
-notification_inactive_recall = {$first_name}, long time no see 👋\nSend any request — I’ll help!
+notification_inactive_recall =
+    {$first_name}, long time no see 👋
+    
+    Send any request — I’ll help!
 subscription_expiring_3_days = Premium ⭐ expires in 3 days — {$premium_expires_at}. Renew to keep discounts and priority.
 subscription_expiring_1_day = Premium ⏳ expires tomorrow — {$premium_expires_at}. Renew for 30 days for 10 SP.
 premium_renew_button = 🔁 Renew
-autorenew_failed_insufficient_sp = <b>⚠️ Failed to renew Premium</b>\n\n🔹 Required: <b>{$required} SP</b>\n🔹 Current balance: <b>{$balance} SP</b>
-autorenew_success = <b>✅ Auto-renewal successful</b>\n\n🔹 New expiration: <b>until {$premium_expires_at}</b>\n🔹 Current balance: <b>{$balance} SP</b>
+autorenew_failed_insufficient_sp =
+    <b>⚠️ Failed to renew Premium</b>
+    
+    🔹 Required: <b>{$required} SP</b>
+    🔹 Current balance: <b>{$balance} SP</b>
+autorenew_success =
+    <b>✅ Auto-renewal successful</b>
+    
+    🔹 New expiration: <b>until {$premium_expires_at}</b>
+    🔹 Current balance: <b>{$balance} SP</b>

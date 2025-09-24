@@ -264,9 +264,20 @@ processing_request = ⏳ Verarbeite deine Anfrage...
 onboarding_promo = **Hallo, {$first_name}!** 👋\n\n**Ich bin der KI-Assistent von SETUP.**\n\n**Text, Fotos, Stimme** – ich liefere Ergebnisse: von Ideen & Plänen bis zu Analysen und fertigen Materialien.\n\n🎙 **Stimme** → Sprache in Text, zusammenfassen, Wichtiges hervorheben\n📸 **Fotos** → erkennen, beschreiben, Details herausziehen\n🧑‍💻 **Code** → Fehler finden, Verbesserungen vorschlagen\n✉️ **Texte** → E-Mails, Copy verbessern, Landingpages & Verkaufsskripte\n🧭 **Struktur** → schnell Briefing, Pflichtenheft, Aktionsplan\n🔎 **Analyse** → Fakten finden, Risiken sehen, klare Schlüsse ziehen\n🧪 **A/B-Test** → Varianten für Headlines, Absätze, CTAs\n📊 **Daten** → Tabellen & Dateien (CSV, PDF usw.)\n🌍 **Sprachen** → RU / EN / ES / PT / FR / DE, einheitlicher Brand-Ton\n\n**✨ Kostenlose Modelle.\n⭐ Premium senkt Kosten und gibt Priorität.\n🧠 Kontext bleibt erhalten – Modellwechsel ohne Verlust.**\n\n🔥 Für ernste Aufgaben – **kostenpflichtige KIs: schneller, smarter, wirtschaftlicher** mit Premium.\n\n👉 Tippe auf „**Modell wählen**“ – los geht’s gern 🚀
 
 # Benachrichtigungen
-notification_inactive_recall = {$first_name}, lange nicht gesehen 👋\nSende eine Anfrage — ich helfe!
-autorenew_failed_insufficient_sp = <b>⚠️ Premium konnte nicht verlängert werden</b>\n\n🔹 Erforderlich: <b>{$required} SP</b>\n🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
-autorenew_success = <b>✅ Automatische Verlängerung erfolgreich</b>\n\n🔹 Neues Ablaufdatum: <b>bis {$premium_expires_at}</b>\n🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
+notification_inactive_recall =
+    {$first_name}, lange nicht gesehen 👋
+    
+    Sende eine Anfrage — ich helfe!
+autorenew_failed_insufficient_sp =
+    <b>⚠️ Premium konnte nicht verlängert werden</b>
+    
+    🔹 Erforderlich: <b>{$required} SP</b>
+    🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
+autorenew_success =
+    <b>✅ Automatische Verlängerung erfolgreich</b>
+    
+    🔹 Neues Ablaufdatum: <b>bis {$premium_expires_at}</b>
+    🔹 Aktuelles Guthaben: <b>{$balance} SP</b>
 subscription_expiring_3_days = Premium ⭐ läuft in 3 Tagen ab — {$premium_expires_at}. Verlängern Sie, um Rabatte und Priorität zu behalten.
 subscription_expiring_1_day = Premium ⏳ läuft morgen ab — {$premium_expires_at}. Verlängern Sie um 30 Tage für 10 SP.
 premium_renew_button = 🔁 Verlängern
