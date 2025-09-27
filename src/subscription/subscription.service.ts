@@ -182,19 +182,18 @@ export class SubscriptionService {
   }
 
   /**
-   * Крон: каждые 5 минут находит активные подписки, у которых истёк период, и авто-продление включено.
-   * Кладёт задачи в очередь на продление.
+   * Крон: каждые 5 минут находит все активные подписки с истёкшим периодом.
+   * Для autoRenew=true — ставит задачу на продление, для остальных — помечает как expired.
    */
   @Cron(CronExpression.EVERY_5_MINUTES)
   @CreateRequestContext()
-  async enqueueExpiredAutoRenewals(): Promise<void> {
+  async handleExpiredSubscriptions(): Promise<void> {
     const now = new Date();
     const subs = await this.em.find(
       Subscription,
       {
         status: 'active',
         periodEnd: { $lte: now },
-        autoRenew: true,
       },
       { populate: ['user'] },
     );
@@ -202,20 +201,25 @@ export class SubscriptionService {
     if (!subs.length) return;
 
     for (const sub of subs) {
-      const telegramId = Number(sub.user.telegramId);
-      await this.renewalQueue.add(
-        'renew',
-        {
-          telegramId,
-          subscriptionId: sub.id,
-        },
-        {
-          attempts: 3,
-          backoff: { type: 'exponential', delay: 10_000 },
-          removeOnComplete: 1000,
-          removeOnFail: 1000,
-        },
-      );
+      if (sub.autoRenew) {
+        const telegramId = Number(sub.user.telegramId);
+        await this.renewalQueue.add(
+          'renew',
+          {
+            telegramId,
+            subscriptionId: sub.id,
+          },
+          {
+            attempts: 3,
+            backoff: { type: 'exponential', delay: 10_000 },
+            removeOnComplete: 1000,
+            removeOnFail: 1000,
+          },
+        );
+      } else {
+        sub.status = 'expired';
+        await this.em.persistAndFlush(sub);
+      }
     }
   }
 }
